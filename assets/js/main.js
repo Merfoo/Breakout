@@ -58,10 +58,12 @@ var m_iRight;
 
 // Sound Related
 var m_sDirectory = "assets/music/";
-var m_MusicList = new Array(m_sDirectory + "Ephixia - Zelda Remix.mp3", m_sDirectory + "Song One.mp3", m_sDirectory + "Song Two.mp3", m_sDirectory + "Song Three.mp3");
+var m_MP3List = new Array(m_sDirectory + "Ephixia - Zelda Remix.mp3", m_sDirectory + "Song One.mp3", m_sDirectory + "Song Two.mp3", m_sDirectory + "Song Three.mp3", m_sDirectory + "Song Four.mp3");
+var m_OGGList = new Array(m_sDirectory + "Ephixia - Zelda Remix.ogg", m_sDirectory + "Song One.ogg", m_sDirectory + "Song Two.ogg", m_sDirectory + "Song Three.ogg", m_sDirectory + "Song Four.ogg");
+var m_MusicList = m_MP3List;
 var m_iPrevMusicIndex = getRandomNumber(0, m_MusicList.length - 1);
-var m_FoodMusic = new Audio(m_sDirectory + "Food.mp3");
-var m_BackgroundMusic = new Audio(m_MusicList[m_iPrevMusicIndex]);
+var m_FoodMusic;
+var m_BackgroundMusic;
 var m_bSoundOn = true;
 
 // Lettering
@@ -90,6 +92,21 @@ document.documentElement.style.overflowY = 'hidden';     // Vertical scrollbar w
 // Initialize canvas
 function initializeGame()
 {
+	// Sets up music
+	if (!supportMP3())
+    {
+        m_MusicList = m_OGGList;
+        m_FoodMusic = new Audio(m_sDirectory + "Food.ogg");        
+    }
+
+    else
+    {
+        m_MusicList = m_MP3List;
+        m_FoodMusic = new Audio(m_sDirectory + "Food.mp3");
+    }
+	
+	m_BackgroundMusic = new Audio(m_MusicList[m_iPrevMusicIndex]);
+	
     // Get canvas context for drawing, add events
     m_Canvas = document.getElementById("myCanvas");
     m_CanvasContext = document.getElementById("myCanvas").getContext("2d");
@@ -280,6 +297,13 @@ function playBackgroundMusic()
 
     else
         m_BackgroundMusic.pause();
+}
+
+// Checks if the browser supports mp3 files
+function supportMP3()
+{
+    var a = document.createElement('audio');
+    return !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
 }
 
 // Stops background music
