@@ -9,8 +9,8 @@ var m_iMaxPixelWidth;
 var m_iMaxPixelHeight;
 
 // Title Related
-var m_iTitleMapWidth = 30;
-var m_iTitleMapHeight = 60;
+var m_iTitleMapWidth = 60;
+var m_iTitleMapHeight = 30;
 var m_iTitlePixelWidth;
 var m_iTitlePixelHeight;
 
@@ -117,6 +117,8 @@ function initializeGame()
     setUpLetters();
     
     // Initialize any variables dependant on canvas size
+    m_iTitlePixelWidth = Math.floor(m_iMaxPixelWidth / m_iTitleMapWidth);
+    m_iTitlePixelHeight = Math.floor(m_iMaxPixelHeight / m_iTitleMapHeight);
     m_iBrickTileWidth = Math.floor(m_iMaxPixelWidth / m_iBrickMapWidth);
     m_iBrickTileHeight = Math.floor(m_iMaxPixelHeight / m_iBrickMapHeight);
     m_iLeft = 5;
@@ -225,6 +227,7 @@ function showStartMenu(bVisible)
     {
         document.getElementById("startMenu").style.zIndex = -1;
         window.clearInterval(m_IntervalMenu);
+        paintTile(0, 0, m_iMaxPixelWidth, m_iMaxPixelHeight, m_cBackgroundColor);
     }
 }
 
@@ -233,10 +236,8 @@ function paintStartMenu()
     // Paints Whole screen black
     paintTile(0, 0, m_iMaxPixelWidth, m_iMaxPixelHeight, "black");
 
-    //var tempArray = m_cS.concat(m_cN, m_cA, m_cK, m_cE);
-
-    //for (var index = 0; index < tempArray.length; index++)
-    //    paintTile(tempArray[index].x, tempArray[index].y, getRandomColor(1, 255));
+    for (var index = 0; index < m_cTitle.length; index++)
+        paintTile(m_cTitle[index].x * m_iTitlePixelWidth, m_cTitle[index].y * m_iTitlePixelHeight, m_iTitlePixelWidth, m_iTitlePixelHeight, getRandomColor(1, 255));
 }
 
 // Shows pause pause if true, otherwise hides it.
@@ -412,8 +413,123 @@ function readFinished(event)
 // Sets up all the letter coordinates.
 function setUpLetters()
 {
-    m_cTitle.push({x: 0, y: 0});
-    
+    m_cTitle.push({x: 9, y: 3});
+    m_cTitle.push({x: 10, y: 3});
+    m_cTitle.push({x: 11, y: 3});
+    m_cTitle.push({x: 13, y: 3});
+    m_cTitle.push({x: 14, y: 3});
+    m_cTitle.push({x: 15, y: 3});
+    m_cTitle.push({x: 18, y: 3});
+    m_cTitle.push({x: 19, y: 3});
+    m_cTitle.push({x: 20, y: 3});
+    m_cTitle.push({x: 21, y: 3});
+    m_cTitle.push({x: 24, y: 3});
+    m_cTitle.push({x: 25, y: 3});
+    m_cTitle.push({x: 28, y: 3});
+    m_cTitle.push({x: 32, y: 3});
+    m_cTitle.push({x: 35, y: 3});
+    m_cTitle.push({x: 36, y: 3});
+    m_cTitle.push({x: 39, y: 3});
+    m_cTitle.push({x: 42, y: 3});
+    m_cTitle.push({x: 44, y: 3});
+    m_cTitle.push({x: 45, y: 3});
+    m_cTitle.push({x: 46, y: 3});
+    m_cTitle.push({x: 47, y: 3});
+    m_cTitle.push({x: 48, y: 3});
+    m_cTitle.push({x: 9, y: 4});
+    m_cTitle.push({x: 12, y: 4});
+    m_cTitle.push({x: 13, y: 4});
+    m_cTitle.push({x: 16, y: 4});
+    m_cTitle.push({x: 18, y: 4});
+    m_cTitle.push({x: 23, y: 4});
+    m_cTitle.push({x: 26, y: 4});
+    m_cTitle.push({x: 28, y: 4});
+    m_cTitle.push({x: 31, y: 4});
+    m_cTitle.push({x: 34, y: 4});
+    m_cTitle.push({x: 37, y: 4});
+    m_cTitle.push({x: 39, y: 4});
+    m_cTitle.push({x: 42, y: 4});
+    m_cTitle.push({x: 46, y: 4});
+    m_cTitle.push({x: 9, y: 5});
+    m_cTitle.push({x: 12, y: 5});
+    m_cTitle.push({x: 13, y: 5});
+    m_cTitle.push({x: 16, y: 5});
+    m_cTitle.push({x: 18, y: 5});
+    m_cTitle.push({x: 23, y: 5});
+    m_cTitle.push({x: 26, y: 5});
+    m_cTitle.push({x: 28, y: 5});
+    m_cTitle.push({x: 30, y: 5});
+    m_cTitle.push({x: 34, y: 5});
+    m_cTitle.push({x: 37, y: 5});
+    m_cTitle.push({x: 39, y: 5});
+    m_cTitle.push({x: 42, y: 5});
+    m_cTitle.push({x: 46, y: 5});
+    m_cTitle.push({x: 9, y: 6});
+    m_cTitle.push({x: 10, y: 6});
+    m_cTitle.push({x: 11, y: 6});
+    m_cTitle.push({x: 12, y: 6});
+    m_cTitle.push({x: 14, y: 6});
+    m_cTitle.push({x: 15, y: 6});
+    m_cTitle.push({x: 18, y: 6});
+    m_cTitle.push({x: 19, y: 6});
+    m_cTitle.push({x: 20, y: 6});
+    m_cTitle.push({x: 23, y: 6});
+    m_cTitle.push({x: 24, y: 6});
+    m_cTitle.push({x: 25, y: 6});
+    m_cTitle.push({x: 26, y: 6});
+    m_cTitle.push({x: 28, y: 6});
+    m_cTitle.push({x: 29, y: 6});
+    m_cTitle.push({x: 34, y: 6});
+    m_cTitle.push({x: 37, y: 6});
+    m_cTitle.push({x: 39, y: 6});
+    m_cTitle.push({x: 42, y: 6});
+    m_cTitle.push({x: 46, y: 6});
+    m_cTitle.push({x: 9, y: 7});
+    m_cTitle.push({x: 12, y: 7});
+    m_cTitle.push({x: 13, y: 7});
+    m_cTitle.push({x: 14, y: 7});
+    m_cTitle.push({x: 18, y: 7});
+    m_cTitle.push({x: 23, y: 7});
+    m_cTitle.push({x: 26, y: 7});
+    m_cTitle.push({x: 28, y: 7});
+    m_cTitle.push({x: 30, y: 7});
+    m_cTitle.push({x: 34, y: 7});
+    m_cTitle.push({x: 37, y: 7});
+    m_cTitle.push({x: 39, y: 7});
+    m_cTitle.push({x: 42, y: 7});
+    m_cTitle.push({x: 46, y: 7});
+    m_cTitle.push({x: 9, y: 8});
+    m_cTitle.push({x: 12, y: 8});
+    m_cTitle.push({x: 13, y: 8});
+    m_cTitle.push({x: 15, y: 8});
+    m_cTitle.push({x: 18, y: 8});
+    m_cTitle.push({x: 23, y: 8});
+    m_cTitle.push({x: 26, y: 8});
+    m_cTitle.push({x: 28, y: 8});
+    m_cTitle.push({x: 31, y: 8});
+    m_cTitle.push({x: 34, y: 8});
+    m_cTitle.push({x: 37, y: 8});
+    m_cTitle.push({x: 39, y: 8});
+    m_cTitle.push({x: 42, y: 8});
+    m_cTitle.push({x: 46, y: 8});
+    m_cTitle.push({x: 9, y: 9});
+    m_cTitle.push({x: 10, y: 9});
+    m_cTitle.push({x: 11, y: 9});
+    m_cTitle.push({x: 13, y: 9});
+    m_cTitle.push({x: 16, y: 9});
+    m_cTitle.push({x: 18, y: 9});
+    m_cTitle.push({x: 19, y: 9});
+    m_cTitle.push({x: 20, y: 9});
+    m_cTitle.push({x: 21, y: 9});
+    m_cTitle.push({x: 23, y: 9});
+    m_cTitle.push({x: 26, y: 9});
+    m_cTitle.push({x: 28, y: 9});
+    m_cTitle.push({x: 32, y: 9});
+    m_cTitle.push({x: 35, y: 9});
+    m_cTitle.push({x: 36, y: 9});
+    m_cTitle.push({x: 40, y: 9});
+    m_cTitle.push({x: 41, y: 9});
+    m_cTitle.push({x: 46, y: 9});
 }
 
 function initializeBall()
