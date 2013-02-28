@@ -17,7 +17,7 @@ var m_iTitlePixelHeight;
 // All colors/ borders
 var m_iBackgroundBorderWidth = 0;
 var m_iTitleBorderWidth = 1;
-var m_iBrickBorderWidth = 1;
+var m_iBrickBorderWidth = 2;
 var m_cBackgroundColor = "#000";
 var m_cScoreColorOne = "#000";
 var m_cPaddleColor = "red";
@@ -53,7 +53,10 @@ var m_iScoreOne = 0;
 var m_iHighestScoreOne = 0;
 
 // Messages alignment
+var m_cToolbarColor = "white";
 var m_iToolbarThickness;
+var m_iTextMapWidth = 30;
+var m_iTextPixelWidth;
 var m_iLeft;
 var m_iMiddle;
 var m_iRight;
@@ -88,13 +91,13 @@ var m_bIsPaused = false;
 window.addEventListener('keyup', doKeyUp, true);
 document.addEventListener("DOMContentLoaded", initializeGame);
 document.addEventListener("mousemove", mouseMove);
-document.documentElement.style.overflowX = 'hidden';	 // Horizontal scrollbar will be hidden
-document.documentElement.style.overflowY = 'hidden';     // Vertical scrollbar will be hidden
+document.documentElement.style.overflowX = "hidden";	 // Horizontal scrollbar will be hidden
+document.documentElement.style.overflowY = "hidden";     // Vertical scrollbar will be hidden
 
 // Initialize canvas
 function initializeGame()
 {
-	// Sets up music
+    // Sets up music
     if (!supportMP3())
     {
         m_MusicList = m_OGGList;
@@ -119,14 +122,15 @@ function initializeGame()
     setUpLetters();
     
     // Initialize any variables dependant on canvas size
+    m_iToolbarThickness = Math.floor(m_iMaxPixelHeight / 25);
     m_iTitlePixelWidth = Math.floor(m_iMaxPixelWidth / m_iTitleMapWidth);
     m_iTitlePixelHeight = Math.floor(m_iMaxPixelHeight / m_iTitleMapHeight);
     m_iBrickTileWidth = Math.floor(m_iMaxPixelWidth / m_iBrickMapWidth);
-    m_iBrickTileHeight = Math.floor(m_iMaxPixelHeight / m_iBrickMapHeight);
+    m_iBrickTileHeight = Math.floor((m_iMaxPixelHeight - m_iToolbarThickness) / m_iBrickMapHeight);
     m_iLeft = 5;
     m_iMiddle = m_iMaxPixelWidth / 2;
     m_iRight = (m_iMaxPixelWidth / 2) + (m_iMaxPixelWidth / 2) / 2;
-    m_iToolbarThickness = m_iMaxPixelHeight / 100;
+    
     showStartMenu(true);
 }
 
@@ -158,7 +162,6 @@ function getViewportSize()
     if (typeof window.innerWidth != 'undefined')
     {
         m_iViewportWidth = window.innerWidth;
-        
         m_iViewportHeight = window.innerHeight;
     }
     
@@ -182,8 +185,6 @@ function getViewportSize()
 // Sets the canvas as big as the broswer size.
 function setCanvasSize()
 {
-    m_iTitlePixelWidth = Math.floor(m_iViewportWidth / m_iTitleMapWidth);
-    m_iTitlePixelHeight = Math.floor(m_iViewportHeight / m_iTitleMapHeight);
     m_iMaxPixelWidth = m_CanvasContext.canvas.width = m_iViewportWidth;
     m_iMaxPixelHeight = m_CanvasContext.canvas.height = m_iViewportHeight;
 }
@@ -198,6 +199,8 @@ function paintTile(x, y, width, height, color)
 // Paints one brick
 function paintBrick(iBrick, color)
 {
+    console.log(iBrick.startX + m_iBrickBorderWidth);
+    
     paintTile(iBrick.startX + m_iBrickBorderWidth, 
         iBrick.topY + m_iBrickBorderWidth, 
         m_iBrickTileWidth - (m_iBrickBorderWidth * 2), 
@@ -216,7 +219,7 @@ function paintPaddle(iPaddle, color)
 }
 
 // Paints a circle using pixels
-function paintCircle(iBall, color)//x, y, radius, color)
+function paintCircle(iBall, color)
 {
     m_CanvasContext.beginPath();
     m_CanvasContext.fillStyle = color;
@@ -239,14 +242,15 @@ function showStartMenu(bVisible)
     {
         document.getElementById("startMenu").style.zIndex = -1;
         window.clearInterval(m_IntervalMenu);
-        paintTile(0, 0, m_iMaxPixelWidth, m_iMaxPixelHeight, m_cBackgroundColor);
+        paintTile(0, 0, m_iMaxPixelWidth, m_iToolbarThickness, m_cToolbarColor);
+        paintTile(0, m_iToolbarThickness, m_iMaxPixelWidth, m_iMaxPixelHeight - m_iToolbarThickness, m_cBackgroundColor);
     }
 }
 
 function paintStartMenu()
 {
     // Paints Whole screen black
-    paintTile(0, 0, m_iMaxPixelWidth, m_iMaxPixelHeight, "black");
+    paintTile(0, 0, m_iMaxPixelWidth, m_iMaxPixelHeight, m_cBackgroundColor);
 
     for (var index = 0; index < m_cTitle.length; index++)
         paintTile((m_cTitle[index].x * m_iTitlePixelWidth) + m_iTitleBorderWidth, 
@@ -536,7 +540,7 @@ function setUpLetters()
     m_cTitle.push({x: 28, y: 9});
     m_cTitle.push({x: 30, y: 9});
     m_cTitle.push({x: 34, y: 9});
-    m_cTitle.push({x: 37, y: 9});   // HEREEEE!!!
+    m_cTitle.push({x: 37, y: 9}); 
     m_cTitle.push({x: 38, y: 9});
     m_cTitle.push({x: 42, y: 9});
     m_cTitle.push({x: 43, y: 9});
@@ -617,11 +621,11 @@ function makeNewBrick()
 
     return { 
         tileX: tempX, 
-        tileY: tempY, 
+        tileY: tempY , 
         startX: (tempX * m_iBrickTileWidth), 
-        topY: (tempY * m_iBrickTileHeight), 
+        topY: (tempY * m_iBrickTileHeight) + m_iToolbarThickness, 
         endX: (tempX * m_iBrickTileWidth) + m_iBrickTileWidth, 
-        bottomY: (tempY * m_iBrickTileHeight) + m_iBrickTileHeight 
+        bottomY: (tempY * m_iBrickTileHeight) + m_iBrickTileHeight + m_iToolbarThickness
     };
 }
 
@@ -657,7 +661,7 @@ function setUpBall(iBall, ballColor)
     paintCircle(iBall, m_cBackgroundColor);
     
     // Checks if the ball has collided with the walls
-    if (iBall.y - iBall.radius <= 0 && iBall.yV < 0)
+    if (iBall.y - iBall.radius <= m_iToolbarThickness && iBall.yV < 0)
          iBall.yV = -iBall.yV;
 
     if ((iBall.x - iBall.radius <= 0 && iBall.x < 0) || (iBall.x + iBall.radius >= m_iMaxPixelWidth && iBall.x > 0))

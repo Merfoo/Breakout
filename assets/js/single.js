@@ -43,7 +43,7 @@ function gameLoopSingle()
          m_iPaddle.velocity = 0;
     
     for (var index = 0; index < m_iBrickPositions.length; index++)
-        paintBrick(m_iBrickPositions[index], getRandomColor(0, 255));
+        paintBrick(m_iBrickPositions[index], getRandomColor(1, 255));
     
     setUpBall(m_iBall, "blue");
     paintPaddle(m_iPaddle, m_cPaddleColor);
