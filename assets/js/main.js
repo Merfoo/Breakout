@@ -16,13 +16,15 @@ var m_iTitlePixelHeight;
 
 // All colors/ borders
 var m_iBackgroundBorderWidth = 0;
+var m_iTitleBorderWidth = 1;
+var m_iBrickBorderWidth = 1;
 var m_cBackgroundColor = "#000";
 var m_cScoreColorOne = "#000";
-var m_cPaddleColor = "blue";
+var m_cPaddleColor = "red";
 
 // Game speed
 var m_iMenuSpeed = 50;
-var m_iGameSpeedOriginal = 20;
+var m_iGameSpeedOriginal = 25;
 var m_iGameSpeedMain = m_iGameSpeedOriginal;
 
 // Ball/Paddles
@@ -34,7 +36,7 @@ var m_iPaddleLength;
 var m_iPaddleThickness;
 var m_iPaddleLastIndex = -1;
 var m_iPaddleLast;
-var m_iPaddleLastSize = 7;
+var m_iPaddleLastSize = 5;
 
 // Brick related
 var m_iBrickMapWidth = 20;
@@ -93,7 +95,7 @@ document.documentElement.style.overflowY = 'hidden';     // Vertical scrollbar w
 function initializeGame()
 {
 	// Sets up music
-	if (!supportMP3())
+    if (!supportMP3())
     {
         m_MusicList = m_OGGList;
         m_FoodMusic = new Audio(m_sDirectory + "Food.ogg");        
@@ -105,7 +107,7 @@ function initializeGame()
         m_FoodMusic = new Audio(m_sDirectory + "Food.mp3");
     }
 	
-	m_BackgroundMusic = new Audio(m_MusicList[m_iPrevMusicIndex]);
+    m_BackgroundMusic = new Audio(m_MusicList[m_iPrevMusicIndex]);
 	
     // Get canvas context for drawing, add events
     m_Canvas = document.getElementById("myCanvas");
@@ -125,18 +127,7 @@ function initializeGame()
     m_iMiddle = m_iMaxPixelWidth / 2;
     m_iRight = (m_iMaxPixelWidth / 2) + (m_iMaxPixelWidth / 2) / 2;
     m_iToolbarThickness = m_iMaxPixelHeight / 100;
-            
-    var isChrome = /chrome/.test(navigator.userAgent.toLowerCase());
-    
-    if(!isChrome)
-        alert("This game currently does not fully function in IE or Firefox, for best results try Google Chrome :D");
-
     showStartMenu(true);
-    
-    var reader = new FileReader();
-    reader.readAsText("c://test.txt");
-    
-    reader.onload = readFinished;
 }
 
 // Starts game
@@ -152,7 +143,7 @@ function startGame(iGameVersion)
 }
 
 // Changes gamespeed
-function changeGameSpeed(intervalID, sFunction,gameSpeed)
+function changeGameSpeed(intervalID, sFunction, gameSpeed)
 {
     window.clearInterval(intervalID);
     intervalID = window.setInterval(sFunction, gameSpeed);
@@ -170,6 +161,7 @@ function getViewportSize()
         
         m_iViewportHeight = window.innerHeight;
     }
+    
     // IE6 in standards compliant mode (i.e. with a valid doctype as the first line in the document)
     else if (typeof document.documentElement != 'undefined'
 		&& typeof document.documentElement.clientWidth != 'undefined'
@@ -201,6 +193,26 @@ function paintTile(x, y, width, height, color)
 {
     m_CanvasContext.fillStyle = color;
     m_CanvasContext.fillRect(x, y, width, height);
+}
+
+// Paints one brick
+function paintBrick(iBrick, color)
+{
+    paintTile(iBrick.startX + m_iBrickBorderWidth, 
+        iBrick.topY + m_iBrickBorderWidth, 
+        m_iBrickTileWidth - (m_iBrickBorderWidth * 2), 
+        m_iBrickTileHeight - (m_iBrickBorderWidth * 2), 
+        color);
+}
+
+// Paints a paddle
+function paintPaddle(iPaddle, color)
+{
+    paintTile(iPaddle.startX, 
+        m_iMaxPixelHeight - m_iPaddleThickness, 
+        m_iPaddleLength, 
+        m_iPaddleThickness, 
+        color);
 }
 
 // Paints a circle using pixels
@@ -237,7 +249,11 @@ function paintStartMenu()
     paintTile(0, 0, m_iMaxPixelWidth, m_iMaxPixelHeight, "black");
 
     for (var index = 0; index < m_cTitle.length; index++)
-        paintTile(m_cTitle[index].x * m_iTitlePixelWidth, m_cTitle[index].y * m_iTitlePixelHeight, m_iTitlePixelWidth, m_iTitlePixelHeight, getRandomColor(1, 255));
+        paintTile((m_cTitle[index].x * m_iTitlePixelWidth) + m_iTitleBorderWidth, 
+            (m_cTitle[index].y * m_iTitlePixelHeight) + m_iTitleBorderWidth, 
+            m_iTitlePixelWidth - (m_iTitleBorderWidth * 2), 
+            m_iTitlePixelHeight - (m_iTitleBorderWidth * 2), 
+            getRandomColor(1, 255));
 }
 
 // Shows pause pause if true, otherwise hides it.
@@ -404,132 +420,127 @@ function isAllSame(iArray)
     return true;
 }
 
-// Reads data from a file
-function readFinished(event)
-{
-    alert(event.target.result);
-}
-
 // Sets up all the letter coordinates.
 function setUpLetters()
 {
-    m_cTitle.push({x: 9, y: 3});
     m_cTitle.push({x: 10, y: 3});
     m_cTitle.push({x: 11, y: 3});
-    m_cTitle.push({x: 13, y: 3});
-    m_cTitle.push({x: 14, y: 3});
+    m_cTitle.push({x: 12, y: 3});
     m_cTitle.push({x: 15, y: 3});
-    m_cTitle.push({x: 18, y: 3});
-    m_cTitle.push({x: 19, y: 3});
+    m_cTitle.push({x: 16, y: 3});
+    m_cTitle.push({x: 17, y: 3});
     m_cTitle.push({x: 20, y: 3});
     m_cTitle.push({x: 21, y: 3});
-    m_cTitle.push({x: 24, y: 3});
-    m_cTitle.push({x: 25, y: 3});
-    m_cTitle.push({x: 28, y: 3});
-    m_cTitle.push({x: 32, y: 3});
-    m_cTitle.push({x: 35, y: 3});
-    m_cTitle.push({x: 36, y: 3});
-    m_cTitle.push({x: 39, y: 3});
-    m_cTitle.push({x: 42, y: 3});
+    m_cTitle.push({x: 22, y: 3});
+    m_cTitle.push({x: 23, y: 3});
+    m_cTitle.push({x: 26, y: 3});
+    m_cTitle.push({x: 27, y: 3});
+    m_cTitle.push({x: 30, y: 3});
+    m_cTitle.push({x: 34, y: 3});
+    m_cTitle.push({x: 37, y: 3});
+    m_cTitle.push({x: 38, y: 3});
+    m_cTitle.push({x: 41, y: 3});
     m_cTitle.push({x: 44, y: 3});
-    m_cTitle.push({x: 45, y: 3});
     m_cTitle.push({x: 46, y: 3});
     m_cTitle.push({x: 47, y: 3});
     m_cTitle.push({x: 48, y: 3});
-    m_cTitle.push({x: 9, y: 4});
-    m_cTitle.push({x: 12, y: 4});
+    m_cTitle.push({x: 49, y: 3});
+    m_cTitle.push({x: 50, y: 3});
+    m_cTitle.push({x: 10, y: 4});
     m_cTitle.push({x: 13, y: 4});
-    m_cTitle.push({x: 16, y: 4});
+    m_cTitle.push({x: 15, y: 4});
     m_cTitle.push({x: 18, y: 4});
-    m_cTitle.push({x: 23, y: 4});
-    m_cTitle.push({x: 26, y: 4});
+    m_cTitle.push({x: 20, y: 4});
+    m_cTitle.push({x: 25, y: 4});
     m_cTitle.push({x: 28, y: 4});
-    m_cTitle.push({x: 31, y: 4});
-    m_cTitle.push({x: 34, y: 4});
-    m_cTitle.push({x: 37, y: 4});
+    m_cTitle.push({x: 30, y: 4});
+    m_cTitle.push({x: 33, y: 4});
+    m_cTitle.push({x: 36, y: 4});
     m_cTitle.push({x: 39, y: 4});
-    m_cTitle.push({x: 42, y: 4});
-    m_cTitle.push({x: 46, y: 4});
-    m_cTitle.push({x: 9, y: 5});
-    m_cTitle.push({x: 12, y: 5});
+    m_cTitle.push({x: 41, y: 4});
+    m_cTitle.push({x: 44, y: 4});
+    m_cTitle.push({x: 48, y: 4});
+    m_cTitle.push({x: 10, y: 5});
     m_cTitle.push({x: 13, y: 5});
-    m_cTitle.push({x: 16, y: 5});
+    m_cTitle.push({x: 15, y: 5});
     m_cTitle.push({x: 18, y: 5});
-    m_cTitle.push({x: 23, y: 5});
-    m_cTitle.push({x: 26, y: 5});
+    m_cTitle.push({x: 20, y: 5});
+    m_cTitle.push({x: 25, y: 5});
     m_cTitle.push({x: 28, y: 5});
     m_cTitle.push({x: 30, y: 5});
-    m_cTitle.push({x: 34, y: 5});
-    m_cTitle.push({x: 37, y: 5});
+    m_cTitle.push({x: 32, y: 5});
+    m_cTitle.push({x: 36, y: 5});
     m_cTitle.push({x: 39, y: 5});
-    m_cTitle.push({x: 42, y: 5});
-    m_cTitle.push({x: 46, y: 5});
-    m_cTitle.push({x: 9, y: 6});
+    m_cTitle.push({x: 41, y: 5});
+    m_cTitle.push({x: 44, y: 5});
+    m_cTitle.push({x: 48, y: 5});
     m_cTitle.push({x: 10, y: 6});
     m_cTitle.push({x: 11, y: 6});
     m_cTitle.push({x: 12, y: 6});
-    m_cTitle.push({x: 14, y: 6});
+    m_cTitle.push({x: 13, y: 6});
     m_cTitle.push({x: 15, y: 6});
-    m_cTitle.push({x: 18, y: 6});
-    m_cTitle.push({x: 19, y: 6});
+    m_cTitle.push({x: 16, y: 6});
+    m_cTitle.push({x: 17, y: 6});
     m_cTitle.push({x: 20, y: 6});
-    m_cTitle.push({x: 23, y: 6});
-    m_cTitle.push({x: 24, y: 6});
+    m_cTitle.push({x: 21, y: 6});
+    m_cTitle.push({x: 22, y: 6});
     m_cTitle.push({x: 25, y: 6});
     m_cTitle.push({x: 26, y: 6});
+    m_cTitle.push({x: 27, y: 6});
     m_cTitle.push({x: 28, y: 6});
-    m_cTitle.push({x: 29, y: 6});
-    m_cTitle.push({x: 34, y: 6});
-    m_cTitle.push({x: 37, y: 6});
+    m_cTitle.push({x: 30, y: 6});
+    m_cTitle.push({x: 31, y: 6});
+    m_cTitle.push({x: 36, y: 6});
     m_cTitle.push({x: 39, y: 6});
-    m_cTitle.push({x: 42, y: 6});
-    m_cTitle.push({x: 46, y: 6});
-    m_cTitle.push({x: 9, y: 7});
-    m_cTitle.push({x: 12, y: 7});
+    m_cTitle.push({x: 41, y: 6});
+    m_cTitle.push({x: 44, y: 6});
+    m_cTitle.push({x: 48, y: 6});
+    m_cTitle.push({x: 10, y: 7});
     m_cTitle.push({x: 13, y: 7});
-    m_cTitle.push({x: 14, y: 7});
-    m_cTitle.push({x: 18, y: 7});
-    m_cTitle.push({x: 23, y: 7});
-    m_cTitle.push({x: 26, y: 7});
+    m_cTitle.push({x: 15, y: 7});
+    m_cTitle.push({x: 16, y: 7});
+    m_cTitle.push({x: 20, y: 7});
+    m_cTitle.push({x: 25, y: 7});
     m_cTitle.push({x: 28, y: 7});
     m_cTitle.push({x: 30, y: 7});
-    m_cTitle.push({x: 34, y: 7});
-    m_cTitle.push({x: 37, y: 7});
+    m_cTitle.push({x: 32, y: 7});
+    m_cTitle.push({x: 36, y: 7});
     m_cTitle.push({x: 39, y: 7});
-    m_cTitle.push({x: 42, y: 7});
-    m_cTitle.push({x: 46, y: 7});
-    m_cTitle.push({x: 9, y: 8});
-    m_cTitle.push({x: 12, y: 8});
+    m_cTitle.push({x: 41, y: 7});
+    m_cTitle.push({x: 44, y: 7});
+    m_cTitle.push({x: 48, y: 7});
+    m_cTitle.push({x: 10, y: 8});
     m_cTitle.push({x: 13, y: 8});
     m_cTitle.push({x: 15, y: 8});
-    m_cTitle.push({x: 18, y: 8});
-    m_cTitle.push({x: 23, y: 8});
-    m_cTitle.push({x: 26, y: 8});
+    m_cTitle.push({x: 17, y: 8});
+    m_cTitle.push({x: 20, y: 8});
+    m_cTitle.push({x: 25, y: 8});
     m_cTitle.push({x: 28, y: 8});
-    m_cTitle.push({x: 31, y: 8});
-    m_cTitle.push({x: 34, y: 8});
-    m_cTitle.push({x: 37, y: 8});
+    m_cTitle.push({x: 30, y: 8});
+    m_cTitle.push({x: 33, y: 8});
+    m_cTitle.push({x: 36, y: 8});
     m_cTitle.push({x: 39, y: 8});
-    m_cTitle.push({x: 42, y: 8});
-    m_cTitle.push({x: 46, y: 8});
-    m_cTitle.push({x: 9, y: 9});
+    m_cTitle.push({x: 41, y: 8});
+    m_cTitle.push({x: 44, y: 8});
+    m_cTitle.push({x: 48, y: 8});
     m_cTitle.push({x: 10, y: 9});
     m_cTitle.push({x: 11, y: 9});
-    m_cTitle.push({x: 13, y: 9});
-    m_cTitle.push({x: 16, y: 9});
+    m_cTitle.push({x: 12, y: 9});
+    m_cTitle.push({x: 15, y: 9});
     m_cTitle.push({x: 18, y: 9});
-    m_cTitle.push({x: 19, y: 9});
     m_cTitle.push({x: 20, y: 9});
     m_cTitle.push({x: 21, y: 9});
+    m_cTitle.push({x: 22, y: 9});
     m_cTitle.push({x: 23, y: 9});
-    m_cTitle.push({x: 26, y: 9});
+    m_cTitle.push({x: 25, y: 9});
     m_cTitle.push({x: 28, y: 9});
-    m_cTitle.push({x: 32, y: 9});
-    m_cTitle.push({x: 35, y: 9});
-    m_cTitle.push({x: 36, y: 9});
-    m_cTitle.push({x: 40, y: 9});
-    m_cTitle.push({x: 41, y: 9});
-    m_cTitle.push({x: 46, y: 9});
+    m_cTitle.push({x: 30, y: 9});
+    m_cTitle.push({x: 34, y: 9});
+    m_cTitle.push({x: 37, y: 9});   // HEREEEE!!!
+    m_cTitle.push({x: 38, y: 9});
+    m_cTitle.push({x: 42, y: 9});
+    m_cTitle.push({x: 43, y: 9});
+    m_cTitle.push({x: 48, y: 9});
 }
 
 function initializeBall()
@@ -537,7 +548,7 @@ function initializeBall()
     // Size is in pixels
     var iBallRadius = ((m_iMaxPixelWidth / 60) + (m_iMaxPixelHeight / 30)) / 4;
     
-    m_iBall = { x: m_iMaxPixelWidth / 2, y: m_iMaxPixelHeight / 2, radius: iBallRadius, xV: iBallRadius, yV: iBallRadius };
+    m_iBall = { x: m_iMaxPixelWidth / 2, y: m_iMaxPixelHeight / 2, radius: iBallRadius, xV: 0, yV: iBallRadius };
 }
 
 function initializePaddle()
@@ -570,7 +581,7 @@ function initializeBricks()
 
 function movePaddle(iCenterX, iPaddle)
 {       
-    if(((iCenterX + m_iPaddleLength/2) < m_iMaxPixelWidth) && ((iCenterX - m_iPaddleLength/2) > 0))
+    if(((iCenterX + m_iPaddleLength/2) <= m_iMaxPixelWidth) && ((iCenterX - m_iPaddleLength/2) >= 0))
     {
         if(iCenterX > (iPaddle.startX + iPaddle.endX)/2)
         {
@@ -590,10 +601,10 @@ function movePaddle(iCenterX, iPaddle)
                 iPaddle.velocity = -m_iMaxPaddleVelocity;
         }
         
-        paintTile(iPaddle.startX - 1, m_iMaxPixelHeight - m_iPaddleThickness - 1, m_iPaddleLength + 2, m_iPaddleThickness + 2, m_cBackgroundColor);
+        paintPaddle(iPaddle, m_cBackgroundColor);
         iPaddle.startX = (iCenterX - m_iPaddleLength/2);
         iPaddle.endX = (iCenterX + m_iPaddleLength/2);
-        paintTile(iPaddle.startX, m_iMaxPixelHeight - m_iPaddleThickness, m_iPaddleLength, m_iPaddleThickness, m_cPaddleColor);
+        paintPaddle(iPaddle, m_cPaddleColor);
     }
 }
 
@@ -642,15 +653,14 @@ function setUpBricks(iAmount, iBrickArray)
 
 // Handles the ball hitting the wall boundaries.
 function setUpBall(iBall, ballColor)
-{
-    var ballVelocity = {xV: Math.abs(iBall.xV), yV: Math.abs(iBall.yV)}; 
+{ 
     paintCircle(iBall, m_cBackgroundColor);
     
     // Checks if the ball has collided with the walls
-    if (iBall.y - ballVelocity.yV <= 0 && iBall.yV < 0)
+    if (iBall.y - iBall.radius <= 0 && iBall.yV < 0)
          iBall.yV = -iBall.yV;
 
-    if (iBall.x - ballVelocity.xV <= 0 || iBall.x + ballVelocity.xV >= m_iMaxPixelWidth)
+    if ((iBall.x - iBall.radius <= 0 && iBall.x < 0) || (iBall.x + iBall.radius >= m_iMaxPixelWidth && iBall.x > 0))
         iBall.xV = -iBall.xV;
     
     iBall.x += iBall.xV;
@@ -662,11 +672,9 @@ function setUpBall(iBall, ballColor)
 // Checks if the ball hit the paddle
 function hitPaddle(iBall, iPaddle)
 {
-    var ballVelocity = {xV: Math.abs(iBall.xV), yV: Math.abs(iBall.yV)};
-    
     // Checks if the ball hit the paddle
     if(iBall.yV > 0)
-        if(iBall.y + ballVelocity.yV >= iPaddle.topY && iBall.x + ballVelocity.xV > iPaddle.startX && iBall.x - ballVelocity.xV < iPaddle.endX)
+        if(iBall.y + iBall.radius >= iPaddle.topY && iBall.x + iBall.radius >= iPaddle.startX && iBall.x - iBall.radius <= iPaddle.endX)
             return true;
     
     return false;
@@ -675,30 +683,33 @@ function hitPaddle(iBall, iPaddle)
 // Checks if ball hit a brick
 function hitBrick(iBall, iBrickArray)
 {
-    var ballVelocity = {xV: Math.abs(iBall.xV), yV: Math.abs(iBall.yV)};
+    var bHitBrick = false;
     
     for(var index = 0; index < iBrickArray.length; index++)
     {            
-        if(iBall.x > iBrickArray[index].startX && iBall.x < iBrickArray[index].endX)
+        if(iBall.x >= iBrickArray[index].startX && iBall.x <= iBrickArray[index].endX)
         {
-            if(iBall.y + ballVelocity.yV >= iBrickArray[index].topY && iBall.y - ballVelocity.yV <= iBrickArray[index].bottomY)
+            if(iBall.y + iBall.radius >= iBrickArray[index].topY && iBall.y - iBall.radius <= iBrickArray[index].bottomY)
             {
                 iBall.yV = -iBall.yV;
-                paintTile(iBrickArray[index].startX, iBrickArray[index].topY, iBrickArray[index].endX - iBrickArray[index].startX, iBrickArray[index].bottomY - iBrickArray[index].topY, m_cBackgroundColor);
-                iBrickArray = removeIndex(index, iBrickArray);
-                break;
+                bHitBrick = true;
             }
         }
         
-        else if(iBall.y > iBrickArray[index].topY && iBall.y < iBrickArray[index].bottomY)
+        if(iBall.y >= iBrickArray[index].topY && iBall.y <= iBrickArray[index].bottomY)
         {
-            if(iBall.x + ballVelocity.yX >= iBrickArray[index].startX && iBall.x - ballVelocity.yX <= iBrickArray[index].endX)
+            if(iBall.x + iBall.radius >= iBrickArray[index].startX && iBall.x - iBall.radius <= iBrickArray[index].endX)
             {
                 iBall.xV = -iBall.xV;
-                paintTile(iBrickArray[index].startX, iBrickArray[index].topY, iBrickArray[index].endX - iBrickArray[index].startX, iBrickArray[index].bottomY - iBrickArray[index].topY, m_cBackgroundColor);
-                iBrickArray  = removeIndex(index, iBrickArray);
-                break;
+                bHitBrick = true;
             }
+        }
+        
+        if(bHitBrick)
+        {
+           paintBrick(iBrickArray[index], m_cBackgroundColor);
+           iBrickArray = removeIndex(index, iBrickArray);
+           break;
         }
     }
     

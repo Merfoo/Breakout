@@ -43,10 +43,10 @@ function gameLoopSingle()
          m_iPaddle.velocity = 0;
     
     for (var index = 0; index < m_iBrickPositions.length; index++)
-        paintTile(m_iBrickPositions[index].startX, m_iBrickPositions[index].topY, m_iBrickTileWidth, m_iBrickTileHeight, getRandomColor(1, 255), 0);
-  
+        paintBrick(m_iBrickPositions[index], getRandomColor(0, 255));
+    
     setUpBall(m_iBall, "blue");
-    paintTile(m_iPaddle.startX, m_iMaxPixelHeight - m_iPaddleThickness, m_iPaddleLength, m_iPaddleThickness, m_cPaddleColor, 0);
+    paintPaddle(m_iPaddle, m_cPaddleColor);
 }
 
 // Stops loop
