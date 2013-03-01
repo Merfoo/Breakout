@@ -55,6 +55,8 @@ function gameLoopSingle()
     
     setUpBall(m_iBall, "blue");
     paintPaddle(m_iPaddle, m_cPaddleColor);
+    paintToolbar();
+    writeMessage(m_iLeft, m_iBrickPositions.length, m_cScoreColor);
 }
 
 // Stops loop

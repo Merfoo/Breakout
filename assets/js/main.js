@@ -18,7 +18,7 @@ var m_iTitleBorderWidth = 1;
 var m_iBrickBorderWidth = 2;
 var m_cBackgroundColor = "black";
 var m_cScoreColor = "white";
-var m_cPaddleColor = "red";
+var m_cPaddleColor = "pink";
 
 // Game speed
 var m_iMenuSpeed = 50;
@@ -282,10 +282,15 @@ function showSoundPic(bOn)
 // Writes message to corresponding tile, with specified colour
 function writeMessage(startTile, message, color)
 {
-    paintTile(startTile, 0, message.length * 12, m_iToolbarThickness, m_cToolbarColor);
     m_CanvasContext.font = (m_iToolbarThickness - 10)  + 'pt Calibri';
     m_CanvasContext.fillStyle = color;
     m_CanvasContext.fillText(message, startTile, m_iToolbarThickness - 5);
+}
+
+// Paints toolbar back to regular
+function paintToolbar()
+{
+    paintTile(0, 0, m_iMaxPixelWidth, m_iToolbarThickness, m_cToolbarColor);
 }
 
 // Plays background music if mute is off
@@ -551,6 +556,10 @@ function initializePaddle()
     // Size is in pixels
     m_iPaddleLength = Math.floor(m_iMaxPixelWidth / 5);
     m_iPaddleThickness = Math.floor(m_iMaxPixelHeight / 50);
+    var tempStartX = (m_iMaxPixelWidth / 2) - (m_iPaddleLength / 2);
+    var tempEndX = (m_iMaxPixelWidth / 2) + (m_iPaddleLength / 2);
+    var tempTopY = m_iMaxPixelHeight - m_iPaddleThickness - 10;
+    var tempBottomY = tempTopY + m_iPaddleThickness;
 
     m_iPaddleLast = new Array();
     
@@ -558,9 +567,10 @@ function initializePaddle()
         m_iPaddleLast.push(0);
     
     m_iPaddle = { 
-        startX: (m_iMaxPixelWidth / 2) - (m_iPaddleLength / 2), 
-        endX: (m_iMaxPixelWidth / 2) + (m_iPaddleLength / 2), 
-        topY: m_iMaxPixelHeight - m_iPaddleThickness - 10, 
+        startX: tempStartX, 
+        endX: tempEndX, 
+        topY: tempTopY, 
+        bottomY: tempBottomY,
         velocity: 0
     };
 }
@@ -668,9 +678,10 @@ function hitPaddle(iBall, iPaddle)
 {
     // Checks if the ball hit the paddle
     if(iBall.yV > 0)
-        if(iBall.y + iBall.radius >= iPaddle.topY && iBall.x + iBall.radius >= iPaddle.startX && iBall.x - iBall.radius <= iPaddle.endX)
-            return true;
-    
+         if(iBall.y + iBall.radius >= iPaddle.topY && iBall.y + iBall.radius <= iPaddle.bottomY)
+            if(iBall.x + iBall.radius >= iPaddle.startX && iBall.x - iBall.radius<= iPaddle.endX)
+                 return true;
+     
     return false;
 }
 
