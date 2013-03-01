@@ -1,8 +1,6 @@
 // This file conatins all variables used with different variations of the game, and some useful functions
 
-// Viewable client-region of the browser (not screen size, not window size)
-var m_iViewportWidth;
-var m_iViewportHeight;
+"use strict";
 
 // Map Related
 var m_iMaxPixelWidth;
@@ -18,13 +16,13 @@ var m_iTitlePixelHeight;
 var m_iBackgroundBorderWidth = 0;
 var m_iTitleBorderWidth = 1;
 var m_iBrickBorderWidth = 2;
-var m_cBackgroundColor = "#000";
-var m_cScoreColorOne = "#000";
+var m_cBackgroundColor = "black";
+var m_cScoreColor = "white";
 var m_cPaddleColor = "red";
 
 // Game speed
 var m_iMenuSpeed = 50;
-var m_iGameSpeedOriginal = 25;
+var m_iGameSpeedOriginal = 33;
 var m_iGameSpeedMain = m_iGameSpeedOriginal;
 
 // Ball/Paddles
@@ -53,7 +51,7 @@ var m_iScoreOne = 0;
 var m_iHighestScoreOne = 0;
 
 // Messages alignment
-var m_cToolbarColor = "white";
+var m_cToolbarColor = "black";
 var m_iToolbarThickness;
 var m_iTextMapWidth = 30;
 var m_iTextPixelWidth;
@@ -117,7 +115,6 @@ function initializeGame()
     m_CanvasContext = document.getElementById("myCanvas").getContext("2d");
 
     // Set canvas size, set up letter positions for the title
-    getViewportSize();
     setCanvasSize();
     setUpLetters();
     
@@ -128,8 +125,8 @@ function initializeGame()
     m_iBrickTileWidth = Math.floor(m_iMaxPixelWidth / m_iBrickMapWidth);
     m_iBrickTileHeight = Math.floor((m_iMaxPixelHeight - m_iToolbarThickness) / m_iBrickMapHeight);
     m_iLeft = 5;
-    m_iMiddle = m_iMaxPixelWidth / 2;
-    m_iRight = (m_iMaxPixelWidth / 2) + (m_iMaxPixelWidth / 2) / 2;
+    m_iMiddle = Math.floor(m_iMaxPixelWidth / 2);
+    m_iRight = Math.floor((m_iMaxPixelWidth / 2) + (m_iMaxPixelWidth / 2) / 2);
     
     showStartMenu(true);
 }
@@ -155,14 +152,14 @@ function changeGameSpeed(intervalID, sFunction, gameSpeed)
     return intervalID;
 }
 
-// 
-function getViewportSize()
+// Sets the canvas as big as the broswer size.
+function setCanvasSize()
 {
     // The more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
     if (typeof window.innerWidth != 'undefined')
     {
-        m_iViewportWidth = window.innerWidth;
-        m_iViewportHeight = window.innerHeight;
+        m_iMaxPixelWidth = window.innerWidth;
+        m_iMaxPixelHeight = window.innerHeight;
     }
     
     // IE6 in standards compliant mode (i.e. with a valid doctype as the first line in the document)
@@ -170,23 +167,19 @@ function getViewportSize()
 		&& typeof document.documentElement.clientWidth != 'undefined'
 		&& document.documentElement.clientWidth != 0)
     {
-        m_iViewportWidth = document.documentElement.clientWidth;
-        m_iViewportHeight = document.documentElement.clientHeight;
+        m_iMaxPixelWidth = document.documentElement.clientWidth;
+        m_iMaxPixelHeight = document.documentElement.clientHeight;
     }
 
     // Older versions of IE
     else
     {
-        m_iViewportWidth = document.getElementsByTagName('body')[0].clientWidth;
-        m_iViewportHeight = document.getElementsByTagName('body')[0].clientHeight;
+        m_iMaxPixelWidth = document.getElementsByTagName('body')[0].clientWidth;
+        m_iMaxPixelHeight = document.getElementsByTagName('body')[0].clientHeight;
     }
-}
-
-// Sets the canvas as big as the broswer size.
-function setCanvasSize()
-{
-    m_iMaxPixelWidth = m_CanvasContext.canvas.width = m_iViewportWidth;
-    m_iMaxPixelHeight = m_CanvasContext.canvas.height = m_iViewportHeight;
+    
+    m_CanvasContext.canvas.width = m_iMaxPixelWidth;
+    m_CanvasContext.canvas.height = m_iMaxPixelHeight;
 }
 
 // Paints a tile on the screen pixel based
@@ -199,8 +192,6 @@ function paintTile(x, y, width, height, color)
 // Paints one brick
 function paintBrick(iBrick, color)
 {
-    console.log(iBrick.startX + m_iBrickBorderWidth);
-    
     paintTile(iBrick.startX + m_iBrickBorderWidth, 
         iBrick.topY + m_iBrickBorderWidth, 
         m_iBrickTileWidth - (m_iBrickBorderWidth * 2), 
@@ -212,7 +203,7 @@ function paintBrick(iBrick, color)
 function paintPaddle(iPaddle, color)
 {
     paintTile(iPaddle.startX, 
-        m_iMaxPixelHeight - m_iPaddleThickness, 
+        iPaddle.topY, 
         m_iPaddleLength, 
         m_iPaddleThickness, 
         color);
@@ -289,12 +280,12 @@ function showSoundPic(bOn)
 }
 
 // Writes message to corresponding tile, with specified colour
-function writeMessage(startTile, color, message)
+function writeMessage(startTile, message, color)
 {
-    paintTile(startTile, 0, message.length * 100, m_iToolbarThickness * 10, m_cBackgroundColor);
-    m_CanvasContext.font = m_iToolbarThickness * 10 + 'pt Calibri';
+    paintTile(startTile, 0, message.length * 12, m_iToolbarThickness, m_cToolbarColor);
+    m_CanvasContext.font = (m_iToolbarThickness - 10)  + 'pt Calibri';
     m_CanvasContext.fillStyle = color;
-    m_CanvasContext.fillText(message, startTile, m_iToolbarThickness * 10);
+    m_CanvasContext.fillText(message, startTile, m_iToolbarThickness - 5);
 }
 
 // Plays background music if mute is off
@@ -558,8 +549,8 @@ function initializeBall()
 function initializePaddle()
 {
     // Size is in pixels
-    m_iPaddleLength = m_iMaxPixelWidth / 5;
-    m_iPaddleThickness = m_iMaxPixelHeight / 50;
+    m_iPaddleLength = Math.floor(m_iMaxPixelWidth / 5);
+    m_iPaddleThickness = Math.floor(m_iMaxPixelHeight / 50);
 
     m_iPaddleLast = new Array();
     
@@ -569,8 +560,7 @@ function initializePaddle()
     m_iPaddle = { 
         startX: (m_iMaxPixelWidth / 2) - (m_iPaddleLength / 2), 
         endX: (m_iMaxPixelWidth / 2) + (m_iPaddleLength / 2), 
-        topY: (m_iMaxPixelHeight - m_iPaddleThickness), 
-        bottomY: m_iMaxPixelHeight,
+        topY: m_iMaxPixelHeight - m_iPaddleThickness - 10, 
         velocity: 0
     };
 }
@@ -736,7 +726,7 @@ function ballDirectionChanger(iBall, iPaddle)
 // Checks if the ball went past the paddle
 function gotPastPaddle(iBall)
 {
-    if(iBall.y >= m_iMaxPixelHeight)
+    if(iBall.y - iBall.radius > m_iMaxPixelHeight)
         return true;
     
     return false;

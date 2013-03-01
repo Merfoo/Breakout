@@ -1,5 +1,7 @@
 // Single Player 
 
+"use strict";
+
 function initializeSingle()
 {
     showStartMenu(false);
@@ -35,6 +37,12 @@ function gameLoopSingle()
     
     if(hitPaddle(m_iBall, m_iPaddle))
          ballDirectionChanger(m_iBall, m_iPaddle);
+    
+    if(m_iBrickPositions.length < 1)
+     {
+         alert("HAHAHA YOU WON!!!");
+         initializeSingle();
+     }
     
     if(gotPastPaddle(m_iBall))
         initializeBall();
