@@ -104,6 +104,7 @@ function initializeGame()
     setUpLetters();
     
     // Initialize any variables dependant on canvas size
+    m_iPaddleThickness = Math.floor(m_iMaxPixelHeight / 50);
     m_iToolbarThickness = Math.floor(m_iMaxPixelHeight / 25);
     m_iTitlePixelWidth = Math.floor(m_iMaxPixelWidth / m_iTitleMapWidth);
     m_iTitlePixelHeight = Math.floor(m_iMaxPixelHeight / m_iTitleMapHeight);
@@ -248,6 +249,7 @@ function showStartMenu(bVisible)
     if (bVisible)
     {
         document.getElementById("startMenu").style.zIndex = 1;
+        document.getElementById("gameBody").style.cursor = "auto";
         showWinPic(false);
         showPausePic(false);
         showLosePic(false);
@@ -257,6 +259,7 @@ function showStartMenu(bVisible)
     else
     {
         document.getElementById("startMenu").style.zIndex = -1;
+        document.getElementById("gameBody").style.cursor = "none";
         window.clearInterval(m_IntervalMenu);
         paintTile(0, 0, m_iMaxPixelWidth, m_iToolbarThickness, m_cToolbarColor);
         paintTile(0, m_iToolbarThickness, m_iMaxPixelWidth, m_iMaxPixelHeight - m_iToolbarThickness, m_cBackgroundColor);
@@ -581,7 +584,6 @@ function initializeBall()
 function initializePaddle()
 {
     // Size is in pixels
-    m_iPaddleThickness = Math.floor(m_iMaxPixelHeight / 50);
     var iPaddleLength = Math.floor(m_iMaxPixelWidth / 5);
     var tempStartX = Math.floor((m_iMaxPixelWidth / 2) - (iPaddleLength / 2));
     var tempEndX = Math.floor((m_iMaxPixelWidth / 2) + (iPaddleLength / 2));
