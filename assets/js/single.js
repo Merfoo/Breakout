@@ -18,6 +18,8 @@ function initializeSingle()
         m_iHighestScoreOne = m_iScoreOne;
 
     m_iScoreOne = 0;
+    m_bWon = false;
+    m_bLost = false;
     initializeBall();
     initializePaddle();
     initializeBricks();
@@ -32,45 +34,52 @@ function initializeSingle()
 // Runs all the functions required for the game to work.
 function gameLoopSingle()
 {
-    // Plays music if mute is not checked.
-    playBackgroundMusic();
+    if(!m_bWon && !m_bLost)
+    {
+        // Plays music if mute is not checked.
+        playBackgroundMusic();
+
+        m_iBrickPositions = hitBrick(m_iBall, m_iBrickPositions);
+        m_iPaddleLastIndex = setLastPaddle(m_iPaddle, m_iPaddleLastIndex, m_iPaddleLast);
+
+        if(hitPaddle(m_iBall, m_iPaddle))
+             ballDirectionChanger(m_iBall, m_iPaddle);
+
+        if(m_iBrickPositions.length < 1)
+            m_bWon = true;
+
+        if(gotPastPaddle(m_iBall))
+        {
+            if(--m_iCurrentLife < 0)
+                m_bLost = true;
+
+            else
+                initializeBall();
+        }
+
+        if(isAllSame(m_iPaddleLast))
+             m_iPaddle.velocity = 0;
+
+        for (var index = 0; index < m_iBrickPositions.length; index++)
+            paintBrick(m_iBrickPositions[index], getRandomColor(1, 255));
+
+        setUpBall(m_iBall, "blue");
+        paintPaddle(m_iPaddle, m_cPaddleColor);
+        paintToolbar();
+        writeMessage(m_iLeft, "LIFE: " + m_iCurrentLife, m_cScoreColor);
+    }
     
-    m_iBrickPositions = hitBrick(m_iBall, m_iBrickPositions);
-    m_iPaddleLastIndex = setLastPaddle(m_iPaddle, m_iPaddleLastIndex, m_iPaddleLast);
-    
-    if(hitPaddle(m_iBall, m_iPaddle))
-         ballDirectionChanger(m_iBall, m_iPaddle);
-    
-    if(m_iBrickPositions.length < 1)
+    if(m_bWon)
     {
         stopBackgroundMusic();
-        alert("HAHAHA YOU WON!!!");
-        endGame();
+        showWinPic(true);
     }
     
-    if(gotPastPaddle(m_iBall))
+    else if(m_bLost)
     {
-        if(--m_iCurrentLife < 0)
-        {
-            stopBackgroundMusic();
-            alert("YOU LOST!!!");
-            endGame();
-        }
-            
-        else
-            initializeBall();
+        stopBackgroundMusic();
+        showLosePic(true);
     }
-    
-    if(isAllSame(m_iPaddleLast))
-         m_iPaddle.velocity = 0;
-    
-    for (var index = 0; index < m_iBrickPositions.length; index++)
-        paintBrick(m_iBrickPositions[index], getRandomColor(1, 255));
-    
-    setUpBall(m_iBall, "blue");
-    paintPaddle(m_iPaddle, m_cPaddleColor);
-    paintToolbar();
-    writeMessage(m_iLeft, "LIFE: " + m_iCurrentLife, m_cScoreColor);
 }
 
 // Stops loop
@@ -104,12 +113,17 @@ function keyBoardUpSinglePlayer(keyCode)
 // Ends the game
 function endGame()
 {
-        pauseGameSingle(m_IntervalIDMain);
-        showPausePic(false);
-        showStartMenu(true);
-        m_bIsPaused = false;
-        m_bGameStarted = false;
-        m_bSingle = false;
-        m_iScoreOne = 0;
-        m_iHighestScoreOne = 0;
+    pauseGameSingle(m_IntervalIDMain);
+    showStartMenu(true);
+    m_bIsPaused = false;
+    m_bGameStarted = false;
+    m_bSingle = false;
+    m_iScoreOne = 0;
+    m_iHighestScoreOne = 0;
+}
+
+// Continues to endGame
+function winLoseClickSingle()
+{
+    endGame();
 }

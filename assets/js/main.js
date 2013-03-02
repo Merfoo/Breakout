@@ -26,8 +26,10 @@ var m_iGameSpeedOriginal = 33;
 var m_iGameSpeedMain = m_iGameSpeedOriginal;
 
 // Life
-var m_iStartingLife = 3;
+var m_iStartingLife = 2;
 var m_iCurrentLife = m_iStartingLife;
+var m_bWon = false;
+var m_bLost = false;
 
 // Ball
 var m_iBall;
@@ -232,6 +234,9 @@ function showStartMenu(bVisible)
     if (bVisible)
     {
         document.getElementById("startMenu").style.zIndex = 1;
+        showWinPic(false);
+        showPausePic(false);
+        showLosePic(false);
         m_IntervalMenu = window.setInterval("paintStartMenu();", m_iMenuSpeed);
     }
 
@@ -257,14 +262,43 @@ function paintStartMenu()
             getRandomColor(1, 255));
 }
 
+// Shows the win pic
+function showWinPic(bVisible)
+{
+    if(bVisible)
+        document.getElementById("won").style.zIndex = 1;
+    
+    else
+        document.getElementById("won").style.zIndex = -1;
+}
+
+// Shows the win pic
+function showLosePic(bVisible)
+{
+    if(bVisible)
+        document.getElementById("lost").style.zIndex = 3;
+    
+    else
+        document.getElementById("lost").style.zIndex = -1;
+}
+
 // Shows pause pause if true, otherwise hides it.
 function showPausePic(bVisible)
 {
     if (bVisible)
-        document.getElementById("pause").style.zIndex = 1;
+        document.getElementById("pause").style.zIndex = 3;
 
     else
         document.getElementById("pause").style.zIndex = -1;
+}
+
+function winLoseClick()
+{
+    if (m_bGameStarted)
+    {
+        if (m_bSingle)
+            winLoseClickSingle();
+    }
 }
 
 // Sets the sound on pause on visible
@@ -345,7 +379,7 @@ function playFoodMusic()
 // Handles key up events
 function doKeyUp(event)
 {
-    if (m_bGameStarted)
+    if (m_bGameStarted && !m_bWon && !m_bLost)
     {
         if (m_bSingle)
             keyBoardUpSinglePlayer(event.keyCode);
@@ -590,31 +624,34 @@ function initializeBricks()
 }
 
 function movePaddle(iCenterX, iPaddle)
-{       
-    if(((iCenterX + m_iPaddleLength/2) <= m_iMaxPixelWidth) && ((iCenterX - m_iPaddleLength/2) >= 0))
+{
+    if(!m_bWon && !m_bLost)
     {
-        if(iCenterX > (iPaddle.startX + iPaddle.endX)/2)
+        if(((iCenterX + m_iPaddleLength/2) <= m_iMaxPixelWidth) && ((iCenterX - m_iPaddleLength/2) >= 0))
         {
-            if(iPaddle.velocity < 0)
-                iPaddle.velocity = 0;
-            
-            if(++iPaddle.velocity > m_iMaxPaddleVelocity)
-                iPaddle.velocity = m_iMaxPaddleVelocity;
+            if(iCenterX > (iPaddle.startX + iPaddle.endX)/2)
+            {
+                if(iPaddle.velocity < 0)
+                    iPaddle.velocity = 0;
+
+                if(++iPaddle.velocity > m_iMaxPaddleVelocity)
+                    iPaddle.velocity = m_iMaxPaddleVelocity;
+            }
+
+            else if(iCenterX < (iPaddle.startX + iPaddle.endX)/2)
+            {
+                if(iPaddle.velocity > 0)
+                    iPaddle.velocity = 0;
+
+                if(--iPaddle.velocity < -m_iMaxPaddleVelocity)
+                    iPaddle.velocity = -m_iMaxPaddleVelocity;
+            }
+
+            paintPaddle(iPaddle, m_cBackgroundColor);
+            iPaddle.startX = (iCenterX - m_iPaddleLength/2);
+            iPaddle.endX = (iCenterX + m_iPaddleLength/2);
+            paintPaddle(iPaddle, m_cPaddleColor);
         }
-        
-        else if(iCenterX < (iPaddle.startX + iPaddle.endX)/2)
-        {
-            if(iPaddle.velocity > 0)
-                iPaddle.velocity = 0;
-            
-            if(--iPaddle.velocity < -m_iMaxPaddleVelocity)
-                iPaddle.velocity = -m_iMaxPaddleVelocity;
-        }
-        
-        paintPaddle(iPaddle, m_cBackgroundColor);
-        iPaddle.startX = (iCenterX - m_iPaddleLength/2);
-        iPaddle.endX = (iCenterX + m_iPaddleLength/2);
-        paintPaddle(iPaddle, m_cPaddleColor);
     }
 }
 

@@ -67,3 +67,23 @@ canvas
     top: 65%; 
     left: 40%;
 }
+
+#won
+{
+    z-index: -1;
+    height: 75%; 
+    width: 75%;
+    position: absolute; 
+    top: 10%; 
+    left: 10%;
+}
+
+#lost
+{
+    z-index: -1;
+    height: 75%; 
+    width: 75%;
+    position: absolute; 
+    top: 10%; 
+    left: 10%;
+}
