@@ -74,9 +74,6 @@ var m_FoodMusic;
 var m_BackgroundMusic;
 var m_bSoundOn = true;
 
-// Lettering
-
-
 // HTML5 Elemtents
 var m_CanvasContext;
 var m_Canvas;
@@ -100,26 +97,7 @@ document.documentElement.style.overflowY = "hidden";     // Vertical scrollbar w
 // Initialize canvas
 function initializeGame()
 {
-    // Sets up music
-    if (!supportMP3())
-    {
-        m_MusicList = m_OGGList;
-        m_FoodMusic = new Audio(m_sDirectory + "Food.ogg");        
-    }
-
-    else
-    {
-        m_MusicList = m_MP3List;
-        m_FoodMusic = new Audio(m_sDirectory + "Food.mp3");
-    }
-	
-    m_BackgroundMusic = new Audio(m_MusicList[m_iPrevMusicIndex]);
-	
-    // Get canvas context for drawing, add events
-    m_Canvas = document.getElementById("myCanvas");
-    m_CanvasContext = document.getElementById("myCanvas").getContext("2d");
-
-    // Set canvas size, set up letter positions for the title
+    setUpMusic();
     setCanvasSize();
     setUpLetters();
     
@@ -160,6 +138,8 @@ function changeGameSpeed(intervalID, sFunction, gameSpeed)
 // Sets the canvas as big as the broswer size.
 function setCanvasSize()
 {
+    m_CanvasContext = document.getElementById("myCanvas").getContext("2d");
+    
     // The more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
     if (typeof window.innerWidth != 'undefined')
     {
@@ -185,6 +165,41 @@ function setCanvasSize()
     
     m_CanvasContext.canvas.width = m_iMaxPixelWidth;
     m_CanvasContext.canvas.height = m_iMaxPixelHeight;
+}
+
+// Sets up the music
+function setUpMusic()
+{
+    var a = document.createElement('audio');
+    
+    // Sets up music
+    if (!!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, '')))
+    {
+        m_MusicList = m_MP3List;
+        m_FoodMusic = new Audio(m_sDirectory + "Food.mp3");        
+    }
+
+    else
+    {
+        m_MusicList = m_OGGList;
+        m_FoodMusic = new Audio(m_sDirectory + "Food.ogg"); 
+    }
+	
+    m_BackgroundMusic = new Audio(m_MusicList[m_iPrevMusicIndex]);
+}
+
+// Writes message to corresponding tile, with specified colour
+function writeMessage(startTile, message, color)
+{
+    m_CanvasContext.font = (m_iToolbarThickness - 10)  + 'pt Calibri';
+    m_CanvasContext.fillStyle = color;
+    m_CanvasContext.fillText(message, startTile, m_iToolbarThickness - 5);
+}
+
+// Paints toolbar back to regular
+function paintToolbar()
+{
+    paintTile(0, 0, m_iMaxPixelWidth, m_iToolbarThickness, m_cToolbarColor);
 }
 
 // Paints a tile on the screen pixel based
@@ -316,20 +331,6 @@ function showSoundPic(bOn)
     }
 }
 
-// Writes message to corresponding tile, with specified colour
-function writeMessage(startTile, message, color)
-{
-    m_CanvasContext.font = (m_iToolbarThickness - 10)  + 'pt Calibri';
-    m_CanvasContext.fillStyle = color;
-    m_CanvasContext.fillText(message, startTile, m_iToolbarThickness - 5);
-}
-
-// Paints toolbar back to regular
-function paintToolbar()
-{
-    paintTile(0, 0, m_iMaxPixelWidth, m_iToolbarThickness, m_cToolbarColor);
-}
-
 // Plays background music if mute is off
 function playBackgroundMusic()
 {
@@ -351,13 +352,6 @@ function playBackgroundMusic()
 
     else
         m_BackgroundMusic.pause();
-}
-
-// Checks if the browser supports mp3 files
-function supportMP3()
-{
-    var a = document.createElement('audio');
-    return !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
 }
 
 // Stops background music
@@ -593,8 +587,8 @@ function initializePaddle()
     // Size is in pixels
     m_iPaddleLength = Math.floor(m_iMaxPixelWidth / 5);
     m_iPaddleThickness = Math.floor(m_iMaxPixelHeight / 50);
-    var tempStartX = (m_iMaxPixelWidth / 2) - (m_iPaddleLength / 2);
-    var tempEndX = (m_iMaxPixelWidth / 2) + (m_iPaddleLength / 2);
+    var tempStartX = Math.floor((m_iMaxPixelWidth / 2) - (m_iPaddleLength / 2));
+    var tempEndX = Math.floor((m_iMaxPixelWidth / 2) + (m_iPaddleLength / 2));
     var tempTopY = m_iMaxPixelHeight - m_iPaddleThickness - 10;
     var tempBottomY = tempTopY + m_iPaddleThickness;
 
