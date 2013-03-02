@@ -1,6 +1,6 @@
 // This file conatins all variables used with different variations of the game, and some useful functions
 
-"use strict";
+//"use strict";
 
 // Map Related
 var m_iMaxPixelWidth;
@@ -167,7 +167,7 @@ function setCanvasSize()
     }
     
     m_CanvasContext.canvas.width = m_iMaxPixelWidth;
-    m_CanvasContext.canvas.height = m_iMaxPixelHeight;
+    m_CanvasContext.canvas.height = m_iMaxPixelHeight -= Math.floor(m_iMaxPixelHeight/100);
 }
 
 // Sets up the music
@@ -179,7 +179,7 @@ function setUpMusic()
     if (!!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, '')))
     {
         m_MusicList = m_MP3List;
-        m_FoodMusic = new Audio(m_sDirectory + "Food.mp3");        
+        m_FoodMusic = new Audio(m_sDirectory + "Food.mp3");
     }
 
     else
