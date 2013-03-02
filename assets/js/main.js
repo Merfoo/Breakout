@@ -25,9 +25,15 @@ var m_iMenuSpeed = 50;
 var m_iGameSpeedOriginal = 33;
 var m_iGameSpeedMain = m_iGameSpeedOriginal;
 
-// Ball/Paddles
+// Life
+var m_iStartingLife = 3;
+var m_iCurrentLife = m_iStartingLife;
+
+// Ball
 var m_iBall;
 var m_iMaxBallVelocity = 25;
+
+// Paddle
 var m_iPaddle;
 var m_iMaxPaddleVelocity = 25;
 var m_iPaddleLength;

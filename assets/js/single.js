@@ -10,6 +10,9 @@ function initializeSingle()
 
     // Game speed
     m_iGameSpeedMain = m_iGameSpeedOriginal;
+    
+    // Life
+    m_iCurrentLife = m_iStartingLife;
 
     if (m_iScoreOne > m_iHighestScoreOne)
         m_iHighestScoreOne = m_iScoreOne;
@@ -39,13 +42,24 @@ function gameLoopSingle()
          ballDirectionChanger(m_iBall, m_iPaddle);
     
     if(m_iBrickPositions.length < 1)
-     {
-         alert("HAHAHA YOU WON!!!");
-         initializeSingle();
-     }
+    {
+        stopBackgroundMusic();
+        alert("HAHAHA YOU WON!!!");
+        endGame();
+    }
     
     if(gotPastPaddle(m_iBall))
-        initializeBall();
+    {
+        if(--m_iCurrentLife < 0)
+        {
+            stopBackgroundMusic();
+            alert("YOU LOST!!!");
+            endGame();
+        }
+            
+        else
+            initializeBall();
+    }
     
     if(isAllSame(m_iPaddleLast))
          m_iPaddle.velocity = 0;
@@ -56,7 +70,7 @@ function gameLoopSingle()
     setUpBall(m_iBall, "blue");
     paintPaddle(m_iPaddle, m_cPaddleColor);
     paintToolbar();
-    writeMessage(m_iLeft, m_iBrickPositions.length, m_cScoreColor);
+    writeMessage(m_iLeft, "LIFE: " + m_iCurrentLife, m_cScoreColor);
 }
 
 // Stops loop
@@ -64,7 +78,7 @@ function pauseGameSingle()
 {
     stopBackgroundMusic();
     showPausePic(true);
-    window.clearInterval(m_IntervalIDMain);
+    clearInterval(m_IntervalIDMain);
     m_bIsPaused = true;
 }
 
@@ -77,20 +91,25 @@ function unPauseGameSingle()
     m_bIsPaused = false;
 }
 
+// Handles keyboard events
 function keyBoardUpSinglePlayer(keyCode)
 {
     if (keyCode == 32)    // Space bar was pressed.
         m_bIsPaused ? unPauseGameSingle() : pauseGameSingle();
 
     else if (keyCode == 27)    // Escape was pressed, will eventually show start menu ... Jacob!!!
-    {
+        endGame();
+}
+
+// Ends the game
+function endGame()
+{
         pauseGameSingle(m_IntervalIDMain);
-        m_bIsPaused = false;
         showPausePic(false);
         showStartMenu(true);
+        m_bIsPaused = false;
         m_bGameStarted = false;
         m_bSingle = false;
         m_iScoreOne = 0;
         m_iHighestScoreOne = 0;
-    }
 }
