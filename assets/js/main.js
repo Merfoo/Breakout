@@ -5,20 +5,15 @@
 // Map Related
 var m_iMaxPixelWidth;
 var m_iMaxPixelHeight;
+var m_cBackgroundColor = "black";
 
 // Title Related
+var m_cTitle= new Array();
 var m_iTitleMapWidth = 60;
 var m_iTitleMapHeight = 30;
 var m_iTitlePixelWidth;
 var m_iTitlePixelHeight;
-
-// All colors/ borders
-var m_iBackgroundBorderWidth = 0;
 var m_iTitleBorderWidth = 1;
-var m_iBrickBorderWidth = 2;
-var m_cBackgroundColor = "black";
-var m_cScoreColor = "white";
-var m_cPaddleColor = "pink";
 
 // Game speed
 var m_iMenuSpeed = 50;
@@ -43,20 +38,22 @@ var m_iPaddleThickness;
 var m_iPaddleLastIndex = -1;
 var m_iPaddleLast;
 var m_iPaddleLastSize = 5;
+var m_cPaddleColor = "pink";
 
 // Brick related
 var m_iBrickMapWidth = 20;
 var m_iBrickMapHeight = 30;
 var m_iBrickTileWidth;
 var m_iBrickTileHeight;
+var m_iBrickBorderWidth = 2;
 var m_iBrickPositions;
 var m_iStartingBrickCount = 30;
-var m_iMinLine;
 var m_iCurrentBrickTotal = m_iStartingBrickCount;
 
 // Scores
 var m_iScoreOne = 0;
 var m_iHighestScoreOne = 0;
+var m_cScoreColor = "white";
 
 // Messages alignment
 var m_cToolbarColor = "black";
@@ -78,7 +75,7 @@ var m_BackgroundMusic;
 var m_bSoundOn = true;
 
 // Lettering
-var m_cTitle= new Array();
+
 
 // HTML5 Elemtents
 var m_CanvasContext;
@@ -657,10 +654,10 @@ function movePaddle(iCenterX, iPaddle)
 
 function makeNewBrick()
 {
-    m_iMinLine = m_iBrickMapHeight - Math.floor(m_iBrickMapHeight / 5);
+    var iMinLine = m_iBrickMapHeight - Math.floor(m_iBrickMapHeight / 5);
 
     var tempX = getRandomNumber(0, m_iBrickMapWidth);
-    var tempY = getRandomNumber(0, m_iMinLine);
+    var tempY = getRandomNumber(0, iMinLine);
 
     return { 
         tileX: tempX, 
