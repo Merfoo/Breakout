@@ -33,7 +33,6 @@ var m_iMaxBallVelocity = 25;
 // Paddle
 var m_iPaddle;
 var m_iMaxPaddleVelocity = 25;
-var m_iPaddleLength;
 var m_iPaddleThickness;
 var m_iPaddleLastIndex = -1;
 var m_iPaddleLast;
@@ -76,7 +75,10 @@ var m_bSoundOn = true;
 
 // HTML5 Elemtents
 var m_CanvasContext;
-var m_Canvas;
+
+// Power ups
+var m_iPowerUpIds;
+var m_iPowerUps;
 
 // Interval ID's
 var m_IntervalMenu;
@@ -224,7 +226,7 @@ function paintPaddle(iPaddle, color)
 {
     paintTile(iPaddle.startX, 
         iPaddle.topY, 
-        m_iPaddleLength, 
+        iPaddle.endX - iPaddle.startX, 
         m_iPaddleThickness, 
         color);
 }
@@ -421,12 +423,6 @@ function getRandomNumber(iMin, iMax)
     return Math.floor((Math.random() * (iMax - iMin)) + iMin);
 }
 
-// Capitalizes first leter of string.
-function capitalizeFirst(sArg)
-{
-    return sArg.charAt(0).toUpperCase() + sArg.slice(1);
-}
-
 // Removes specified index of the array
 function removeIndex(index, array)
 {
@@ -585,10 +581,10 @@ function initializeBall()
 function initializePaddle()
 {
     // Size is in pixels
-    m_iPaddleLength = Math.floor(m_iMaxPixelWidth / 5);
     m_iPaddleThickness = Math.floor(m_iMaxPixelHeight / 50);
-    var tempStartX = Math.floor((m_iMaxPixelWidth / 2) - (m_iPaddleLength / 2));
-    var tempEndX = Math.floor((m_iMaxPixelWidth / 2) + (m_iPaddleLength / 2));
+    var iPaddleLength = Math.floor(m_iMaxPixelWidth / 5);
+    var tempStartX = Math.floor((m_iMaxPixelWidth / 2) - (iPaddleLength / 2));
+    var tempEndX = Math.floor((m_iMaxPixelWidth / 2) + (iPaddleLength / 2));
     var tempTopY = m_iMaxPixelHeight - m_iPaddleThickness - 10;
     var tempBottomY = tempTopY + m_iPaddleThickness;
 
@@ -618,7 +614,7 @@ function movePaddle(iCenterX, iPaddle)
 {
     if(!m_bWon && !m_bLost)
     {
-        if(((iCenterX + m_iPaddleLength/2) <= m_iMaxPixelWidth) && ((iCenterX - m_iPaddleLength/2) >= 0))
+        if(((iCenterX + (iPaddle.endX - iPaddle.startX) / 2) <= m_iMaxPixelWidth) && ((iCenterX - (iPaddle.endX - iPaddle.startX) / 2) >= 0))
         {
             if(iCenterX > (iPaddle.startX + iPaddle.endX)/2)
             {
@@ -638,9 +634,10 @@ function movePaddle(iCenterX, iPaddle)
                     iPaddle.velocity = -m_iMaxPaddleVelocity;
             }
 
+            var iCurrentSize = iPaddle.endX - iPaddle.startX;
             paintPaddle(iPaddle, m_cBackgroundColor);
-            iPaddle.startX = (iCenterX - m_iPaddleLength/2);
-            iPaddle.endX = (iCenterX + m_iPaddleLength/2);
+            iPaddle.startX = (iCenterX - iCurrentSize/2);
+            iPaddle.endX = (iCenterX + iCurrentSize/2);
             paintPaddle(iPaddle, m_cPaddleColor);
         }
     }
@@ -717,6 +714,16 @@ function hitPaddle(iBall, iPaddle)
                  return true;
      
     return false;
+}
+
+function changePaddleSize(iPaddle, iNewSize)
+{
+    paintPaddle(iPaddle, m_cBackgroundColor);
+    var iCurrentSize = iPaddle.endX - iPaddle.startX;
+    var iSizeDiff = Math.floor((iNewSize - iCurrentSize) / 2);
+    iPaddle.startX -= iSizeDiff;
+    iPaddle.endX += iSizeDiff;
+    paintPaddle(iPaddle, m_cPaddleColor);
 }
 
 // Checks if ball hit a brick
