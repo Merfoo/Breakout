@@ -63,9 +63,9 @@ function gameLoopSingle()
         for (var index = 0; index < m_iBrickPositions.length; index++)
             paintBrick(m_iBrickPositions[index], getRandomColor(1, 255));
         
-        setUpBall(m_iBall, "blue");
+        setUpBall(m_iBall, m_cBallColor);
         paintPaddle(m_iPaddle, m_cPaddleColor);
-        paintToolbar();
+        paintToolbar(m_cToolbarColor);
         writeMessage(m_iLeft, "LIFE: " + m_iCurrentLife, m_cScoreColor);
     }
     
@@ -126,4 +126,10 @@ function endGame()
 function winLoseClickSingle()
 {
     endGame();
+}
+
+// Handles mouse clicks
+function mouseClickSingle()
+{
+    //if()
 }

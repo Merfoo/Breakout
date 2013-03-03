@@ -1,6 +1,6 @@
 // This file conatins all variables used with different variations of the game, and some useful functions
 
-//"use strict";
+"use strict";
 
 // Map Related
 var m_iMaxPixelWidth;
@@ -29,6 +29,7 @@ var m_bLost = false;
 // Ball
 var m_iBall;
 var m_iMaxBallVelocity = 25;
+var m_cBallColor = "silver";
 
 // Paddle
 var m_iPaddle;
@@ -37,7 +38,7 @@ var m_iPaddleThickness;
 var m_iPaddleLastIndex = -1;
 var m_iPaddleLast;
 var m_iPaddleLastSize = 5;
-var m_cPaddleColor = "pink";
+var m_cPaddleColor = "red";
 
 // Brick related
 var m_iBrickMapWidth = 20;
@@ -58,7 +59,6 @@ var m_cScoreColor = "white";
 var m_cToolbarColor = "black";
 var m_iToolbarThickness;
 var m_iTextMapWidth = 30;
-var m_iTextPixelWidth;
 var m_iLeft;
 var m_iMiddle;
 var m_iRight;
@@ -79,6 +79,7 @@ var m_CanvasContext;
 // Power ups
 var m_iPowerUpIds;
 var m_iPowerUps;
+var m_iLazerPos;
 
 // Interval ID's
 var m_IntervalMenu;
@@ -90,7 +91,8 @@ var m_bGameStarted = false;
 var m_bSingle = false;
 var m_bIsPaused = false;
 
-window.addEventListener('keyup', doKeyUp, true);
+window.addEventListener("keyup", doKeyUp);
+window.addEventListener("onclick", mouseClick);
 document.addEventListener("DOMContentLoaded", initializeGame);
 document.addEventListener("mousemove", mouseMove);
 document.documentElement.style.overflowX = "hidden";	 // Horizontal scrollbar will be hidden
@@ -200,9 +202,9 @@ function writeMessage(startTile, message, color)
 }
 
 // Paints toolbar back to regular
-function paintToolbar()
+function paintToolbar(color)
 {
-    paintTile(0, 0, m_iMaxPixelWidth, m_iToolbarThickness, m_cToolbarColor);
+    paintTile(0, 0, m_iMaxPixelWidth, m_iToolbarThickness, color);
 }
 
 // Paints a tile on the screen pixel based
@@ -261,7 +263,7 @@ function showStartMenu(bVisible)
         document.getElementById("startMenu").style.zIndex = -1;
         document.getElementById("gameBody").style.cursor = "none";
         window.clearInterval(m_IntervalMenu);
-        paintTile(0, 0, m_iMaxPixelWidth, m_iToolbarThickness, m_cToolbarColor);
+        paintToolbar();
         paintTile(0, m_iToolbarThickness, m_iMaxPixelWidth, m_iMaxPixelHeight - m_iToolbarThickness, m_cBackgroundColor);
     }
 }
@@ -382,6 +384,16 @@ function doKeyUp(event)
 
         if (event.keyCode == 77)    // 'm' was pressed.
             m_bSoundOn = !m_bSoundOn;
+    }
+}
+
+// Handles mouse clicks
+function mouseClick(event)
+{
+    if (m_bGameStarted && !m_bWon && !m_bLost)
+    {
+        if(m_bSingle)
+            mouseClickSingle();
     }
 }
 
