@@ -48,11 +48,13 @@ function creatBricks()
 {
     for(var x = 0; x < _brick.horz; x += 2)
     {
-        for(var y = 0; y < _brick.vert; y += 3)
+        for(var y = 0; y < _brick.vert; y += 4)
         {
             var tmpBrick = new Brick();
-            tmpBrick.x = x;
-            tmpBrick.y = y;
+            tmpBrick.x = x * _brick.width;
+            tmpBrick.y = y * _brick.height;
+            tmpBrick.brickX = x;
+            tmpBrick.brickY = y;
             _bricks.push(tmpBrick);
         }
     }
@@ -119,6 +121,16 @@ function updateBall()
     if(_ball.y > _map.height || _ball.y < 0)
         _ball.yV = -_ball.yV;
     
+    for(var brickIndex in _bricks)
+    {
+        var tmpBrick = _bricks[brickIndex];
+        
+        if(_ball.x > tmpBrick.x && _ball.x < tmpBrick.x + _brick.width && _ball.y > tmpBrick.y && _ball.y < tmpBrick.y + _brick.height)
+        {
+            //_ball.xV = - _ball.xV;
+            _ball.yV = - _ball.yV;
+        }
+    }
     _ball.x += _ball.xV;
     _ball.y += _ball.yV;
 }
@@ -130,8 +142,8 @@ function clearScreen()
 
 function paintBrick(brick)
 {
-    var x = brick.x;
-    var y = brick.y;
+    var x = brick.brickX;
+    var y = brick.brickY;
     var color = brick.color;
     _cvs.game.fillStyle = !!color === true ? color : "blue";
     _cvs.game.fillRect(x * _brick.width, y * _brick.height, _brick.width, _brick.height);
@@ -150,8 +162,14 @@ function paintPaddle()
     var x = _paddle.x;
     var y = _paddle.y;
     var color = _paddle.color;
-    _cvs.game.fillStyle = !!color === true ? color : "blue";
-    _cvs.game.fillRect(x, y, _paddle.width, _paddle.height);
+    _cvs.game.lineCap = "round";
+    _cvs.game.lineWidth = _paddle.height;
+    _cvs.game.beginPath();
+    _cvs.game.moveTo(x, y);
+    _cvs.game.lineTo(x + _paddle.width, y);
+    _cvs.game.strokeStyle = color;
+    _cvs.game.stroke();
+    _cvs.game.closePath();
 }
 
 function keyUpEvent(e)
@@ -187,13 +205,13 @@ function print(obj)
     console.log(obj);
 }
 
-// Returns random color between iMin and iMax.
-function getRandomColor(iMin, iMax)
+// Returns random color between min and max.
+function getRandomColor(min, max)
 {
     // Creating a random number between iMin and iMax, converting to hex
-    var hexR = (getRandomNumber(iMin, iMax)).toString(16);
-    var hexG = (getRandomNumber(iMin, iMax)).toString(16);
-    var hexB = (getRandomNumber(iMin, iMax)).toString(16);
+    var hexR = (getRandomNumber(min, max)).toString(16);
+    var hexG = (getRandomNumber(min, max)).toString(16);
+    var hexB = (getRandomNumber(min, max)).toString(16);
 
     // Making sure single character values are prepended with a "0"
     if (hexR.length == 1)
@@ -209,15 +227,15 @@ function getRandomColor(iMin, iMax)
     return ("#" + hexR + hexG + hexB).toUpperCase();
 }
 
-// Returns random number between iMin and iMax, include iMin and iMax
-function getRandomNumber(iMin, iMax)
+// Returns random number between min and max, include iMin and iMax
+function getRandomNumber(min, max)
 {
-    if (iMax < iMin)
+    if (max < min)
     {
-        var temp = iMax;
-        iMax = iMin;
-        iMin = temp;
+        var tmp = max;
+        max = min;
+        min = tmp;
     }
 
-    return Math.floor((Math.random() * ((iMax + 1) - iMin)) + iMin);
+    return Math.floor((Math.random() * ((max + 1) - min)) + min);
 }
