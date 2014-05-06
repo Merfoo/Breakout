@@ -1,9 +1,10 @@
-var _brick = { horz: 25, vert: 20, width: 90, height: 90 };
+var _hitArea = { top: 0, right: 1, bot: 2, left: 3 };
+var _brick = { horz: 20, vert: 20, width: 90, height: 90 };
 var _bricks = [];
 var _map = { width: 0, height: 0 };
 var _cvs = { game: null };
 var _modes = { single: 0 };
-var _mode = 0;
+var _mode = _modes.single;
 var _keyCodes = { left: 37, right: 39 };
 var _keys = { left: false, right: false };
 var _paddle = new Paddle();
@@ -27,8 +28,16 @@ function initGame()
     _brick.height = _map.height / _brick.vert;
     _paddle.x = (_map.width / 2) - (_paddle.width / 2);
     _paddle.y = _map.height - _paddle.height;
+    
+    window.requestAnimFrame = window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        function( callback ){
+            window.setTimeout(callback, 1000 / 60);
+        };
+    
     creatBricks();
-    setInterval(loop, 1000/60);
+    loop();
 }
 
 function loop()
@@ -42,13 +51,15 @@ function loop()
         paintBricks();
         paintBall();
     }
+    
+    window.requestAnimFrame(loop);
 }
 
 function creatBricks()
 {
     for(var x = 0; x < _brick.horz; x += 2)
     {
-        for(var y = 0; y < _brick.vert; y += 4)
+        for(var y = 0; y < _brick.vert; y += 5)
         {
             var tmpBrick = new Brick();
             tmpBrick.x = x * _brick.width;
@@ -100,15 +111,15 @@ function updatePaddle()
     
     _paddle.x += _paddle.maxV * _paddle.v;
     
-    if(_paddle.x + _paddle.width > _map.width)
+    if(_paddle.x + _paddle.width + _paddle.height > _map.width)
     {
-        _paddle.x = _map.width - _paddle.width;
+        _paddle.x = _map.width - _paddle.width - _paddle.height;
         _paddle.v = 0;
     }
     
-    if(_paddle.x < 0)
+    if(_paddle.x  - _paddle.height < 0)
     {
-        _paddle.x = 0;
+        _paddle.x = _paddle.height;
         _paddle.v = 0;
     }
 }
@@ -118,21 +129,60 @@ function updateBall()
     if(_ball.x > _map.width || _ball.x < 0)
         _ball.xV = -_ball.xV;
     
-    if(_ball.y > _map.height || _ball.y < 0)
-        _ball.yV = -_ball.yV;
+    if(_ball.y < 0)
+        _ball.yV *= -1;
+    
+    if(_ball.y > _map.height)
+        _ball.y = 0;
+    
+    if(ballHitPaddle())
+    {
+        if(_paddle.v !== 0)
+            _ball.xV = _paddle.maxV * _paddle.v;
+        
+        _ball.yV *= -1;
+    }
+    
+    var ballLine = new Line();
+    ballLine.createLine({ x: _ball.x, y: _ball.y }, { x: _ball.xLast, y: _ball.yLast });
     
     for(var brickIndex in _bricks)
     {
-        var tmpBrick = _bricks[brickIndex];
+        var brick = _bricks[brickIndex];
+        brick = { xLeft: brick.x, xRight: brick.x + _brick.width, yTop: brick.y, yBot: brick.y + _brick.height };
         
-        if(_ball.x > tmpBrick.x && _ball.x < tmpBrick.x + _brick.width && _ball.y > tmpBrick.y && _ball.y < tmpBrick.y + _brick.height)
+        if(_ball.x > brick.xLeft && _ball.x < brick.xRight && _ball.y > brick.yTop && _ball.y < brick.yBot)
         {
-            //_ball.xV = - _ball.xV;
-            _ball.yV = - _ball.yV;
+            var xTop = ballLine.getX(brick.yTop);
+            var xBot = ballLine.getX(brick.yBot);
+            var yLeft = ballLine.getY(brick.xLeft);
+            var yRight = ballLine.getY(brick.xRight);
+            
+            if((xTop >= brick.xLeft && xTop <= brick.xRight) || (xBot >= brick.xLeft && xBot <= brick.xRight))
+                if(withinNumbers(xTop, _ball.x, _ball.xLast) || withinNumbers(xBot, _ball.x, _ball.xLast))
+                    _ball.yV *= -1;
+            
+            if((yLeft >= brick.yTop && yLeft <= brick.yBot) || (yRight >= brick.yTop && yRight <= brick.yBot))
+                if(withinNumbers(yLeft, _ball.y, _ball.yLast) || withinNumbers(yRight, _ball.y, _ball.yLast))
+                     _ball.xV *= -1;
         }
     }
+    
     _ball.x += _ball.xV;
     _ball.y += _ball.yV;
+    _ball.updateLastPos();
+}
+
+function ballHitPaddle()
+{
+    var ball = { xBack: _ball.x - _ball.r, xFor: _ball.x + _ball.r, yBack: _ball.y - _ball.r, yFor: _ball.y + _ball.r };
+    var paddle = { xLeft: _paddle.x, xRight: _paddle.x + _paddle.width, y: _paddle.y };
+
+    if((ball.xBack > paddle.xLeft || ball.xFor > paddle.xLeft) && (ball.xBack < paddle.xRight || ball.xFor < paddle.xRight))
+        if(ball.yFor > paddle.y)
+            return true;
+    
+    return false;
 }
 
 function clearScreen()
@@ -200,9 +250,19 @@ function keyDownEvent(e)
     }
 }
 
-function print(obj)
+function withinNumbers(x, x1, x2)
 {
-    console.log(obj);
+    if(x1 > x2)
+    {
+        var tmp = x1;
+        x1 = x2;
+        x2 = tmp;
+    }
+    
+    if(x > x1 && x < x2)
+        return true;
+    
+    return false;
 }
 
 // Returns random color between min and max.

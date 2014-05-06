@@ -27,10 +27,40 @@ Paddle = function()
 
 Ball = function()
 {
-    this.x = 10;
-    this.y = 10;
-    this.xV = 10;
-    this.yV = 10;
+    this.x = 110;
+    this.y = 90;
+    this.xLast = 0;
+    this.yLast = 0;
+    this.xV = 8;
+    this.yV = 8;
     this.r = 10;
     this.color = "red";
+    
+    this.updateLastPos = function()
+    {
+        this.xLast = this.x - this.xV;
+        this.yLast = this.y - this.yV;
+    };
+};
+
+Line = function()
+{
+    this.slope = 1;
+    this.yInt = 1;
+    
+    this.getX = function(y)
+    {
+        return (y - this.yInt) / this.slope;
+    };
+    
+    this.getY = function(x)
+    {
+        return (this.slope * x) + this.yInt;
+    };
+    
+    this.createLine = function(pointA, pointB)
+    {
+        this.slope = (pointB.y - pointA.y) / (pointB.x - pointA.x);
+        this.yInt = pointB.y - (this.slope * pointB.x);
+    };
 };
