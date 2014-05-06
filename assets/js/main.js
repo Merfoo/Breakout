@@ -1,5 +1,5 @@
 var _hitArea = { top: 0, right: 1, bot: 2, left: 3 };
-var _brick = { horz: 20, vert: 20, width: 90, height: 90 };
+var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0 };
 var _bricks = [];
 var _map = { width: 0, height: 0 };
 var _cvs = { game: null };
@@ -57,9 +57,11 @@ function loop()
 
 function creatBricks()
 {
-    for(var x = 0; x < _brick.horz; x += 2)
+    _bricks = [];
+    
+    for(var x = 1; x < _brick.horz - 1; x += 2)
     {
-        for(var y = 0; y < _brick.vert; y += 5)
+        for(var y = 1; y < _brick.vert - 5; y += 5)
         {
             var tmpBrick = new Brick();
             tmpBrick.x = x * _brick.width;
@@ -69,12 +71,17 @@ function creatBricks()
             _bricks.push(tmpBrick);
         }
     }
+    
+    _brick.live = _bricks.length;
 }
 
 function paintBricks()
 {
     for(var brickIndex in _bricks)
     {
+        if(_bricks[brickIndex].lives <= 0)
+            continue;
+        
         _bricks[brickIndex].color = getRandomColor(0, 255);
         paintBrick(_bricks[brickIndex]);
     }
@@ -148,6 +155,9 @@ function updateBall()
     
     for(var brickIndex in _bricks)
     {
+        if(_bricks[brickIndex].lives <= 0)
+            continue;
+        
         var brick = _bricks[brickIndex];
         brick = { xLeft: brick.x, xRight: brick.x + _brick.width, yTop: brick.y, yBot: brick.y + _brick.height };
         
@@ -165,12 +175,18 @@ function updateBall()
             if((yLeft >= brick.yTop && yLeft <= brick.yBot) || (yRight >= brick.yTop && yRight <= brick.yBot))
                 if(withinNumbers(yLeft, _ball.y, _ball.yLast) || withinNumbers(yRight, _ball.y, _ball.yLast))
                      _ball.xV *= -1;
+             
+             if(_bricks[brickIndex].lives > 0 && --_bricks[brickIndex].lives <= 0)
+                 _brick.live--;
         }
     }
     
     _ball.x += _ball.xV;
     _ball.y += _ball.yV;
     _ball.updateLastPos();
+    
+    if(_brick.live <= 0)
+        creatBricks();
 }
 
 function ballHitPaddle()

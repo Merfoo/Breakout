@@ -5,8 +5,8 @@ Brick = function()
     this.brickX = 0;
     this.brickY = 0;
     this.color = "red";
-    this.startLives = 0;
-    this.lives = 0;
+    this.startLives = 1;
+    this.lives = 1;
 };
 
 Paddle = function()
@@ -31,8 +31,8 @@ Ball = function()
     this.y = 90;
     this.xLast = 0;
     this.yLast = 0;
-    this.xV = 8;
-    this.yV = 8;
+    this.xV = 4;
+    this.yV = 4;
     this.r = 10;
     this.color = "red";
     
