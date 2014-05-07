@@ -192,26 +192,28 @@ function updateBall()
         for(var j in offSet)
         {    
             var ball = { x: _ball.x + offSet[j].x, y: _ball.y + offSet[j].y, xLast: _ball.xLast + offSet[j].x, yLast: _ball.yLast + offSet[j].y };
-            var ballLine = new Line();
-            ballLine.createLine({ x: ball.x, y: ball.y }, { x: ball.xLast, y: ball.yLast });
         
             if(inBetween(ball.x, brick.xLeft, brick.xRight) && inBetween(ball.y, brick.yTop, brick.yBot))
             {
+                var ballLine = new Line();
+                ballLine.createLine({ x: ball.x, y: ball.y }, { x: ball.xLast, y: ball.yLast });
                 var xTop = ballLine.getX(brick.yTop);
                 var xBot = ballLine.getX(brick.yBot);
                 var yLeft = ballLine.getY(brick.xLeft);
                 var yRight = ballLine.getY(brick.xRight);
-                console.log(xTop + " " + xBot);
+                
                 if((xTop >= brick.xLeft && xTop <= brick.xRight) || (xBot >= brick.xLeft && xBot <= brick.xRight))
-                    if(inBetween(xTop, ball.x, ball.xLast) || inBetween(xBot, ball.x, ball.xLast))
+                    if(inBetween(brick.yTop, ball.y, ball.yLast) || inBetween(brick.yBot, ball.y, ball.yLast))
                         _ball.yV *= -1;
 
                 if((yLeft >= brick.yTop && yLeft <= brick.yBot) || (yRight >= brick.yTop && yRight <= brick.yBot))
-                    if(inBetween(yLeft, ball.y, ball.yLast) || inBetween(yRight, ball.y, ball.yLast))
+                    if(inBetween(brick.xLeft, ball.x, ball.xLast) || inBetween(brick.xRight, ball.x, ball.xLast))
                          _ball.xV *= -1;
 
                  if(_bricks[brickIndex].lives > 0 && --_bricks[brickIndex].lives <= 0)
                      _brick.live--;
+                 
+                 break;
             }
         }
     }
