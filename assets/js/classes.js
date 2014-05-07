@@ -70,6 +70,8 @@ Line = function()
     {
         if(this.slope !== null)
             return (this.slope * x) + this.yInt;
+        
+        return 0;
     };
     
     this.createLine = function(pointA, pointB)
@@ -78,6 +80,7 @@ Line = function()
         {
             this.slope = (pointB.y - pointA.y) / (pointB.x - pointA.x);
             this.yInt = pointB.y - (this.slope * pointB.x);
+            this.xInt = (pointB.y - this.yInt) / this.slope;
         }
         
         else
