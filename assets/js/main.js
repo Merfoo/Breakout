@@ -1,12 +1,12 @@
 var _hitArea = { top: 0, right: 1, bot: 2, left: 3 };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0 };
 var _bricks = [];
-var _map = { width: 0, height: 0 };
-var _cvs = { game: null };
+var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
+var _cvs = { borderThick: 0, game: null };
 var _modes = { single: 0 };
 var _mode = _modes.single;
-var _keyCodes = { left: 37, right: 39 };
-var _keys = { left: false, right: false };
+var _keyCodes = { left: 37, right: 39, space: 32 };
+var _keys = { left: false, right: false, space: false };
 var _paddle = new Paddle();
 var _ball = new Ball();
 
@@ -18,16 +18,8 @@ window.addEventListener("keydown", keyDownEvent);
 
 function initGame()
 {
-    var cvsBorderThick = parseInt(getComputedStyle(document.getElementById('myCanvas'),null).getPropertyValue('border-width'));
+    _cvs.borderThick = parseInt(getComputedStyle(document.getElementById('myCanvas'),null).getPropertyValue('border-width'));
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
-    _map.width = window.innerWidth - (cvsBorderThick * 2);
-    _map.height = window.innerHeight - (cvsBorderThick * 2);
-    _cvs.game.canvas.width = _map.width;
-    _cvs.game.canvas.height = _map.height;
-    _brick.width = _map.width / _brick.horz;
-    _brick.height = _map.height / _brick.vert;
-    _paddle.x = (_map.width / 2) - (_paddle.width / 2);
-    _paddle.y = _map.height - _paddle.height;
     
     window.requestAnimFrame = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -36,8 +28,28 @@ function initGame()
             window.setTimeout(callback, 1000 / 60);
         };
     
+    setGameSize();
     creatBricks();
     loop();
+    window.addEventListener("resize", setGameSize);
+}
+
+function setGameSize()
+{
+    _map.width = window.innerWidth - (_cvs.borderThick * 2);
+    _map.height = window.innerHeight - (_cvs.borderThick * 2);
+    _map.widthMod = _map.width / _map.origWidth;
+    _map.heightMod = _map.height / _map.origHeight;
+    _cvs.game.canvas.width = _map.width;
+    _cvs.game.canvas.height = _map.height;
+    _brick.width = _map.width / _brick.horz;
+    _brick.height = _map.height / _brick.vert;
+    _paddle.width = _paddle.startWidth * _map.widthMod;
+    _paddle.height = _paddle.startHeight * _map.heightMod;
+    _paddle.x = (_map.width / 2) - (_paddle.width / 2);
+    _paddle.y = _map.height - _paddle.height;
+    _ball.r = _ball.startR * _map.widthMod;
+    _ball.releaseHeight = _ball.startReleaseHeight * _map.heightMod;
 }
 
 function loop()
@@ -64,10 +76,8 @@ function creatBricks()
         for(var y = 1; y < _brick.vert - 5; y += 5)
         {
             var tmpBrick = new Brick();
-            tmpBrick.x = x * _brick.width;
-            tmpBrick.y = y * _brick.height;
-            tmpBrick.brickX = x;
-            tmpBrick.brickY = y;
+            tmpBrick.x = x;
+            tmpBrick.y = y;
             _bricks.push(tmpBrick);
         }
     }
@@ -133,6 +143,20 @@ function updatePaddle()
 
 function updateBall()
 {
+    if(!_ball.released)
+    {
+        _ball.xV = 0;
+        _ball.yV = 0;
+        _ball.x = _paddle.x + (_paddle.width / 2);
+        _ball.y = _ball.releaseHeight;
+        
+        if(_keys.space)
+        {
+            _ball.released = true;
+            _ball.yV = _ball.startYV;
+        }
+    }
+    
     if(_ball.x > _map.width || _ball.x < 0)
         _ball.xV = -_ball.xV;
     
@@ -144,40 +168,50 @@ function updateBall()
     
     if(ballHitPaddle())
     {
-        if(_paddle.v !== 0)
-            _ball.xV = _paddle.maxV * _paddle.v;
-        
+        _ball.xV = _paddle.maxV * ((_ball.x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2));
         _ball.yV *= -1;
     }
-    
-    var ballLine = new Line();
-    ballLine.createLine({ x: _ball.x, y: _ball.y }, { x: _ball.xLast, y: _ball.yLast });
-    
+       
     for(var brickIndex in _bricks)
     {
         if(_bricks[brickIndex].lives <= 0)
             continue;
         
         var brick = _bricks[brickIndex];
-        brick = { xLeft: brick.x, xRight: brick.x + _brick.width, yTop: brick.y, yBot: brick.y + _brick.height };
+        brick = 
+        { 
+            xLeft: brick.x * _brick.width, 
+            xRight: (brick.x * _brick.width) + _brick.width, 
+            yTop: brick.y * _brick.height, 
+            yBot: (brick.y * _brick.height) + _brick.height 
+        };
         
-        if(_ball.x > brick.xLeft && _ball.x < brick.xRight && _ball.y > brick.yTop && _ball.y < brick.yBot)
-        {
-            var xTop = ballLine.getX(brick.yTop);
-            var xBot = ballLine.getX(brick.yBot);
-            var yLeft = ballLine.getY(brick.xLeft);
-            var yRight = ballLine.getY(brick.xRight);
-            
-            if((xTop >= brick.xLeft && xTop <= brick.xRight) || (xBot >= brick.xLeft && xBot <= brick.xRight))
-                if(withinNumbers(xTop, _ball.x, _ball.xLast) || withinNumbers(xBot, _ball.x, _ball.xLast))
-                    _ball.yV *= -1;
-            
-            if((yLeft >= brick.yTop && yLeft <= brick.yBot) || (yRight >= brick.yTop && yRight <= brick.yBot))
-                if(withinNumbers(yLeft, _ball.y, _ball.yLast) || withinNumbers(yRight, _ball.y, _ball.yLast))
-                     _ball.xV *= -1;
-             
-             if(_bricks[brickIndex].lives > 0 && --_bricks[brickIndex].lives <= 0)
-                 _brick.live--;
+        var offSet = [{ x: 0, y: 0 }, { x: -_ball.r, y: 0 }, { x: _ball.r, y: 0 }, { x: 0, y: -_ball.r }, { x: 0, y: _ball.r }];
+        
+        for(var j in offSet)
+        {    
+            var ball = { x: _ball.x + offSet[j].x, y: _ball.y + offSet[j].y, xLast: _ball.xLast + offSet[j].x, yLast: _ball.yLast + offSet[j].y };
+            var ballLine = new Line();
+            ballLine.createLine({ x: ball.x, y: ball.y }, { x: ball.xLast, y: ball.yLast });
+        
+            if(inBetween(ball.x, brick.xLeft, brick.xRight) && inBetween(ball.y, brick.yTop, brick.yBot))
+            {
+                var xTop = ballLine.getX(brick.yTop);
+                var xBot = ballLine.getX(brick.yBot);
+                var yLeft = ballLine.getY(brick.xLeft);
+                var yRight = ballLine.getY(brick.xRight);
+                console.log(xTop + " " + xBot);
+                if((xTop >= brick.xLeft && xTop <= brick.xRight) || (xBot >= brick.xLeft && xBot <= brick.xRight))
+                    if(inBetween(xTop, ball.x, ball.xLast) || inBetween(xBot, ball.x, ball.xLast))
+                        _ball.yV *= -1;
+
+                if((yLeft >= brick.yTop && yLeft <= brick.yBot) || (yRight >= brick.yTop && yRight <= brick.yBot))
+                    if(inBetween(yLeft, ball.y, ball.yLast) || inBetween(yRight, ball.y, ball.yLast))
+                         _ball.xV *= -1;
+
+                 if(_bricks[brickIndex].lives > 0 && --_bricks[brickIndex].lives <= 0)
+                     _brick.live--;
+            }
         }
     }
     
@@ -186,7 +220,10 @@ function updateBall()
     _ball.updateLastPos();
     
     if(_brick.live <= 0)
+    {
         creatBricks();
+        _ball.released = false;
+    }
 }
 
 function ballHitPaddle()
@@ -208,8 +245,8 @@ function clearScreen()
 
 function paintBrick(brick)
 {
-    var x = brick.brickX;
-    var y = brick.brickY;
+    var x = brick.x;
+    var y = brick.y;
     var color = brick.color;
     _cvs.game.fillStyle = !!color === true ? color : "blue";
     _cvs.game.fillRect(x * _brick.width, y * _brick.height, _brick.width, _brick.height);
@@ -242,13 +279,20 @@ function keyUpEvent(e)
 {
     if(_mode === _modes.single)
     {    
-        var code = e.keyCode;
+        switch(e.keyCode)
+        {
+            case _keyCodes.left:
+                _keys.left = false;
+                break;
 
-        if(code === _keyCodes.left)
-            _keys.left = false;
-
-        if(code === _keyCodes.right)
-            _keys.right = false;
+            case _keyCodes.right:
+                _keys.right = false;
+                break;
+                
+            case _keyCodes.space:
+                _keys.space = false;
+                break;
+        }
     }
 }
 
@@ -256,17 +300,24 @@ function keyDownEvent(e)
 {
     if(_mode === _modes.single)
     {    
-        var code = e.keyCode;
+        switch(e.keyCode)
+        {
+            case _keyCodes.left:
+                _keys.left = true;
+                break;
 
-        if(code === _keyCodes.left)
-            _keys.left = true;
-
-        if(code === _keyCodes.right)
-            _keys.right = true;
+            case _keyCodes.right:
+                _keys.right = true;
+                break;
+                
+            case _keyCodes.space:
+                _keys.space = true;
+                break;
+        }
     }
 }
 
-function withinNumbers(x, x1, x2)
+function inBetween(x, x1, x2)
 {
     if(x1 > x2)
     {
@@ -275,7 +326,7 @@ function withinNumbers(x, x1, x2)
         x2 = tmp;
     }
     
-    if(x > x1 && x < x2)
+    if(x >= x1 && x <= x2)
         return true;
     
     return false;
@@ -290,13 +341,13 @@ function getRandomColor(min, max)
     var hexB = (getRandomNumber(min, max)).toString(16);
 
     // Making sure single character values are prepended with a "0"
-    if (hexR.length == 1)
+    if (hexR.length === 1)
         hexR = "0" + hexR;
 
-    if (hexG.length == 1)
+    if (hexG.length === 1)
         hexG = "0" + hexG;
 
-    if (hexB.length == 1)
+    if (hexB.length === 1)
         hexB = "0" + hexB;
 
     // Creating the hex value by concatenatening the string values
