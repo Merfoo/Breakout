@@ -2,7 +2,7 @@ canvas
 {
     z-index: 1; 
     position: absolute;
-    border:10px solid gray;
+    border: 5px solid gray;
     top: 0px;
     left: 0px;
 }

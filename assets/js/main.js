@@ -62,6 +62,7 @@ function loop()
         paintPaddle();
         paintBricks();
         paintBall();
+        _cvs.game.canvas.style.borderColor = getRandomColor(0, 255);
     }
     
     window.requestAnimFrame(loop);
