@@ -7,7 +7,7 @@ var _modes = { single: 0 };
 var _levels = [];
 var _levelIndex = 0;
 var _mode = _modes.single;
-var _keyCodes = { left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68 };
+var _keyCodes = { left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, alt: 18 };
 var _keys = { left: false, right: false, space: false };
 var _paddle = new Paddle();
 var _ball = new Ball();
@@ -162,19 +162,22 @@ function updateBall()
         }
     }
     
-    if(_ball.x > _map.width || _ball.x < 0)
-        _ball.xV = -_ball.xV;
+    if(_ball.x + _ball.r > _map.width) 
+        _ball.xV = -Math.abs(_ball.xV);
     
-    if(_ball.y < 0)
-        _ball.yV *= -1;
+    else if(_ball.x - _ball.r < 0)
+        _ball.xV = Math.abs(_ball.xV);
+        
+    if(_ball.y - _ball.r < 0)
+        _ball.yV = Math.abs(_ball.yV);
     
-    if(_ball.y > _map.height)
+    else if(_ball.y > _map.height)
         _ball.y = 0;
     
     if(ballHitPaddle())
     {
         _ball.xV = _ball.maxV * ((_ball.x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2));
-        _ball.yV *= -1;
+        _ball.yV = -Math.abs(_ball.yV);
     }
        
     for(var brickIndex in _bricks)
@@ -342,6 +345,10 @@ function keyUpEvent(e)
                 
                 _bricks = _levels[_levelIndex];
                 break;
+                
+            case _keyCodes.alt:
+                saveCanvasImg();
+                break;
         }
     }
 }
@@ -444,6 +451,11 @@ function getRandomNumber(min, max)
     return Math.floor((Math.random() * ((max + 1) - min)) + min);
 }
     
+function saveCanvasImg()
+{
+    downloadImg("canvasImg.png", _cvs.game.canvas.toDataURL("image/png"));
+}
+    
 function printLevel()
 {
     var str = "\tvar ret = [];\n";
@@ -467,4 +479,12 @@ function download(filename, text)
     pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     pom.setAttribute('download', filename);
     pom.click();
+}
+
+function downloadImg(filename, imgSrc)
+{
+    var el = document.createElement("a");
+    el.setAttribute("href", imgSrc);
+    el.setAttribute("download", filename);
+    el.click();
 }
