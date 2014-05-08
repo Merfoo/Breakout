@@ -1,26 +1,29 @@
-var _hitArea = { top: 0, right: 1, bot: 2, left: 3 };
+var _creativeMode = false;
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0 };
 var _bricks = [];
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
 var _cvs = { borderThick: 0, game: null };
 var _modes = { single: 0 };
+var _levels = [];
+var _levelIndex = 0;
 var _mode = _modes.single;
-var _keyCodes = { left: 37, right: 39, space: 32 };
+var _keyCodes = { left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68 };
 var _keys = { left: false, right: false, space: false };
 var _paddle = new Paddle();
 var _ball = new Ball();
 
-document.addEventListener("DOMContentLoaded", initGame);
+document.addEventListener("DOMContentLoaded", init);
 document.documentElement.style.overflowX = "hidden";	 // Horizontal scrollbar will be hidden
 document.documentElement.style.overflowY = "hidden";     // Vertical scrollbar will be hidden
 window.addEventListener("keyup", keyUpEvent);
 window.addEventListener("keydown", keyDownEvent);
+window.addEventListener("mousedown", mouseDownEvent);
 
-function initGame()
+function init()
 {
     _cvs.borderThick = parseInt(getComputedStyle(document.getElementById('myCanvas'),null).getPropertyValue('border-width'));
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
-    
+    window.addEventListener("resize", setGameSize);
     window.requestAnimFrame = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||
@@ -29,9 +32,15 @@ function initGame()
         };
     
     setGameSize();
-    creatBricks();
+    initGame();
     loop();
-    window.addEventListener("resize", setGameSize);
+    
+    var tmp;
+    if(typeof(Storage) !== "undefined")
+    {
+        console.log(localStorage.map = JSON.stringify([{ x: 1, y: 2 }, 2, 3, 4, 5]));
+        console.log(tmp = JSON.parse(localStorage.map));
+    }
 }
 
 function setGameSize()
@@ -68,22 +77,17 @@ function loop()
     window.requestAnimFrame(loop);
 }
 
-function creatBricks()
+function initGame()
 {
-    _bricks = [];
-    
-    for(var x = 1; x < _brick.horz - 1; x += 2)
-    {
-        for(var y = 1; y < _brick.vert - 5; y += 5)
-        {
-            var tmpBrick = new Brick();
-            tmpBrick.x = x;
-            tmpBrick.y = y;
-            _bricks.push(tmpBrick);
-        }
-    }
-    
-    _brick.live = _bricks.length;
+    makeLevels();
+    _ball = new Ball();
+    _paddle = new Paddle();
+    _paddle.width = _paddle.startWidth * _map.widthMod;
+    _paddle.height = _paddle.startHeight * _map.heightMod;
+    _paddle.x = (_map.width / 2) - (_paddle.width / 2);
+    _paddle.y = _map.height - _paddle.height;
+    _ball.r = _ball.startR * _map.widthMod;
+    _ball.releaseHeight = _ball.startReleaseHeight * _map.heightMod;
 }
 
 function paintBricks()
@@ -169,7 +173,7 @@ function updateBall()
     
     if(ballHitPaddle())
     {
-        _ball.xV = _paddle.maxV * ((_ball.x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2));
+        _ball.xV = _ball.maxV * ((_ball.x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2));
         _ball.yV *= -1;
     }
        
@@ -218,14 +222,23 @@ function updateBall()
         }
     }
     
-    _ball.x += _ball.xV;
-    _ball.y += _ball.yV;
-    _ball.updateLastPos();
+    if(!_creativeMode)
+    {
+        _ball.x += _ball.xV;
+        _ball.y += _ball.yV;
+        _ball.updateLastPos();
+    }
     
     if(_brick.live <= 0)
     {
-        creatBricks();
         _ball.released = false;
+        _bricks = _levels[_levelIndex++];
+        _brick.live = _bricks.length;
+        
+        if(_levelIndex >= _levels.length)
+            _levelIndex = 0;
+        
+        console.log("bricks destroyed");
     }
 }
 
@@ -278,6 +291,20 @@ function paintPaddle()
     _cvs.game.closePath();
 }
 
+function makeLevels()
+{
+    _levelIndex = 0;
+    _levels = [];
+    _levels.push(makeLevel1());
+    _levels.push(makeLevel2());
+    _levels.push(makeLevel3());
+    _levels.push(makeLevel4());
+    _levels.push(makeLevel5());
+    _levels.push(makeLevel6());
+    _bricks = _levels[_levelIndex++];
+    _brick.live = _bricks.length;
+}
+
 function keyUpEvent(e)
 {
     if(_mode === _modes.single)
@@ -294,6 +321,26 @@ function keyUpEvent(e)
                 
             case _keyCodes.space:
                 _keys.space = false;
+                break;
+                
+            case _keyCodes.tilda:
+                if(!(_creativeMode = !_creativeMode))
+                    initGame();
+                
+                break;
+                
+            case _keyCodes.a:
+                if(--_levelIndex < 0)
+                    _levelIndex = 0;
+                
+                _bricks = _levels[_levelIndex];
+                break;
+                
+            case _keyCodes.d:
+                if(++_levelIndex >= _levels.length)
+                    _levelIndex = _levels.length - 1;
+                
+                _bricks = _levels[_levelIndex];
                 break;
         }
     }
@@ -315,8 +362,35 @@ function keyDownEvent(e)
                 
             case _keyCodes.space:
                 _keys.space = true;
+                
+                if(_creativeMode)
+                {
+                    printLevel();
+                    _bricks = [];
+                }
+                
                 break;
         }
+    }
+}
+
+function mouseDownEvent(e)
+{
+    if(_creativeMode)
+    {
+        var x = Math.floor(e.clientX / _brick.width);
+        var y = Math.floor(e.clientY / _brick.height);
+
+        for(var i in _bricks)
+        {
+            if(_bricks[i].x === x && _bricks[i].y === y)
+            {
+                _bricks.splice(i, 1);
+                return;
+            }
+        }
+
+        _bricks.push(new Brick(x, y));
     }
 }
 
@@ -368,4 +442,29 @@ function getRandomNumber(min, max)
     }
 
     return Math.floor((Math.random() * ((max + 1) - min)) + min);
+}
+    
+function printLevel()
+{
+    var str = "\tvar ret = [];\n";
+    
+    for(var i in _bricks)
+    {
+        str += "\tret.push(new Brick(";
+        str += _bricks[i].x;
+        str += ", ";
+        str += _bricks[i].y;
+        str += "));\n";
+    }
+    
+    str += "\n\treturn ret;";
+    download("level.txt", str);
+}
+
+function download(filename, text) 
+{
+    var pom = document.createElement('a');
+    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', filename);
+    pom.click();
 }
