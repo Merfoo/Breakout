@@ -66,13 +66,16 @@ function loop()
             ballLine.createLine({ x: _ball.x, y: _ball.y }, { x: _ball.xLast, y: _ball.yLast });
             var colX = ballLine.getX(_paddle.y);
             
-            if((colX > _paddle.x + _paddle.width && _ball.yV > 0) || (_ball.xV > 0 && _ball.x > _paddle.x + _paddle.width))
+            if(_ball.yV < 0)
+                colX = ballLine.getX(0);
+            
+            if((colX > _paddle.x + _paddle.width))
             {
                 _keys.left = false;
                 _keys.right = true;
             }
             
-            else if((colX < _paddle.x && _ball.yV > 0) || (_ball.xV < 0 && _ball.x < _paddle.x))
+            else if((colX < _paddle.x))
             {
                 _keys.left = true;
                 _keys.right = false;
@@ -87,8 +90,9 @@ function loop()
             if(!_ball.released)
             {
                 _ball.released = true;
-                _ball.xV = 4;
-                _ball.yV = -4;
+                var vel = getVel(getRandomNumber(-90 - _ball.maxAng, -90 + _ball.maxAng), _ball.maxV);
+                _ball.xV = vel.x;
+                _ball.yV = vel.y;
             }
             
         case _modes.single:
@@ -216,8 +220,9 @@ function updateBall()
     
     if(ballHitPaddle())
     {
-        _ball.xV = _ball.maxV * ((_ball.x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2));
-        _ball.yV = -Math.abs(_ball.yV);
+        var newVel = getVel((-_ball.maxAng * ((_ball.x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2))) - 90, _ball.maxV);
+        _ball.xV = newVel.x;
+        _ball.yV = newVel.y;
     }
        
     var collided = { x: false, y: false };
@@ -533,6 +538,21 @@ function inBetween(x, x1, x2)
         return true;
     
     return false;
+}
+
+function getVel(ang, vel)
+{
+    return { x: -Math.cos(toRad(ang)) * vel, y: Math.sin(toRad(ang)) * vel };
+}
+
+function toRad(deg)
+{
+    return deg * Math.PI / 180;
+}
+
+function toDeg(rad)
+{
+    return rad * 180 / Math.PI;
 }
 
 // Returns random color between min and max.
