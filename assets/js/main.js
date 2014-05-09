@@ -220,6 +220,8 @@ function updateBall()
         _ball.yV = -Math.abs(_ball.yV);
     }
        
+    var collided = { x: false, y: false };
+    
     for(var brickIndex in _bricks)
     {
         if(_bricks[brickIndex].lives <= 0)
@@ -251,27 +253,28 @@ function updateBall()
                 
                 if((xTop >= brick.xLeft && xTop <= brick.xRight) || (xBot >= brick.xLeft && xBot <= brick.xRight))
                     if(inBetween(brick.yTop, ball.y, ball.yLast) || inBetween(brick.yBot, ball.y, ball.yLast))
-                        _ball.yV *= -1;
+                        collided.y = true;
 
                 if((yLeft >= brick.yTop && yLeft <= brick.yBot) || (yRight >= brick.yTop && yRight <= brick.yBot))
                     if(inBetween(brick.xLeft, ball.x, ball.xLast) || inBetween(brick.xRight, ball.x, ball.xLast))
-                         _ball.xV *= -1;
+                         collided.x = true;
 
                  if(_bricks[brickIndex].lives > 0 && --_bricks[brickIndex].lives <= 0)
                      _brick.live--;
-                 
-                 break;
             }
         }
     }
     
-    if(!_creativeMode)
-    {
-        _ball.x += _ball.xV;
-        _ball.y += _ball.yV;
-        _ball.updateLastPos();
-    }
-    
+    if(collided.x)
+        _ball.xV *= -1;
+
+    if(collided.y)
+        _ball.yV *= -1;
+        
+    _ball.x += _ball.xV;
+    _ball.y += _ball.yV;
+    _ball.updateLastPos();
+        
     if(_brick.live <= 0)
     {
         _ball.released = false;
