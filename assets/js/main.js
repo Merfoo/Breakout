@@ -3,14 +3,15 @@ var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0 };
 var _bricks = [];
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
 var _cvs = { borderThick: 0, game: null };
-var _modes = { single: 0, auto: 1 };
+var _modes = { single: 0, auto: 1, creative: 2 };
 var _levels = [];
-var _levelIndex = 0;
+var _level = { index: 0, orig: 6 };
 var _mode = _modes.auto;
-var _keyCodes = { left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, alt: 18, enter: 13, esc: 27 };
+var _keyCodes = { left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
 var _keys = { left: false, right: false, space: false };
 var _paddle = new Paddle();
 var _ball = new Ball();
+var _storeAvailable = false;
 
 document.addEventListener("DOMContentLoaded", init);
 document.documentElement.style.overflowX = "hidden";	 // Horizontal scrollbar will be hidden
@@ -21,6 +22,7 @@ window.addEventListener("mousedown", mouseDownEvent);
 
 function init()
 {
+    _storeAvailable = typeof(Storage) !== "undefined";
     _cvs.borderThick = parseInt(getComputedStyle(document.getElementById('myCanvas'),null).getPropertyValue('border-width'));
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
     window.addEventListener("resize", setGameSize);
@@ -31,15 +33,10 @@ function init()
             window.setTimeout(callback, 1000 / 60);
         };
     
+    makeLevels();
     setGameSize();
     initGame();
     loop();
-    var tmp;
-    if(typeof(Storage) !== "undefined")
-    {
-        console.log(localStorage.map = JSON.stringify([{ x: 1, y: 2 }, 2, 3, 4, 5]));
-        console.log(tmp = JSON.parse(localStorage.map));
-    }
 }
 
 function setGameSize()
@@ -103,14 +100,21 @@ function loop()
             paintBall();
             _cvs.game.canvas.style.borderColor = getRandomColor(0, 255);
             break;
+            
+        case _modes.creative:
+            clearScreen();
+            paintPaddle();
+            paintBricks();
+            paintBall();
+            _cvs.game.canvas.style.borderColor = getRandomColor(0, 255);
+            break;
     }
     
     window.requestAnimFrame(loop);
 }
 
 function initGame()
-{
-    makeLevels();
+{    
     _ball = new Ball();
     _paddle = new Paddle();
     _paddle.width = _paddle.startWidth * _map.widthMod;
@@ -119,8 +123,11 @@ function initGame()
     _paddle.y = _map.height - _paddle.height;
     _ball.r = _ball.startR * _map.widthMod;
     _ball.releaseHeight = _ball.startReleaseHeight * _map.heightMod;
+    _ball.x = _paddle.x + _paddle.width / 2;
+    _ball.y = _ball.releaseHeight;
     _keys.left = false;
     _keys.right = false;
+    resetLevels();
 }
 
 function paintBricks()
@@ -324,16 +331,34 @@ function paintPaddle()
 
 function makeLevels()
 {
-    _levels = [];
-    _levels.push(makeLevel1());
-    _levels.push(makeLevel2());
-    _levels.push(makeLevel3());
-    _levels.push(makeLevel4());
-    _levels.push(makeLevel5());
-    _levels.push(makeLevel6());
-    getLevel(0);
+    if(!_storeAvailable || !localStorage.levels)
+    {
+        _levels = [];
+        _levels.push(makeLevel1());
+        _levels.push(makeLevel2());
+        _levels.push(makeLevel3());
+        _levels.push(makeLevel4());
+        _levels.push(makeLevel5());
+        _levels.push(makeLevel6());
+    }
+    
+    else
+        _levels = JSON.parse(localStorage.levels);
 }
 
+function resetBrick(brick)
+{
+    brick.lives = brick.startLives;
+}
+
+function resetLevels()
+{
+    for(var levelIndex = 0, len = _levels.length; levelIndex < len; levelIndex++)
+        for(var brickIndex = 0, brickLen = _levels[levelIndex].length; brickIndex < brickLen; brickIndex++)
+            resetBrick(_levels[levelIndex][brickIndex]);
+    
+    getLevel(_level.index);
+}
 function getLevel(index)
 {
     if(index < 0)
@@ -342,25 +367,27 @@ function getLevel(index)
     else if(index >= _levels.length)
         index = _levels.length - 1;
     
-    _levelIndex = index;
-    _bricks = _levels[_levelIndex].clone();
-    _brick.live = _levels[_levelIndex].length;
+    _level.index = index;
+    _bricks = _levels[_level.index].clone();
+    _brick.live = _levels[_level.index].length;
 }
 
 function getPrevLevel()
 {
-    if(--_levelIndex < 0)
-        _levelIndex = _levels.length - 1;
-
-    getLevel(_levelIndex);
+    if(--_level.index < 0)
+    {
+        _level.index = _levels.length - 1;
+    }
+    
+    getLevel(_level.index);
 }
 
 function getNextLevel()
 {
-    if(++_levelIndex >= _levels.length)
-        _levelIndex = 0;
+    if(++_level.index >= _levels.length) 
+        _level.index = 0;
 
-    getLevel(_levelIndex);
+    getLevel(_level.index);
 }
 
 function showStartMenu()
@@ -374,18 +401,45 @@ function hideStartMenu()
 }
 
 function keyUpEvent(e)
-{
+{    
     switch(e.keyCode)
     {
         case _keyCodes.esc:
             showStartMenu();
+            
+            if(_mode === _modes.creative)
+                endCreativeMode();
+            
             _mode = _modes.auto;
             break;
-
+        
+        case _keyCodes.tilda:
+            printLevel();
+            break;
+            
         case _keyCodes.enter:
             hideStartMenu();
             initGame();
             _mode = _modes.single;
+            break;
+            
+        case _keyCodes.shift:
+            hideStartMenu();
+            initGame();
+            initCreativeMode();
+            _mode = _modes.creative;
+            break;
+        
+        case _keyCodes.a:
+            getPrevLevel();
+            break;
+                
+        case _keyCodes.d:
+            getNextLevel();
+            break;
+
+        case _keyCodes.alt:
+            saveCanvasImg();
             break;
     }
     
@@ -404,23 +458,19 @@ function keyUpEvent(e)
             case _keyCodes.space:
                 _keys.space = false;
                 break;
-                
-            case _keyCodes.tilda:
-                if(!(_creativeMode = !_creativeMode))
-                    initGame();
-                
+        }
+    }
+    
+    if(_mode === _modes.creative)
+    {
+        switch(e.keyCode)
+        {
+            case _keyCodes.del:
+                removeLevel();
                 break;
                 
-            case _keyCodes.a:
-                getPrevLevel();
-                break;
-                
-            case _keyCodes.d:
-                getNextLevel();
-                break;
-                
-            case _keyCodes.alt:
-                saveCanvasImg();
+            case _keyCodes.ctr:
+                addLevel();
                 break;
         }
     }
@@ -442,13 +492,6 @@ function keyDownEvent(e)
                 
             case _keyCodes.space:
                 _keys.space = true;
-                
-                if(_creativeMode)
-                {
-                    printLevel();
-                    _bricks = [];
-                }
-                
                 break;
         }
     }
@@ -456,7 +499,7 @@ function keyDownEvent(e)
 
 function mouseDownEvent(e)
 {
-    if(_creativeMode)
+    if(_mode === _modes.creative)
     {
         var x = Math.floor(e.clientX / _brick.width);
         var y = Math.floor(e.clientY / _brick.height);
@@ -560,4 +603,42 @@ function downloadImg(filename, imgSrc)
     el.setAttribute("href", imgSrc);
     el.setAttribute("download", filename);
     el.click();
+}
+
+function initCreativeMode()
+{
+    _levels.push([]);
+    _level.index = _levels.length - 1;
+}
+
+function endCreativeMode()
+{
+    _levels.splice(_levels.length - 1, 1);
+    _level.index = 0;
+}
+
+function removeLevel()
+{
+    if(_level.index >= _level.orig)
+    {
+        _levels[_level.index] = [];
+        _bricks = [];
+        
+        if(_level.index !== _levels.length - 1)
+            _levels.splice(_level.index--, 1);
+    }
+    
+    getLevel(_level.index);
+    localStorage.levels = JSON.stringify(_levels.slice(0, _levels.length - 1));
+}
+
+function addLevel()
+{
+    if(_bricks.length === 0)
+        return;
+    
+    _levels.splice(_levels.length - 1, 0, _bricks.clone());
+    _level.index++;
+    getLevel(_level.index);
+    localStorage.levels = JSON.stringify(_levels.slice(0, _levels.length - 1));
 }
