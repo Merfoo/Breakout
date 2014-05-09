@@ -10,6 +10,7 @@ Brick = function(x, y, lives, spawnBonus)
 
 Paddle = function()
 {
+    this.color = "black";
     this.startX = 0;
     this.startY = 0;
     this.startWidth = 175;
@@ -89,4 +90,31 @@ Line = function()
             this.xInt = pointA.x;
         }
     };
+};
+
+Object.prototype.clone = Array.prototype.clone = function()
+{
+    if(Object.prototype.toString.call(this) === "[object Array]")
+    {
+        var arr = [];
+        
+        for(var i = 0, len = this.length; i < len; i++)
+            arr[i] = this[i].clone();
+        
+        return arr;
+    }
+    
+    else if(typeof(this) === "object")
+    {
+        var obj = {};
+        
+        for(var prop in this)
+            if(this.hasOwnProperty(prop))
+                obj[prop] = this[prop];
+        
+        return obj;
+    }
+    
+    else
+        return this;
 };
