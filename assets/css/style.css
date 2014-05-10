@@ -1,3 +1,20 @@
+@font-face
+{
+    font-family: openSansLight;
+    src: url("../fonts/open-sans.light.ttf");
+}
+
+*
+{
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    color: white;
+    cursor: default;
+}
+
 canvas 
 {
     z-index: 1; 
@@ -22,10 +39,10 @@ canvas
 #pressEnter
 {
     position: absolute;
-    top: 30%;
+    top: 33%;
     left: 10%;
     width: 80%;
-    height: 25%;
+    height: 20%;
 }
 
 #pressEsc
@@ -33,46 +50,24 @@ canvas
     position: absolute;
     top: 20px;
     left: 20px;
+    width: 13%;
+    height: 3%;
+}
+
+#instructions
+{
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
     width: 20%;
-    height: 10%;
+    height: 5%;
 }
 
-.animateOut
+#creativeMode
 {
-    -webkit-animation: animateOut 3s; /* Chrome, Safari, Opera */
-    -webkit-animation-fill-mode: forwards;
-    animation: animateOut 3s;
-    animation-fill-mode: forwards;
-}
-
-.animateIn
-{
-    -webkit-animation: animateIn 3s; /* Chrome, Safari, Opera */
-    -webkit-animation-fill-mode: forwards;
-    animation: animateIn 3s;
-    animation-fill-mode: forwards;
-}
-
-@-webkit-keyframes animateOut
-{
-    0%  {top: 0px;}
-    100%  {top: 1000px;}
-}
-
-@-webkit-keyframes animateIn
-{
-    0%  {top: 1000px;}
-    100%  {top: 0px;}
-}
-
-@keyframes animateOut
-{
-    0%  {top: 0px;}
-    100%  {top: 1000px;}
-}
-
-@keyframes animateIn
-{
-    0%  {top: 1000px;}
-    100%  {top: 0px;}
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 20%;
+    height: 5%;
 }

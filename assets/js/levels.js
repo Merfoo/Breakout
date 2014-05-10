@@ -133,73 +133,6 @@ function makeLevel2()
 function makeLevel3()
 {
     var ret = [];
-    ret.push(new Brick(1, 1));
-    ret.push(new Brick(1, 2));
-    ret.push(new Brick(1, 3));
-    ret.push(new Brick(1, 4));
-    ret.push(new Brick(1, 5));
-    ret.push(new Brick(1, 6));
-    ret.push(new Brick(18, 1));
-    ret.push(new Brick(18, 2));
-    ret.push(new Brick(18, 3));
-    ret.push(new Brick(18, 4));
-    ret.push(new Brick(18, 5));
-    ret.push(new Brick(18, 6));
-    ret.push(new Brick(2, 2));
-    ret.push(new Brick(3, 3));
-    ret.push(new Brick(4, 4));
-    ret.push(new Brick(5, 5));
-    ret.push(new Brick(6, 6));
-    ret.push(new Brick(17, 2));
-    ret.push(new Brick(16, 3));
-    ret.push(new Brick(15, 4));
-    ret.push(new Brick(14, 5));
-    ret.push(new Brick(13, 6));
-    ret.push(new Brick(7, 6));
-    ret.push(new Brick(8, 6));
-    ret.push(new Brick(9, 6));
-    ret.push(new Brick(10, 6));
-    ret.push(new Brick(12, 6));
-    ret.push(new Brick(11, 6));
-    ret.push(new Brick(2, 1));
-    ret.push(new Brick(17, 1));
-    ret.push(new Brick(13, 5));
-    ret.push(new Brick(12, 5));
-    ret.push(new Brick(11, 5));
-    ret.push(new Brick(10, 5));
-    ret.push(new Brick(9, 5));
-    ret.push(new Brick(8, 5));
-    ret.push(new Brick(7, 5));
-    ret.push(new Brick(6, 5));
-    ret.push(new Brick(7, 7));
-    ret.push(new Brick(8, 7));
-    ret.push(new Brick(9, 7));
-    ret.push(new Brick(10, 7));
-    ret.push(new Brick(11, 7));
-    ret.push(new Brick(12, 7));
-    ret.push(new Brick(11, 8));
-    ret.push(new Brick(10, 8));
-    ret.push(new Brick(9, 8));
-    ret.push(new Brick(8, 8));
-    ret.push(new Brick(8, 9));
-    ret.push(new Brick(9, 9));
-    ret.push(new Brick(10, 9));
-    ret.push(new Brick(11, 9));
-    ret.push(new Brick(9, 10));
-    ret.push(new Brick(10, 10));
-    ret.push(new Brick(3, 2));
-    ret.push(new Brick(4, 3));
-    ret.push(new Brick(5, 4));
-    ret.push(new Brick(14, 4));
-    ret.push(new Brick(15, 3));
-    ret.push(new Brick(16, 2));
-    
-    return ret;
-}
-
-function makeLevel4()
-{
-    var ret = [];
     ret.push(new Brick(8, 14));
     ret.push(new Brick(8, 13));
     ret.push(new Brick(11, 14));
@@ -266,7 +199,7 @@ function makeLevel4()
     return ret;
 }
 
-function makeLevel5()
+function makeLevel4()
 {
     var ret = [];
     ret.push(new Brick(10, 13));
@@ -321,36 +254,67 @@ function makeLevel5()
     return ret;
 }
 
-function makeLevel6()
+function makeLevel5()
 {
     var ret = [];
-    ret.push(new Brick(1, 1));
-    ret.push(new Brick(1, 6));
-    ret.push(new Brick(1, 11));
-    ret.push(new Brick(3, 1));
-    ret.push(new Brick(3, 6));
-    ret.push(new Brick(3, 11));
-    ret.push(new Brick(5, 1));
+    ret.push(new Brick(0, 9));
+    ret.push(new Brick(0, 8));
+    ret.push(new Brick(0, 7));
+    ret.push(new Brick(0, 6));
+    ret.push(new Brick(0, 4));
+    ret.push(new Brick(0, 5));
+    ret.push(new Brick(0, 3));
+    ret.push(new Brick(0, 2));
+    ret.push(new Brick(0, 1));
+    ret.push(new Brick(0, 0));
+    ret.push(new Brick(1, 0));
+    ret.push(new Brick(3, 0));
+    ret.push(new Brick(2, 0));
+    ret.push(new Brick(5, 0));
+    ret.push(new Brick(4, 0));
+    ret.push(new Brick(6, 0));
+    ret.push(new Brick(7, 0));
+    ret.push(new Brick(8, 0));
+    ret.push(new Brick(9, 0));
+    ret.push(new Brick(10, 0));
+    ret.push(new Brick(11, 0));
+    ret.push(new Brick(12, 0));
+    ret.push(new Brick(13, 0));
+    ret.push(new Brick(14, 0));
+    ret.push(new Brick(16, 0));
+    ret.push(new Brick(15, 0));
+    ret.push(new Brick(17, 0));
+    ret.push(new Brick(19, 0));
+    ret.push(new Brick(18, 0));
+    ret.push(new Brick(19, 1));
+    ret.push(new Brick(19, 3));
+    ret.push(new Brick(19, 5));
+    ret.push(new Brick(19, 7));
+    ret.push(new Brick(1, 9));
+    ret.push(new Brick(19, 8));
+    ret.push(new Brick(19, 6));
+    ret.push(new Brick(19, 4));
+    ret.push(new Brick(19, 2));
+    ret.push(new Brick(3, 9));
+    ret.push(new Brick(7, 9));
+    ret.push(new Brick(9, 9));
+    ret.push(new Brick(10, 9));
+    ret.push(new Brick(12, 9));
+    ret.push(new Brick(14, 9));
+    ret.push(new Brick(16, 9));
+    ret.push(new Brick(18, 9));
+    ret.push(new Brick(19, 9));
+    ret.push(new Brick(9, 8));
+    ret.push(new Brick(9, 7));
+    ret.push(new Brick(10, 8));
+    ret.push(new Brick(10, 7));
+    ret.push(new Brick(5, 9));
+    ret.push(new Brick(5, 8));
+    ret.push(new Brick(5, 7));
     ret.push(new Brick(5, 6));
-    ret.push(new Brick(5, 11));
-    ret.push(new Brick(7, 1));
-    ret.push(new Brick(7, 6));
-    ret.push(new Brick(7, 11));
-    ret.push(new Brick(9, 1));
-    ret.push(new Brick(9, 6));
-    ret.push(new Brick(9, 11));
-    ret.push(new Brick(11, 1));
-    ret.push(new Brick(11, 6));
-    ret.push(new Brick(11, 11));
-    ret.push(new Brick(13, 1));
-    ret.push(new Brick(13, 6));
-    ret.push(new Brick(13, 11));
-    ret.push(new Brick(15, 1));
-    ret.push(new Brick(15, 6));
-    ret.push(new Brick(15, 11));
-    ret.push(new Brick(17, 1));
-    ret.push(new Brick(17, 6));
-    ret.push(new Brick(17, 11));
+    ret.push(new Brick(14, 8));
+    ret.push(new Brick(14, 7));
+    ret.push(new Brick(14, 6));
 
-    return ret;
+    return ret;    
 }

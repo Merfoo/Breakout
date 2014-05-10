@@ -1,14 +1,14 @@
 var _paddleInit = { startWidth: 173, startHeight: 13, startVMax: 10, startVInc: 0.15, width: 0, height: 0, vMax: 0, vInc: 0 };
 var _ballInit = { startR: 10, startReleaseHeight: 550, startVMax: 9, r: 0, releaseHeight: 0, vMax: 0 };
-var _dom = { startMenu: null };
-var _anim = { moveIn: "animateIn", moveOut: "animateOut" };
+var _dom = { startMenu: null, howToPlayMenu: null };
+var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0 };
 var _bricks = [];
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
 var _cvs = { borderThick: 0, game: null };
 var _modes = { single: 0, auto: 1, creative: 2 };
 var _levels = [];
-var _level = { index: 0, orig: 6 };
+var _level = { index: 0, orig: [] };
 var _mode = _modes.auto;
 var _keyCodes = { left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
 var _keys = { left: false, right: false, space: false };
@@ -26,9 +26,13 @@ window.addEventListener("mousedown", mouseDownEvent);
 function init()
 {
     _dom.startMenu = document.getElementById("startMenu");
+    _dom.howToPlayMenu = document.getElementById("howToPlay");
     _storeAvailable = typeof(Storage) !== "undefined";
     _cvs.borderThick = parseInt(getComputedStyle(document.getElementById('myCanvas'),null).getPropertyValue('border-width'));
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
+    document.getElementById("creativeMode").onclick = initCreativeMode;
+    document.getElementById("instructions").onclick = showHowToPlayMenu;
+    document.getElementById("backToStartMenu").onclick = showStartMenu;
     window.addEventListener("resize", setGameSize);
     window.requestAnimFrame = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -98,10 +102,12 @@ function loop()
             
             if(!_ball.released)
             {
-                _ball.released = true;
                 var vel = getVel(getRandomNumber(-90 - _ball.maxAng, -90 + _ball.maxAng), _ball.vMax);
                 _ball.vX = vel.x;
                 _ball.vY = vel.y;
+                _ball.x = _paddle.x + (_paddle.width / 2);
+                _ball.y = _ball.releaseHeight;
+                _ball.released = true;
             }
             
         case _modes.single:
@@ -345,19 +351,16 @@ function paintPaddle()
 
 function makeLevels()
 {
-    if(!_storeAvailable || !localStorage.levels)
-    {
-        _levels = [];
-        _levels.push(makeLevel1());
-        _levels.push(makeLevel2());
-        _levels.push(makeLevel3());
-        _levels.push(makeLevel4());
-        _levels.push(makeLevel5());
-        _levels.push(makeLevel6());
-    }
+    _level.orig = [];
+    _level.orig.push(makeLevel1());
+    _level.orig.push(makeLevel2());
+    _level.orig.push(makeLevel3());
+    _level.orig.push(makeLevel4());
+    _level.orig.push(makeLevel5());
+    _levels = [].concat(_level.orig);
     
-    else
-        _levels = JSON.parse(localStorage.levels);
+    if(_storeAvailable && localStorage.levels)
+        _levels = _levels.concat(JSON.parse(localStorage.levels));
 }
 
 function resetBrick(brick)
@@ -404,18 +407,37 @@ function getNextLevel()
     getLevel(_level.index);
 }
 
+function removeAllAnimations(elem)
+{
+    for(var prop in _anim)
+        if(_anim.hasOwnProperty(prop))
+            elem.classList.remove(_anim[prop]);
+}
+
 function showStartMenu()
 {
-    _dom.startMenu.classList.remove(_anim.moveIn);
-    _dom.startMenu.classList.remove(_anim.moveOut);
-    _dom.startMenu.classList.add(_anim.moveIn);
+    hideHowToPlayMenu();
+    removeAllAnimations(_dom.startMenu);
+    _dom.startMenu.classList.add(_anim.moveUp);
 }
 
 function hideStartMenu()
 {        
-    _dom.startMenu.classList.remove(_anim.moveIn);
-    _dom.startMenu.classList.remove(_anim.moveOut);
-    _dom.startMenu.classList.add(_anim.moveOut);
+    removeAllAnimations(_dom.startMenu);
+    _dom.startMenu.classList.add(_anim.moveDown);
+}
+
+function showHowToPlayMenu()
+{
+    hideStartMenu();
+    removeAllAnimations(_dom.howToPlayMenu);
+    _dom.howToPlayMenu.classList.add(_anim.moveLeft);
+}
+
+function hideHowToPlayMenu()
+{
+    removeAllAnimations(_dom.howToPlayMenu);
+    _dom.howToPlayMenu.classList.add(_anim.moveRight);
 }
 
 function keyUpEvent(e)
@@ -437,17 +459,11 @@ function keyUpEvent(e)
             
         case _keyCodes.enter:
             hideStartMenu();
+            hideHowToPlayMenu();
             initGame();
             _mode = _modes.single;
             break;
             
-        case _keyCodes.shift:
-            hideStartMenu();
-            initGame();
-            initCreativeMode();
-            _mode = _modes.creative;
-            break;
-        
         case _keyCodes.a:
             getPrevLevel();
             break;
@@ -640,6 +656,9 @@ function downloadImg(filename, imgSrc)
 
 function initCreativeMode()
 {
+    hideStartMenu();
+    initGame();
+    _mode = _modes.creative;
     _levels.push([]);
     _level.index = _levels.length - 1;
 }
@@ -652,7 +671,7 @@ function endCreativeMode()
 
 function removeLevel()
 {
-    if(_level.index >= _level.orig)
+    if(_level.index >= _level.orig.length)
     {
         _levels[_level.index] = [];
         _bricks = [];
@@ -662,7 +681,7 @@ function removeLevel()
     }
     
     getLevel(_level.index);
-    localStorage.levels = JSON.stringify(_levels.slice(0, _levels.length - 1));
+    localStorage.levels = JSON.stringify(_levels.slice(_level.orig.length, _levels.length - 1));
 }
 
 function addLevel()
@@ -673,5 +692,5 @@ function addLevel()
     _levels.splice(_levels.length - 1, 0, _bricks.clone());
     _level.index++;
     getLevel(_level.index);
-    localStorage.levels = JSON.stringify(_levels.slice(0, _levels.length - 1));
+    localStorage.levels = JSON.stringify(_levels.slice(_level.orig.length, _levels.length - 1));
 }
