@@ -36,3 +36,43 @@ canvas
     width: 20%;
     height: 10%;
 }
+
+.animateOut
+{
+    -webkit-animation: animateOut 3s; /* Chrome, Safari, Opera */
+    -webkit-animation-fill-mode: forwards;
+    animation: animateOut 3s;
+    animation-fill-mode: forwards;
+}
+
+.animateIn
+{
+    -webkit-animation: animateIn 3s; /* Chrome, Safari, Opera */
+    -webkit-animation-fill-mode: forwards;
+    animation: animateIn 3s;
+    animation-fill-mode: forwards;
+}
+
+@-webkit-keyframes animateOut
+{
+    0%  {top: 0px;}
+    100%  {top: 1000px;}
+}
+
+@-webkit-keyframes animateIn
+{
+    0%  {top: 1000px;}
+    100%  {top: 0px;}
+}
+
+@keyframes animateOut
+{
+    0%  {top: 0px;}
+    100%  {top: 1000px;}
+}
+
+@keyframes animateIn
+{
+    0%  {top: 1000px;}
+    100%  {top: 0px;}
+}

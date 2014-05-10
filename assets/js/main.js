@@ -1,4 +1,5 @@
-var _creativeMode = false;
+var _dom = { startMenu: null };
+var _anim = { moveIn: "animateIn", moveOut: "animateOut" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0 };
 var _bricks = [];
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
@@ -22,6 +23,7 @@ window.addEventListener("mousedown", mouseDownEvent);
 
 function init()
 {
+    _dom.startMenu = document.getElementById("startMenu");
     _storeAvailable = typeof(Storage) !== "undefined";
     _cvs.borderThick = parseInt(getComputedStyle(document.getElementById('myCanvas'),null).getPropertyValue('border-width'));
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
@@ -400,12 +402,16 @@ function getNextLevel()
 
 function showStartMenu()
 {
-    document.getElementById("startMenu").style.top = "0px";
+    _dom.startMenu.classList.remove(_anim.moveIn);
+    _dom.startMenu.classList.remove(_anim.moveOut);
+    _dom.startMenu.classList.add(_anim.moveIn);
 }
 
 function hideStartMenu()
-{
-    document.getElementById("startMenu").style.top = "100000px";
+{        
+    _dom.startMenu.classList.remove(_anim.moveIn);
+    _dom.startMenu.classList.remove(_anim.moveOut);
+    _dom.startMenu.classList.add(_anim.moveOut);
 }
 
 function keyUpEvent(e)
