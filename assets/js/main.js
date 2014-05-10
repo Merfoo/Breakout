@@ -1,3 +1,5 @@
+var _paddleInit = { startWidth: 173, startHeight: 13, startVMax: 10, startVInc: 0.15, width: 0, height: 0, vMax: 0, vInc: 0 };
+var _ballInit = { startR: 10, startReleaseHeight: 550, startVMax: 9, r: 0, releaseHeight: 0, vMax: 0 };
 var _dom = { startMenu: null };
 var _anim = { moveIn: "animateIn", moveOut: "animateOut" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0 };
@@ -10,8 +12,8 @@ var _level = { index: 0, orig: 6 };
 var _mode = _modes.auto;
 var _keyCodes = { left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
 var _keys = { left: false, right: false, space: false };
-var _paddle = new Paddle();
-var _ball = new Ball();
+var _paddle = new Paddle(_paddleInit);
+var _ball = new Ball(_ballInit);
 var _storeAvailable = false;
 
 document.addEventListener("DOMContentLoaded", init);
@@ -51,12 +53,17 @@ function setGameSize()
     _cvs.game.canvas.height = _map.height;
     _brick.width = _map.width / _brick.horz;
     _brick.height = _map.height / _brick.vert;
-    _paddle.width = _paddle.startWidth * _map.widthMod;
-    _paddle.height = _paddle.startHeight * _map.heightMod;
-    _paddle.x = (_map.width / 2) - (_paddle.width / 2);
-    _paddle.y = _map.height - _paddle.height;
-    _ball.r = _ball.startR * _map.widthMod;
-    _ball.releaseHeight = _ball.startReleaseHeight * _map.heightMod;
+    _paddle.width = _paddleInit.width = _paddleInit.startWidth * _map.widthMod;
+    _paddle.height = _paddleInit.height = _paddleInit.startHeight * _map.heightMod;
+    _paddle.vMax = _paddleInit.vMax = _paddleInit.startVMax * _map.widthMod;
+    _paddle.vInc = _paddleInit.vInc = _paddleInit.startVInc * _map.widthMod;
+    _paddle.y = _map.height - _paddleInit.height;
+    _ball.r = _ballInit.r = _ballInit.startR * _map.widthMod;
+    _ball.releaseHeight = _ballInit.releaseHeight = _ballInit.startReleaseHeight * _map.heightMod;
+    _ball.vMax = _ballInit.vMax = _ballInit.startVMax * _map.widthMod;
+    var ballMod = _ball.vMax / Math.sqrt((_ball.vX * _ball.vX) + (_ball.vY * _ball.vY));
+    _ball.vX *= ballMod;
+    _ball.vY *= ballMod;
 }
 
 function loop()
@@ -68,7 +75,7 @@ function loop()
             ballLine.createLine({ x: _ball.x, y: _ball.y }, { x: _ball.xLast, y: _ball.yLast });
             var colX = ballLine.getX(_paddle.y);
             
-            if(_ball.yV < 0)
+            if(_ball.vY < 0)
                 colX = ballLine.getX(0);
             
             if((colX > _paddle.x + _paddle.width))
@@ -92,9 +99,9 @@ function loop()
             if(!_ball.released)
             {
                 _ball.released = true;
-                var vel = getVel(getRandomNumber(-90 - _ball.maxAng, -90 + _ball.maxAng), _ball.maxV);
-                _ball.xV = vel.x;
-                _ball.yV = vel.y;
+                var vel = getVel(getRandomNumber(-90 - _ball.maxAng, -90 + _ball.maxAng), _ball.vMax);
+                _ball.vX = vel.x;
+                _ball.vY = vel.y;
             }
             
         case _modes.single:
@@ -121,18 +128,15 @@ function loop()
 
 function initGame()
 {    
-    _ball = new Ball();
-    _paddle = new Paddle();
-    _paddle.width = _paddle.startWidth * _map.widthMod;
-    _paddle.height = _paddle.startHeight * _map.heightMod;
+    _ball = new Ball(_ballInit);
+    _paddle = new Paddle(_paddleInit);
     _paddle.x = (_map.width / 2) - (_paddle.width / 2);
     _paddle.y = _map.height - _paddle.height;
-    _ball.r = _ball.startR * _map.widthMod;
-    _ball.releaseHeight = _ball.startReleaseHeight * _map.heightMod;
     _ball.x = _paddle.x + _paddle.width / 2;
     _ball.y = _ball.releaseHeight;
     _keys.left = false;
     _keys.right = false;
+    _keys.space = false;
     resetLevels();
 }
 
@@ -177,7 +181,7 @@ function updatePaddle()
             _paddle.v = 0;
     }
     
-    _paddle.x += _paddle.maxV * _paddle.v;
+    _paddle.x += _paddle.vMax * _paddle.v;
     
     if(_paddle.x + _paddle.width + _paddle.height > _map.width)
     {
@@ -196,35 +200,35 @@ function updateBall()
 {
     if(!_ball.released)
     {
-        _ball.xV = 0;
-        _ball.yV = 0;
+        _ball.vX = 0;
+        _ball.vY = 0;
         _ball.x = _paddle.x + (_paddle.width / 2);
         _ball.y = _ball.releaseHeight;
         
         if(_keys.space)
         {
             _ball.released = true;
-            _ball.yV = _ball.startYV;
+            _ball.vY = _ball.vMax;
         }
     }
     
     if(_ball.x + _ball.r > _map.width) 
-        _ball.xV = -Math.abs(_ball.xV);
+        _ball.vX = -Math.abs(_ball.vX);
     
     else if(_ball.x - _ball.r < 0)
-        _ball.xV = Math.abs(_ball.xV);
+        _ball.vX = Math.abs(_ball.vX);
         
     if(_ball.y - _ball.r < 0)
-        _ball.yV = Math.abs(_ball.yV);
+        _ball.vY = Math.abs(_ball.vY);
     
     else if(_ball.y > _map.height)
         _ball.y = 0;
     
     if(ballHitPaddle())
     {
-        var newVel = getVel((-_ball.maxAng * ((_ball.x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2))) - 90, _ball.maxV);
-        _ball.xV = newVel.x;
-        _ball.yV = newVel.y;
+        var newVel = getVel((-_ball.maxAng * ((_ball.x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2))) - 90, _ball.vMax);
+        _ball.vX = newVel.x;
+        _ball.vY = newVel.y;
     }
        
     var collided = { x: false, y: false };
@@ -273,13 +277,13 @@ function updateBall()
     }
     
     if(collided.x)
-        _ball.xV *= -1;
+        _ball.vX *= -1;
 
     if(collided.y)
-        _ball.yV *= -1;
+        _ball.vY *= -1;
         
-    _ball.x += _ball.xV;
-    _ball.y += _ball.yV;
+    _ball.x += _ball.vX;
+    _ball.y += _ball.vY;
     _ball.updateLastPos();
         
     if(_brick.live <= 0)
