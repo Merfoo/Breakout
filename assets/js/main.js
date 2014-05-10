@@ -222,7 +222,7 @@ function updateBall()
         _ball.vY = Math.abs(_ball.vY);
     
     else if(_ball.y > _map.height)
-        _ball.y = 0;
+        _ball.released = false;
     
     if(ballHitPaddle())
     {
