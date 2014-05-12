@@ -431,6 +431,7 @@ function showHowToPlayMenu()
 {
     hideStartMenu();
     removeAllAnimations(_dom.howToPlayMenu);
+    _dom.howToPlayMenu.style.display = "inline";
     _dom.howToPlayMenu.classList.add(_anim.moveLeft);
 }
 
