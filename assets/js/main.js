@@ -5,12 +5,12 @@ var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLe
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0 };
 var _bricks = [];
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
-var _cvs = { borderThick: 0, game: null };
+var _cvs = { borderThick: 4, game: null };
 var _modes = { single: 0, auto: 1, creative: 2 };
 var _levels = [];
 var _level = { index: 0, orig: [] };
 var _mode = _modes.auto;
-var _keyCodes = { left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
+var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
 var _keys = { left: false, right: false, space: false };
 var _paddle = new Paddle(_paddleInit);
 var _ball = new Ball(_ballInit);
@@ -25,11 +25,15 @@ window.addEventListener("mousedown", mouseDownEvent);
 
 function init()
 {
+    _storeAvailable = typeof(Storage) !== "undefined";
     _dom.startMenu = document.getElementById("startMenu");
     _dom.howToPlayMenu = document.getElementById("howToPlay");
-    _storeAvailable = typeof(Storage) !== "undefined";
-    _cvs.borderThick = parseInt(getComputedStyle(document.getElementById('myCanvas'),null).getPropertyValue('border-width'));
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
+    console.log(_cvs.game.canvas.style);
+    _cvs.game.canvas.style.borderTopWidth = _cvs.borderThick + "px";
+    _cvs.game.canvas.style.borderRightWidth = _cvs.borderThick + "px";
+    _cvs.game.canvas.style.borderBottomWidth = _cvs.borderThick + "px";
+    _cvs.game.canvas.style.borderLeftWidth = _cvs.borderThick + "px";
     document.getElementById("creativeMode").onclick = initCreativeMode;
     document.getElementById("instructions").onclick = showHowToPlayMenu;
     document.getElementById("backToStartMenu").onclick = showStartMenu;
@@ -529,6 +533,18 @@ function keyDownEvent(e)
                 _keys.space = true;
                 break;
         }
+    }
+    
+    // To prevent page from scrolling on Firefox
+    switch(e.keyCode)
+    {
+        case _keyCodes.up:
+        case _keyCodes.down:
+        case _keyCodes.left:
+        case _keyCodes.right:
+        case _keyCodes.space:
+            e.preventDefault();
+            break;
     }
 }
 

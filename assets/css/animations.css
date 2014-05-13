@@ -1,8 +1,8 @@
 .animateDown
 {
-    -webkit-animation: animateDown 3s; /* Chrome, Safari, Opera */
+    -webkit-animation: animateDown 2.25s; /* Chrome, Safari, Opera */
     -webkit-animation-fill-mode: forwards;
-    animation: animateDown 3s;
+    animation: animateDown 2.25s;
     animation-fill-mode: forwards;
 }
 
@@ -20,9 +20,9 @@
 
 .animateUp
 {
-    -webkit-animation: animateUp 3s; /* Chrome, Safari, Opera */
+    -webkit-animation: animateUp 2.25s; /* Chrome, Safari, Opera */
     -webkit-animation-fill-mode: forwards;
-    animation: animateUp 3s;
+    animation: animateUp 2.25s;
     animation-fill-mode: forwards;
 }
 
@@ -40,9 +40,9 @@
 
 .animateLeft
 {
-    -webkit-animation: animateLeft 3s;
+    -webkit-animation: animateLeft 2.25s;
     -webkit-animation-fill-mode: forwards;
-    animation: animateLeft 3s;
+    animation: animateLeft 2.25s;
     animation-fill-mode: forwards;
 }
 
@@ -60,9 +60,9 @@
 
 .animateRight
 {
-    -webkit-animation: animateRight 3s;
+    -webkit-animation: animateRight 2.25s;
     -webkit-animation-fill-mode: forwards;
-    animation: animateRight 3s;
+    animation: animateRight 2.25s;
     animation-fill-mode: forwards;
 }
 
