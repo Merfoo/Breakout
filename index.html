@@ -6,14 +6,31 @@
     <title>Breakout!</title>
     <link rel="shortcut icon" href="assets/images/logoThumbnail.png"/>
     <link rel="stylesheet" type="text/css" href="assets/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="assets/css/howToPlay.css"/>
+    <link rel="stylesheet" type="text/css" href="assets/css/animations.css"/>
     <script type="text/javascript" src="assets/js/classes.js"></script>
     <script type="text/javascript" src="assets/js/levels.js"></script>
     <script type="text/javascript" src="assets/js/main.js"></script>
 </head>
 <body id="gameBody">
-    <div id="startMenu">
-        <img id="pressEnter" src="assets/images/pressEnter.png"/>
-        <img id="pressEsc" src="assets/images/pressEsc.png"/>
+    <div id="startMenu" class="animateUp">
+        <img id="pressEnter" src="assets/images/pressEnter.png" draggable="false"/>
+        <img id="pressEsc" src="assets/images/pressEsc.png" draggable="false"/>
+        <img id="instructions" src="assets/images/instructions.png" draggable="false"/>
+        <img id="creativeMode" src="assets/images/creativeMode.png" draggable="false"/>
+    </div>
+    <div id="howToPlay">
+        <div id="classicMode">
+            <h1>General</h1>
+            Use keys a/d to flip through levels, esc to go to start menu, alt to 
+            take a screen shot.
+            <h1>Classic Mode</h1>
+            Use the arrow keys to move the paddle, space to release the ball.
+            <h1>Creative Mode</h1>
+            Click on the screen to add/remove bricks, press ctrl to add the new 
+            level, del to delete the level.
+        </div>
+        <img id="backToStartMenu" src="assets/images/leftArrow.png" draggable="false"/>        
     </div>
     <canvas id="myCanvas"></canvas>
 </body>

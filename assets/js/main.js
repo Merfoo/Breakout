@@ -1,16 +1,20 @@
-var _creativeMode = false;
+var _paddleInit = { startWidth: 173, startHeight: 13, startVMax: 10, startVInc: 0.15, width: 0, height: 0, vMax: 0, vInc: 0 };
+var _ballInit = { startR: 10, startReleaseHeight: 550, startVMax: 9, r: 0, releaseHeight: 0, vMax: 0 };
+var _dom = { startMenu: null, howToPlayMenu: null };
+var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0 };
 var _bricks = [];
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
-var _cvs = { borderThick: 0, game: null };
-var _modes = { single: 0, auto: 1 };
+var _cvs = { borderThick: 4, game: null };
+var _modes = { single: 0, auto: 1, creative: 2 };
 var _levels = [];
-var _levelIndex = 0;
+var _level = { index: 0, orig: [] };
 var _mode = _modes.auto;
-var _keyCodes = { left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, alt: 18, enter: 13, esc: 27 };
+var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
 var _keys = { left: false, right: false, space: false };
-var _paddle = new Paddle();
-var _ball = new Ball();
+var _paddle = new Paddle(_paddleInit);
+var _ball = new Ball(_ballInit);
+var _storeAvailable = false;
 
 document.addEventListener("DOMContentLoaded", init);
 document.documentElement.style.overflowX = "hidden";	 // Horizontal scrollbar will be hidden
@@ -21,8 +25,18 @@ window.addEventListener("mousedown", mouseDownEvent);
 
 function init()
 {
-    _cvs.borderThick = parseInt(getComputedStyle(document.getElementById('myCanvas'),null).getPropertyValue('border-width'));
+    _storeAvailable = typeof(Storage) !== "undefined";
+    _dom.startMenu = document.getElementById("startMenu");
+    _dom.howToPlayMenu = document.getElementById("howToPlay");
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
+    console.log(_cvs.game.canvas.style);
+    _cvs.game.canvas.style.borderTopWidth = _cvs.borderThick + "px";
+    _cvs.game.canvas.style.borderRightWidth = _cvs.borderThick + "px";
+    _cvs.game.canvas.style.borderBottomWidth = _cvs.borderThick + "px";
+    _cvs.game.canvas.style.borderLeftWidth = _cvs.borderThick + "px";
+    document.getElementById("creativeMode").onclick = initCreativeMode;
+    document.getElementById("instructions").onclick = showHowToPlayMenu;
+    document.getElementById("backToStartMenu").onclick = showStartMenu;
     window.addEventListener("resize", setGameSize);
     window.requestAnimFrame = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -31,15 +45,10 @@ function init()
             window.setTimeout(callback, 1000 / 60);
         };
     
+    makeLevels();
     setGameSize();
     initGame();
     loop();
-    var tmp;
-    if(typeof(Storage) !== "undefined")
-    {
-        console.log(localStorage.map = JSON.stringify([{ x: 1, y: 2 }, 2, 3, 4, 5]));
-        console.log(tmp = JSON.parse(localStorage.map));
-    }
 }
 
 function setGameSize()
@@ -52,12 +61,17 @@ function setGameSize()
     _cvs.game.canvas.height = _map.height;
     _brick.width = _map.width / _brick.horz;
     _brick.height = _map.height / _brick.vert;
-    _paddle.width = _paddle.startWidth * _map.widthMod;
-    _paddle.height = _paddle.startHeight * _map.heightMod;
-    _paddle.x = (_map.width / 2) - (_paddle.width / 2);
-    _paddle.y = _map.height - _paddle.height;
-    _ball.r = _ball.startR * _map.widthMod;
-    _ball.releaseHeight = _ball.startReleaseHeight * _map.heightMod;
+    _paddle.width = _paddleInit.width = _paddleInit.startWidth * _map.widthMod;
+    _paddle.height = _paddleInit.height = _paddleInit.startHeight * _map.heightMod;
+    _paddle.vMax = _paddleInit.vMax = _paddleInit.startVMax * _map.widthMod;
+    _paddle.vInc = _paddleInit.vInc = _paddleInit.startVInc * _map.widthMod;
+    _paddle.y = _map.height - _paddleInit.height;
+    _ball.r = _ballInit.r = _ballInit.startR * _map.widthMod;
+    _ball.releaseHeight = _ballInit.releaseHeight = _ballInit.startReleaseHeight * _map.heightMod;
+    _ball.vMax = _ballInit.vMax = _ballInit.startVMax * _map.widthMod;
+    var ballMod = _ball.vMax / Math.sqrt((_ball.vX * _ball.vX) + (_ball.vY * _ball.vY));
+    _ball.vX *= ballMod;
+    _ball.vY *= ballMod;
 }
 
 function loop()
@@ -69,13 +83,16 @@ function loop()
             ballLine.createLine({ x: _ball.x, y: _ball.y }, { x: _ball.xLast, y: _ball.yLast });
             var colX = ballLine.getX(_paddle.y);
             
-            if((colX > _paddle.x + _paddle.width && _ball.yV > 0) || (_ball.xV > 0 && _ball.x > _paddle.x + _paddle.width))
+            if(_ball.vY < 0)
+                colX = ballLine.getX(0);
+            
+            if((colX > _paddle.x + _paddle.width))
             {
                 _keys.left = false;
                 _keys.right = true;
             }
             
-            else if((colX < _paddle.x && _ball.yV > 0) || (_ball.xV < 0 && _ball.x < _paddle.x))
+            else if((colX < _paddle.x))
             {
                 _keys.left = true;
                 _keys.right = false;
@@ -89,9 +106,12 @@ function loop()
             
             if(!_ball.released)
             {
+                var vel = getVel(getRandomNumber(-90 - _ball.maxAng, -90 + _ball.maxAng), _ball.vMax);
+                _ball.vX = vel.x;
+                _ball.vY = vel.y;
+                _ball.x = _paddle.x + (_paddle.width / 2);
+                _ball.y = _ball.releaseHeight;
                 _ball.released = true;
-                _ball.xV = 4;
-                _ball.yV = -4;
             }
             
         case _modes.single:
@@ -103,24 +123,31 @@ function loop()
             paintBall();
             _cvs.game.canvas.style.borderColor = getRandomColor(0, 255);
             break;
+            
+        case _modes.creative:
+            clearScreen();
+            paintPaddle();
+            paintBricks();
+            paintBall();
+            _cvs.game.canvas.style.borderColor = getRandomColor(0, 255);
+            break;
     }
     
     window.requestAnimFrame(loop);
 }
 
 function initGame()
-{
-    makeLevels();
-    _ball = new Ball();
-    _paddle = new Paddle();
-    _paddle.width = _paddle.startWidth * _map.widthMod;
-    _paddle.height = _paddle.startHeight * _map.heightMod;
+{    
+    _ball = new Ball(_ballInit);
+    _paddle = new Paddle(_paddleInit);
     _paddle.x = (_map.width / 2) - (_paddle.width / 2);
     _paddle.y = _map.height - _paddle.height;
-    _ball.r = _ball.startR * _map.widthMod;
-    _ball.releaseHeight = _ball.startReleaseHeight * _map.heightMod;
+    _ball.x = _paddle.x + _paddle.width / 2;
+    _ball.y = _ball.releaseHeight;
     _keys.left = false;
     _keys.right = false;
+    _keys.space = false;
+    resetLevels();
 }
 
 function paintBricks()
@@ -164,7 +191,7 @@ function updatePaddle()
             _paddle.v = 0;
     }
     
-    _paddle.x += _paddle.maxV * _paddle.v;
+    _paddle.x += _paddle.vMax * _paddle.v;
     
     if(_paddle.x + _paddle.width + _paddle.height > _map.width)
     {
@@ -183,36 +210,39 @@ function updateBall()
 {
     if(!_ball.released)
     {
-        _ball.xV = 0;
-        _ball.yV = 0;
+        _ball.vX = 0;
+        _ball.vY = 0;
         _ball.x = _paddle.x + (_paddle.width / 2);
         _ball.y = _ball.releaseHeight;
         
         if(_keys.space)
         {
             _ball.released = true;
-            _ball.yV = _ball.startYV;
+            _ball.vY = _ball.vMax;
         }
     }
     
     if(_ball.x + _ball.r > _map.width) 
-        _ball.xV = -Math.abs(_ball.xV);
+        _ball.vX = -Math.abs(_ball.vX);
     
     else if(_ball.x - _ball.r < 0)
-        _ball.xV = Math.abs(_ball.xV);
+        _ball.vX = Math.abs(_ball.vX);
         
     if(_ball.y - _ball.r < 0)
-        _ball.yV = Math.abs(_ball.yV);
+        _ball.vY = Math.abs(_ball.vY);
     
     else if(_ball.y > _map.height)
-        _ball.y = 0;
+        _ball.released = false;
     
     if(ballHitPaddle())
     {
-        _ball.xV = _ball.maxV * ((_ball.x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2));
-        _ball.yV = -Math.abs(_ball.yV);
+        var newVel = getVel((-_ball.maxAng * ((_ball.x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2))) - 90, _ball.vMax);
+        _ball.vX = newVel.x;
+        _ball.vY = newVel.y;
     }
        
+    var collided = { x: false, y: false };
+    
     for(var brickIndex in _bricks)
     {
         if(_bricks[brickIndex].lives <= 0)
@@ -244,27 +274,28 @@ function updateBall()
                 
                 if((xTop >= brick.xLeft && xTop <= brick.xRight) || (xBot >= brick.xLeft && xBot <= brick.xRight))
                     if(inBetween(brick.yTop, ball.y, ball.yLast) || inBetween(brick.yBot, ball.y, ball.yLast))
-                        _ball.yV *= -1;
+                        collided.y = true;
 
                 if((yLeft >= brick.yTop && yLeft <= brick.yBot) || (yRight >= brick.yTop && yRight <= brick.yBot))
                     if(inBetween(brick.xLeft, ball.x, ball.xLast) || inBetween(brick.xRight, ball.x, ball.xLast))
-                         _ball.xV *= -1;
+                         collided.x = true;
 
                  if(_bricks[brickIndex].lives > 0 && --_bricks[brickIndex].lives <= 0)
                      _brick.live--;
-                 
-                 break;
             }
         }
     }
     
-    if(!_creativeMode)
-    {
-        _ball.x += _ball.xV;
-        _ball.y += _ball.yV;
-        _ball.updateLastPos();
-    }
-    
+    if(collided.x)
+        _ball.vX *= -1;
+
+    if(collided.y)
+        _ball.vY *= -1;
+        
+    _ball.x += _ball.vX;
+    _ball.y += _ball.vY;
+    _ball.updateLastPos();
+        
     if(_brick.live <= 0)
     {
         _ball.released = false;
@@ -324,16 +355,31 @@ function paintPaddle()
 
 function makeLevels()
 {
-    _levels = [];
-    _levels.push(makeLevel1());
-    _levels.push(makeLevel2());
-    _levels.push(makeLevel3());
-    _levels.push(makeLevel4());
-    _levels.push(makeLevel5());
-    _levels.push(makeLevel6());
-    getLevel(0);
+    _level.orig = [];
+    _level.orig.push(makeLevel1());
+    _level.orig.push(makeLevel2());
+    _level.orig.push(makeLevel3());
+    _level.orig.push(makeLevel4());
+    _level.orig.push(makeLevel5());
+    _levels = [].concat(_level.orig);
+    
+    if(_storeAvailable && localStorage.levels)
+        _levels = _levels.concat(JSON.parse(localStorage.levels));
 }
 
+function resetBrick(brick)
+{
+    brick.lives = brick.startLives;
+}
+
+function resetLevels()
+{
+    for(var levelIndex = 0, len = _levels.length; levelIndex < len; levelIndex++)
+        for(var brickIndex = 0, brickLen = _levels[levelIndex].length; brickIndex < brickLen; brickIndex++)
+            resetBrick(_levels[levelIndex][brickIndex]);
+    
+    getLevel(_level.index);
+}
 function getLevel(index)
 {
     if(index < 0)
@@ -342,50 +388,97 @@ function getLevel(index)
     else if(index >= _levels.length)
         index = _levels.length - 1;
     
-    _levelIndex = index;
-    _bricks = _levels[_levelIndex].clone();
-    _brick.live = _levels[_levelIndex].length;
+    _level.index = index;
+    _bricks = _levels[_level.index].clone();
+    _brick.live = _levels[_level.index].length;
 }
 
 function getPrevLevel()
 {
-    if(--_levelIndex < 0)
-        _levelIndex = _levels.length - 1;
-
-    getLevel(_levelIndex);
+    if(--_level.index < 0)
+    {
+        _level.index = _levels.length - 1;
+    }
+    
+    getLevel(_level.index);
 }
 
 function getNextLevel()
 {
-    if(++_levelIndex >= _levels.length)
-        _levelIndex = 0;
+    if(++_level.index >= _levels.length) 
+        _level.index = 0;
 
-    getLevel(_levelIndex);
+    getLevel(_level.index);
+}
+
+function removeAllAnimations(elem)
+{
+    for(var prop in _anim)
+        if(_anim.hasOwnProperty(prop))
+            elem.classList.remove(_anim[prop]);
 }
 
 function showStartMenu()
 {
-    document.getElementById("startMenu").style.top = "0px";
+    hideHowToPlayMenu();
+    removeAllAnimations(_dom.startMenu);
+    _dom.startMenu.classList.add(_anim.moveUp);
 }
 
 function hideStartMenu()
+{        
+    removeAllAnimations(_dom.startMenu);
+    _dom.startMenu.classList.add(_anim.moveDown);
+}
+
+function showHowToPlayMenu()
 {
-    document.getElementById("startMenu").style.top = "100000px";
+    hideStartMenu();
+    removeAllAnimations(_dom.howToPlayMenu);
+    _dom.howToPlayMenu.style.display = "inline";
+    _dom.howToPlayMenu.classList.add(_anim.moveLeft);
+}
+
+function hideHowToPlayMenu()
+{
+    removeAllAnimations(_dom.howToPlayMenu);
+    _dom.howToPlayMenu.classList.add(_anim.moveRight);
 }
 
 function keyUpEvent(e)
-{
+{    
     switch(e.keyCode)
     {
         case _keyCodes.esc:
             showStartMenu();
+            
+            if(_mode === _modes.creative)
+                endCreativeMode();
+            
             _mode = _modes.auto;
             break;
-
+        
+        case _keyCodes.tilda:
+            printLevel();
+            break;
+            
         case _keyCodes.enter:
             hideStartMenu();
+            hideHowToPlayMenu();
             initGame();
             _mode = _modes.single;
+            break;
+            
+        case _keyCodes.a:
+            getPrevLevel();
+            break;
+                
+        case _keyCodes.d:
+            getNextLevel();
+            break;
+
+        case _keyCodes.alt:
+            saveCanvasImg();
             break;
     }
     
@@ -404,23 +497,19 @@ function keyUpEvent(e)
             case _keyCodes.space:
                 _keys.space = false;
                 break;
-                
-            case _keyCodes.tilda:
-                if(!(_creativeMode = !_creativeMode))
-                    initGame();
-                
+        }
+    }
+    
+    if(_mode === _modes.creative)
+    {
+        switch(e.keyCode)
+        {
+            case _keyCodes.del:
+                removeLevel();
                 break;
                 
-            case _keyCodes.a:
-                getPrevLevel();
-                break;
-                
-            case _keyCodes.d:
-                getNextLevel();
-                break;
-                
-            case _keyCodes.alt:
-                saveCanvasImg();
+            case _keyCodes.ctr:
+                addLevel();
                 break;
         }
     }
@@ -442,21 +531,26 @@ function keyDownEvent(e)
                 
             case _keyCodes.space:
                 _keys.space = true;
-                
-                if(_creativeMode)
-                {
-                    printLevel();
-                    _bricks = [];
-                }
-                
                 break;
         }
+    }
+    
+    // To prevent page from scrolling on Firefox
+    switch(e.keyCode)
+    {
+        case _keyCodes.up:
+        case _keyCodes.down:
+        case _keyCodes.left:
+        case _keyCodes.right:
+        case _keyCodes.space:
+            e.preventDefault();
+            break;
     }
 }
 
 function mouseDownEvent(e)
 {
-    if(_creativeMode)
+    if(_mode === _modes.creative)
     {
         var x = Math.floor(e.clientX / _brick.width);
         var y = Math.floor(e.clientY / _brick.height);
@@ -487,6 +581,21 @@ function inBetween(x, x1, x2)
         return true;
     
     return false;
+}
+
+function getVel(ang, vel)
+{
+    return { x: -Math.cos(toRad(ang)) * vel, y: Math.sin(toRad(ang)) * vel };
+}
+
+function toRad(deg)
+{
+    return deg * Math.PI / 180;
+}
+
+function toDeg(rad)
+{
+    return rad * 180 / Math.PI;
 }
 
 // Returns random color between min and max.
@@ -560,4 +669,45 @@ function downloadImg(filename, imgSrc)
     el.setAttribute("href", imgSrc);
     el.setAttribute("download", filename);
     el.click();
+}
+
+function initCreativeMode()
+{
+    hideStartMenu();
+    initGame();
+    _mode = _modes.creative;
+    _levels.push([]);
+    _level.index = _levels.length - 1;
+}
+
+function endCreativeMode()
+{
+    _levels.splice(_levels.length - 1, 1);
+    _level.index = 0;
+}
+
+function removeLevel()
+{
+    if(_level.index >= _level.orig.length)
+    {
+        _levels[_level.index] = [];
+        _bricks = [];
+        
+        if(_level.index !== _levels.length - 1)
+            _levels.splice(_level.index--, 1);
+    }
+    
+    getLevel(_level.index);
+    localStorage.levels = JSON.stringify(_levels.slice(_level.orig.length, _levels.length - 1));
+}
+
+function addLevel()
+{
+    if(_bricks.length === 0)
+        return;
+    
+    _levels.splice(_levels.length - 1, 0, _bricks.clone());
+    _level.index++;
+    getLevel(_level.index);
+    localStorage.levels = JSON.stringify(_levels.slice(_level.orig.length, _levels.length - 1));
 }

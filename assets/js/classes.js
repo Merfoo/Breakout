@@ -8,47 +8,37 @@ Brick = function(x, y, lives, spawnBonus)
     this.spawnBonus = typeof(spawnBonus) === "undefined" ? false : true;
 };
 
-Paddle = function()
+Paddle = function(initVal)
 {
     this.color = "black";
-    this.startX = 0;
-    this.startY = 0;
-    this.startWidth = 175;
-    this.startHeight = 13;
-    this.startMaxV = 10;
-    this.startVInc = 0.15;
-    this.width = this.startWidth;
-    this.height = this.startHeight;
-    this.maxV = this.startMaxV;
+    this.width = initVal.width;
+    this.height = initVal.height;
+    this.x = 0;
+    this.y = 0;
+    this.vMax = initVal.vMax;
+    this.vInc = initVal.vInc;
     this.v = 0;
-    this.vInc = this.startVInc;
-    this.x = this.startX;
-    this.y = this.startY;
 };
 
-Ball = function()
+Ball = function(initVal)
 {
-    this.startR = 10;
-    this.startX = 10;
-    this.startXV = 4;
-    this.startYV = 4;
-    this.startReleaseHeight = 550;
-    this.maxV = 10;
-    this.released = false;
-    this.releaseHeight = this.startReleaseHeight;
-    this.xV = this.startXV;
-    this.yV = this.startYV;
-    this.r = this.startR;
     this.color = "red";
-    this.x = this.startX;
-    this.y = this.releaseHeight;
-    this.xLast = this.x;
-    this.yLast = this.y;
+    this.maxAng = 70;
+    this.released = false;
+    this.releaseHeight = initVal.releaseHeight;
+    this.vMax = initVal.vMax;
+    this.vX = 0;
+    this.vY = 0;
+    this.r = initVal.r;
+    this.x = 0;
+    this.y = 0;
+    this.xLast = 0;
+    this.yLast = 0;
     
     this.updateLastPos = function()
     {
-        this.xLast = this.x - this.xV;
-        this.yLast = this.y - this.yV;
+        this.xLast = this.x - this.vX;
+        this.yLast = this.y - this.vY;
     };
 };
 
