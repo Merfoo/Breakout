@@ -1,4 +1,4 @@
 #Breakout!
 
 ##Play Online
-[Breakout][www.merfoo.github.io.com/Breakout/]
+[Breakout][http://merfoo.github.io/Breakout/]
