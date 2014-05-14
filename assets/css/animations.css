@@ -77,3 +77,43 @@
     0% {left: 0px;}
     100% {left: 2000px}
 }
+
+.animateFadeIn
+{
+    -webkit-animation: animateFadeIn 2.25s;
+    -webkit-animation-fill-mode: forwards;
+    animation: animateFadeIn 2.25s;
+    animation-fill-mode: forwards;
+}
+
+@-webkit-keyframes animateFadeIn
+{
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+@keyframes animateFadeIn
+{
+    0% {opacity: 0;}
+    100% {opacity: 1}
+}
+
+.animateFadeOut
+{
+    -webkit-animation: animateFadeOut 2.25s;
+    -webkit-animation-fill-mode: forwards;
+    animation: animateFadeOut 2.25s;
+    animation-fill-mode: forwards;
+}
+
+@-webkit-keyframes animateFadeOut
+{
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+@keyframes animateFadeOut
+{
+    0% {opacity: 1;}
+    100% {opacity: 0}
+}
