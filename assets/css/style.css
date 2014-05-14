@@ -23,6 +23,17 @@ canvas
     left: 0px;
 }
 
+#paused
+{
+    display: none;
+    z-index: 2; 
+    position: absolute;
+    top: 40%;
+    left: 37%;
+    width: 26%;
+    height: 13%;
+}
+
 #startMenu
 {
     z-index: 2; 

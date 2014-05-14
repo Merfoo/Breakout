@@ -1,16 +1,16 @@
 var _paddleInit = { startWidth: 173, startHeight: 13, startVMax: 10, startVInc: 0.15, width: 0, height: 0, vMax: 0, vInc: 0 };
 var _ballInit = { startR: 10, startReleaseHeight: 550, startVMax: 9, r: 0, releaseHeight: 0, vMax: 0 };
-var _dom = { startMenu: null, howToPlayMenu: null };
-var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight" };
+var _dom = { startMenu: null, howToPlayMenu: null, pause: null };
+var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0 };
 var _bricks = [];
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
 var _cvs = { borderThick: 4, game: null };
-var _modes = { single: 0, auto: 1, creative: 2 };
+var _modes = { single: 0, auto: 1, creative: 2, paused: false };
 var _levels = [];
 var _level = { index: 0, orig: [] };
 var _mode = _modes.auto;
-var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
+var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, p: 80, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
 var _keys = { left: false, right: false, space: false };
 var _paddle = new Paddle(_paddleInit);
 var _ball = new Ball(_ballInit);
@@ -28,6 +28,7 @@ function init()
     _storeAvailable = typeof(Storage) !== "undefined";
     _dom.startMenu = document.getElementById("startMenu");
     _dom.howToPlayMenu = document.getElementById("howToPlay");
+    _dom.pause = document.getElementById("paused");
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
     console.log(_cvs.game.canvas.style);
     _cvs.game.canvas.style.borderTopWidth = _cvs.borderThick + "px";
@@ -115,6 +116,9 @@ function loop()
             }
             
         case _modes.single:
+            if(_modes.paused)
+                break;
+            
             clearScreen();
             updatePaddle();
             updateBall();
@@ -421,8 +425,10 @@ function removeAllAnimations(elem)
 function showStartMenu()
 {
     hideHowToPlayMenu();
+    hidePause();
     removeAllAnimations(_dom.startMenu);
     _dom.startMenu.classList.add(_anim.moveUp);
+    _modes.paused = false;
 }
 
 function hideStartMenu()
@@ -443,6 +449,19 @@ function hideHowToPlayMenu()
 {
     removeAllAnimations(_dom.howToPlayMenu);
     _dom.howToPlayMenu.classList.add(_anim.moveRight);
+}
+
+function showPause()
+{
+    removeAllAnimations(_dom.pause);
+    _dom.pause.style.display = "inline";
+    _dom.pause.classList.add(_anim.fadeIn);
+}
+
+function hidePause()
+{
+    removeAllAnimations(_dom.pause);
+    _dom.pause.classList.add(_anim.fadeOut);
 }
 
 function keyUpEvent(e)
@@ -496,6 +515,10 @@ function keyUpEvent(e)
                 
             case _keyCodes.space:
                 _keys.space = false;
+                break;
+                
+            case _keyCodes.p:
+                (_modes.paused = !_modes.paused) ? showPause() : hidePause();
                 break;
         }
     }
