@@ -2,7 +2,7 @@ var _paddleInit = { startWidth: 173, startHeight: 13, startVMax: 10, startVInc: 
 var _ballInit = { startR: 10, startReleaseHeight: 550, startVMax: 9, r: 0, releaseHeight: 0, vMax: 0 };
 var _dom = { startMenu: null, howToPlayMenu: null, pause: null };
 var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut" };
-var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["gray", "green", "yellow", "red"] };
+var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["black", "green", "yellow", "red"] };
 var _bricks = [];
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
 var _cvs = { borderThick: 4, game: null };
@@ -99,7 +99,6 @@ function loop()
     paintPaddle();
     paintBricks();
     paintBall();
-    _cvs.game.canvas.style.borderColor = getRandomColor(0, 255);
     window.requestAnimFrame(loop);
 }
 
@@ -260,11 +259,11 @@ function updateBall()
             xLeft: brick.x * _brick.width, 
             xRight: (brick.x * _brick.width) + _brick.width, 
             yTop: brick.y * _brick.height, 
-            yBot: (brick.y * _brick.height) + _brick.height 
+            yBot: (brick.y * _brick.height) + _brick.height
         };
         
-        var offSet = [{ x: 0, y: 0 }, { x: -_ball.r, y: 0 }, { x: _ball.r, y: 0 }, { x: 0, y: -_ball.r }, { x: 0, y: _ball.r }];
-        
+        var offSet = [{ x: -_ball.r, y: 0 }, { x: _ball.r, y: 0 }, { x: 0, y: -_ball.r }, { x: 0, y: _ball.r }];
+
         for(var j in offSet)
         {    
             var ball = { x: _ball.x + offSet[j].x, y: _ball.y + offSet[j].y, xLast: _ball.xLast + offSet[j].x, yLast: _ball.yLast + offSet[j].y };
@@ -695,8 +694,7 @@ function saveLevels()
             newLevels.push(_levels[i]);
     
     if(newLevels.length > 0)
-    {
         localStorage.levels = JSON.stringify(newLevels);
-        _levels = _level.orig.concat(newLevels);
-    }
+    
+    _levels = _level.orig.concat(newLevels);
 }
