@@ -1,4 +1,4 @@
-Brick = function(x, y, lives, spawnBonus)
+Brick = function(x, y, lives, invincible, spawnBonus)
 {
     this.x = typeof(x) === "undefined" ? 0 : x;
     this.y = typeof(y) === "undefined" ? 0 : y;
@@ -6,6 +6,7 @@ Brick = function(x, y, lives, spawnBonus)
     this.startLives = typeof(lives) === "undefined" ? 1 : lives;
     this.lives = this.startLives;
     this.spawnBonus = typeof(spawnBonus) === "undefined" ? false : true;
+    this.invincible = typeof(invincible) === "undefined" ? false : invincible;
 };
 
 Paddle = function(initVal)
@@ -34,12 +35,6 @@ Ball = function(initVal)
     this.y = 0;
     this.xLast = 0;
     this.yLast = 0;
-    
-    this.updateLastPos = function()
-    {
-        this.xLast = this.x - this.vX;
-        this.yLast = this.y - this.vY;
-    };
 };
 
 Line = function()

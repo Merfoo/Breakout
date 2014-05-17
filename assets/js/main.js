@@ -2,7 +2,7 @@ var _paddleInit = { startWidth: 173, startHeight: 13, startVMax: 10, startVInc: 
 var _ballInit = { startR: 10, startReleaseHeight: 550, startVMax: 9, r: 0, releaseHeight: 0, vMax: 0 };
 var _dom = { startMenu: null, howToPlayMenu: null, pause: null };
 var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut" };
-var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0 };
+var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["gray", "green", "yellow", "red"] };
 var _bricks = [];
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
 var _cvs = { borderThick: 4, game: null };
@@ -12,6 +12,7 @@ var _level = { index: 0, orig: [] };
 var _mode = _modes.auto;
 var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, p: 80, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
 var _keys = { left: false, right: false, space: false };
+var _mouseCodes = { leftClick: 1, rightClick: 3 };
 var _paddle = new Paddle(_paddleInit);
 var _ball = new Ball(_ballInit);
 var _storeAvailable = false;
@@ -19,9 +20,9 @@ var _storeAvailable = false;
 document.addEventListener("DOMContentLoaded", init);
 document.documentElement.style.overflowX = "hidden";	 // Horizontal scrollbar will be hidden
 document.documentElement.style.overflowY = "hidden";     // Vertical scrollbar will be hidden
-window.addEventListener("keyup", keyUpEvent);
-window.addEventListener("keydown", keyDownEvent);
-window.addEventListener("mousedown", mouseDownEvent);
+document.addEventListener("keyup", keyUpEvent);
+document.addEventListener("keydown", keyDownEvent);
+document.addEventListener("mousedown", mouseDownEvent);
 
 function init()
 {
@@ -30,7 +31,6 @@ function init()
     _dom.howToPlayMenu = document.getElementById("howToPlay");
     _dom.pause = document.getElementById("paused");
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
-    console.log(_cvs.game.canvas.style);
     _cvs.game.canvas.style.borderTopWidth = _cvs.borderThick + "px";
     _cvs.game.canvas.style.borderRightWidth = _cvs.borderThick + "px";
     _cvs.game.canvas.style.borderBottomWidth = _cvs.borderThick + "px";
@@ -77,66 +77,29 @@ function setGameSize()
 
 function loop()
 {
+    clearScreen();
+    
     switch(_mode)
     {
         case _modes.auto:
-            var ballLine = new Line();
-            ballLine.createLine({ x: _ball.x, y: _ball.y }, { x: _ball.xLast, y: _ball.yLast });
-            var colX = ballLine.getX(_paddle.y);
-            
-            if(_ball.vY < 0)
-                colX = ballLine.getX(0);
-            
-            if((colX > _paddle.x + _paddle.width))
-            {
-                _keys.left = false;
-                _keys.right = true;
-            }
-            
-            else if((colX < _paddle.x))
-            {
-                _keys.left = true;
-                _keys.right = false;
-            }
-            
-            else
-            {
-                _keys.left = false;
-                _keys.right = false;
-            } 
-            
-            if(!_ball.released)
-            {
-                var vel = getVel(getRandomNumber(-90 - _ball.maxAng, -90 + _ball.maxAng), _ball.vMax);
-                _ball.vX = vel.x;
-                _ball.vY = vel.y;
-                _ball.x = _paddle.x + (_paddle.width / 2);
-                _ball.y = _ball.releaseHeight;
-                _ball.released = true;
-            }
+            updateAi();
             
         case _modes.single:
             if(_modes.paused)
                 break;
             
-            clearScreen();
             updatePaddle();
             updateBall();
-            paintPaddle();
-            paintBricks();
-            paintBall();
-            _cvs.game.canvas.style.borderColor = getRandomColor(0, 255);
             break;
             
         case _modes.creative:
-            clearScreen();
-            paintPaddle();
-            paintBricks();
-            paintBall();
-            _cvs.game.canvas.style.borderColor = getRandomColor(0, 255);
             break;
     }
     
+    paintPaddle();
+    paintBricks();
+    paintBall();
+    _cvs.game.canvas.style.borderColor = getRandomColor(0, 255);
     window.requestAnimFrame(loop);
 }
 
@@ -151,18 +114,56 @@ function initGame()
     _keys.left = false;
     _keys.right = false;
     _keys.space = false;
-    resetLevels();
+    getLevel(_level.index);
 }
 
 function paintBricks()
 {
     for(var brickIndex in _bricks)
     {
-        if(_bricks[brickIndex].lives <= 0)
-            continue;
-        
-        _bricks[brickIndex].color = getRandomColor(0, 255);
-        paintBrick(_bricks[brickIndex]);
+        if(_bricks[brickIndex].lives > 0 || _bricks[brickIndex].invincible)
+        {
+            _bricks[brickIndex].color = _brick.colors[_bricks[brickIndex].lives];
+            paintBrick(_bricks[brickIndex]);
+        }
+    }
+}
+
+function updateAi()
+{
+    var ballLine = new Line();
+    ballLine.createLine({ x: _ball.x, y: _ball.y }, { x: _ball.xLast, y: _ball.yLast });
+    var colX = ballLine.getX(_paddle.y);
+
+    if(_ball.vY < 0)
+        colX = ballLine.getX(0);
+
+    if((colX > _paddle.x + _paddle.width))
+    {
+        _keys.left = false;
+        _keys.right = true;
+    }
+
+    else if((colX < _paddle.x))
+    {
+        _keys.left = true;
+        _keys.right = false;
+    }
+
+    else
+    {
+        _keys.left = false;
+        _keys.right = false;
+    } 
+
+    if(!_ball.released)
+    {
+        var vel = getVel(getRandomNumber(-90 - _ball.maxAng, -90 + _ball.maxAng), _ball.vMax);
+        _ball.vX = vel.x;
+        _ball.vY = vel.y;
+        _ball.x = _paddle.x + (_paddle.width / 2);
+        _ball.y = _ball.releaseHeight;
+        _ball.released = true;
     }
 }
 
@@ -191,7 +192,7 @@ function updatePaddle()
         if(_paddle.v < 0 - _paddle.vInc)
             _paddle.v += _paddle.vInc;
         
-        if(Math.abs(_paddle.v) < _paddle.vInc)
+        if(Math.abs(_paddle.v) <= _paddle.vInc)
             _paddle.v = 0;
     }
     
@@ -247,11 +248,12 @@ function updateBall()
        
     var collided = { x: false, y: false };
     
-    for(var brickIndex in _bricks)
+    for(var brickIndex = 0, len = _bricks.length; brickIndex < len; brickIndex++)
     {
-        if(_bricks[brickIndex].lives <= 0)
+        if(_bricks[brickIndex].lives <= 0 && !_bricks[brickIndex].invincible)
             continue;
         
+        var hitBrick = false;
         var brick = _bricks[brickIndex];
         brick = 
         { 
@@ -269,6 +271,7 @@ function updateBall()
         
             if(inBetween(ball.x, brick.xLeft, brick.xRight) && inBetween(ball.y, brick.yTop, brick.yBot))
             {
+                hitBrick = true;
                 var ballLine = new Line();
                 ballLine.createLine({ x: ball.x, y: ball.y }, { x: ball.xLast, y: ball.yLast });
                 var xTop = ballLine.getX(brick.yTop);
@@ -276,17 +279,23 @@ function updateBall()
                 var yLeft = ballLine.getY(brick.xLeft);
                 var yRight = ballLine.getY(brick.xRight);
                 
-                if((xTop >= brick.xLeft && xTop <= brick.xRight) || (xBot >= brick.xLeft && xBot <= brick.xRight))
+                if((xTop > brick.xLeft && xTop < brick.xRight) || (xBot > brick.xLeft && xBot < brick.xRight))
                     if(inBetween(brick.yTop, ball.y, ball.yLast) || inBetween(brick.yBot, ball.y, ball.yLast))
                         collided.y = true;
 
-                if((yLeft >= brick.yTop && yLeft <= brick.yBot) || (yRight >= brick.yTop && yRight <= brick.yBot))
+                if((yLeft > brick.yTop && yLeft < brick.yBot) || (yRight > brick.yTop && yRight < brick.yBot))
                     if(inBetween(brick.xLeft, ball.x, ball.xLast) || inBetween(brick.xRight, ball.x, ball.xLast))
-                         collided.x = true;
-
-                 if(_bricks[brickIndex].lives > 0 && --_bricks[brickIndex].lives <= 0)
-                     _brick.live--;
+                        collided.x = true;
             }
+            
+            if(collided.x || collided.y)
+                break;
+        }
+        
+        if(_bricks[brickIndex].lives > 0 && hitBrick)
+        {
+            if(--_bricks[brickIndex].lives <= 0)
+                _brick.live--;
         }
     }
     
@@ -296,9 +305,10 @@ function updateBall()
     if(collided.y)
         _ball.vY *= -1;
         
+    _ball.xLast = _ball.x;
+    _ball.yLast = _ball.y;
     _ball.x += _ball.vX;
     _ball.y += _ball.vY;
-    _ball.updateLastPos();
         
     if(_brick.live <= 0)
     {
@@ -330,7 +340,7 @@ function paintBrick(brick)
     var x = brick.x;
     var y = brick.y;
     var color = brick.color;
-    _cvs.game.fillStyle = !!color === true ? color : "blue";
+    _cvs.game.fillStyle = color;
     _cvs.game.fillRect(x * _brick.width, y * _brick.height, _brick.width, _brick.height);
 }
 
@@ -371,35 +381,22 @@ function makeLevels()
         _levels = _levels.concat(JSON.parse(localStorage.levels));
 }
 
-function resetBrick(brick)
-{
-    brick.lives = brick.startLives;
-}
-
-function resetLevels()
-{
-    for(var levelIndex = 0, len = _levels.length; levelIndex < len; levelIndex++)
-        for(var brickIndex = 0, brickLen = _levels[levelIndex].length; brickIndex < brickLen; brickIndex++)
-            resetBrick(_levels[levelIndex][brickIndex]);
-    
-    getLevel(_level.index);
-}
 function getLevel(index)
 {
-    if(index < 0)
-        index = 0;
-    
-    else if(index >= _levels.length)
-        index = _levels.length - 1;
-    
     _level.index = index;
     _bricks = _levels[_level.index].clone();
-    _brick.live = _levels[_level.index].length;
+    _brick.live = 0;
+    
+    for(var i = 0, len = _levels[_level.index].length; i < len; i++)
+        if(!_levels[_level.index][i].invincible)
+            _brick.live++;
 }
 
 function getPrevLevel()
 {
-    if(--_level.index < 0)
+    --_level.index;
+    
+    if(_level.index< 0 || (_mode === _modes.creative && _level.index < _level.orig.length))
     {
         _level.index = _levels.length - 1;
     }
@@ -409,8 +406,15 @@ function getPrevLevel()
 
 function getNextLevel()
 {
-    if(++_level.index >= _levels.length) 
+    ++_level.index;
+    
+    if(_level.index >= _levels.length) 
+    {
         _level.index = 0;
+        
+        if(_mode === _modes.creative)
+            _level.index = _level.orig.length;
+    }
 
     getLevel(_level.index);
 }
@@ -475,6 +479,7 @@ function keyUpEvent(e)
                 endCreativeMode();
             
             _mode = _modes.auto;
+                
             break;
         
         case _keyCodes.tilda:
@@ -577,85 +582,45 @@ function mouseDownEvent(e)
     {
         var x = Math.floor(e.clientX / _brick.width);
         var y = Math.floor(e.clientY / _brick.height);
-
+        var brickIndex = -1;
+        
         for(var i in _bricks)
         {
             if(_bricks[i].x === x && _bricks[i].y === y)
             {
-                _bricks.splice(i, 1);
-                return;
+                brickIndex = i;
+                break;
             }
         }
-
-        _bricks.push(new Brick(x, y));
+        
+        if(e.which === _mouseCodes.leftClick)
+        {
+            if(brickIndex === -1)
+                _bricks.push(new Brick(x, y));
+            
+            else
+                _bricks.splice(brickIndex, 1);
+        }
+        
+        if(e.which === _mouseCodes.rightClick)
+        {
+            if(brickIndex !== -1)
+            {    
+                if(++_bricks[brickIndex].lives > _brick.maxLives)
+                    _bricks[brickIndex].lives = 0;
+                
+                if(_bricks[brickIndex].lives === 0)
+                    _bricks[brickIndex].invincible = true;
+                
+                else
+                    _bricks[brickIndex].invincible = false;
+            }
+        }
+        
+        _levels[_level.index] = _bricks.clone();
     }
 }
 
-function inBetween(x, x1, x2)
-{
-    if(x1 > x2)
-    {
-        var tmp = x1;
-        x1 = x2;
-        x2 = tmp;
-    }
-    
-    if(x >= x1 && x <= x2)
-        return true;
-    
-    return false;
-}
-
-function getVel(ang, vel)
-{
-    return { x: -Math.cos(toRad(ang)) * vel, y: Math.sin(toRad(ang)) * vel };
-}
-
-function toRad(deg)
-{
-    return deg * Math.PI / 180;
-}
-
-function toDeg(rad)
-{
-    return rad * 180 / Math.PI;
-}
-
-// Returns random color between min and max.
-function getRandomColor(min, max)
-{
-    // Creating a random number between iMin and iMax, converting to hex
-    var hexR = (getRandomNumber(min, max)).toString(16);
-    var hexG = (getRandomNumber(min, max)).toString(16);
-    var hexB = (getRandomNumber(min, max)).toString(16);
-
-    // Making sure single character values are prepended with a "0"
-    if (hexR.length === 1)
-        hexR = "0" + hexR;
-
-    if (hexG.length === 1)
-        hexG = "0" + hexG;
-
-    if (hexB.length === 1)
-        hexB = "0" + hexB;
-
-    // Creating the hex value by concatenatening the string values
-    return ("#" + hexR + hexG + hexB).toUpperCase();
-}
-
-// Returns random number between min and max, include iMin and iMax
-function getRandomNumber(min, max)
-{
-    if (max < min)
-    {
-        var tmp = max;
-        max = min;
-        min = tmp;
-    }
-
-    return Math.floor((Math.random() * ((max + 1) - min)) + min);
-}
-    
 function saveCanvasImg()
 {
     downloadImg("canvasImg.png", _cvs.game.canvas.toDataURL("image/png"));
@@ -665,33 +630,21 @@ function printLevel()
 {
     var str = "\tvar ret = [];\n";
     
-    for(var i in _bricks)
+    for(var i = 0, len = _bricks.length; i < len; i++)
     {
         str += "\tret.push(new Brick(";
         str += _bricks[i].x;
         str += ", ";
         str += _bricks[i].y;
+        str += ", ";
+        str += _bricks[i].lives;
+        str += ", ";
+        str += _bricks[i].invincible;
         str += "));\n";
     }
     
     str += "\n\treturn ret;";
     download("level.txt", str);
-}
-
-function download(filename, text) 
-{
-    var pom = document.createElement('a');
-    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    pom.setAttribute('download', filename);
-    pom.click();
-}
-
-function downloadImg(filename, imgSrc)
-{
-    var el = document.createElement("a");
-    el.setAttribute("href", imgSrc);
-    el.setAttribute("download", filename);
-    el.click();
 }
 
 function initCreativeMode()
@@ -700,13 +653,13 @@ function initCreativeMode()
     initGame();
     _mode = _modes.creative;
     _levels.push([]);
-    _level.index = _levels.length - 1;
+    getLevel(_levels.length - 1);
 }
 
 function endCreativeMode()
 {
-    _levels.splice(_levels.length - 1, 1);
-    _level.index = 0;
+    saveLevels();
+    getLevel(0);
 }
 
 function removeLevel()
@@ -715,22 +668,35 @@ function removeLevel()
     {
         _levels[_level.index] = [];
         _bricks = [];
+        _levels.splice(_level.index, 1);
         
-        if(_level.index !== _levels.length - 1)
-            _levels.splice(_level.index--, 1);
+        if(_level.index >= _levels.length)
+            _level.index = _levels.length - 1;
+        
+        if(_level.orig.length === _levels.length)
+            addLevel();
+        
+        getLevel(_level.index);
     }
-    
-    getLevel(_level.index);
-    localStorage.levels = JSON.stringify(_levels.slice(_level.orig.length, _levels.length - 1));
 }
 
 function addLevel()
 {
-    if(_bricks.length === 0)
-        return;
-    
-    _levels.splice(_levels.length - 1, 0, _bricks.clone());
-    _level.index++;
+    _levels.splice(++_level.index, 0, []);
     getLevel(_level.index);
-    localStorage.levels = JSON.stringify(_levels.slice(_level.orig.length, _levels.length - 1));
+}
+
+function saveLevels()
+{
+    var newLevels = [];
+    
+    for(var i = _level.orig.length, len = _levels.length; i < len; i++)
+        if(_levels[i].length > 0)
+            newLevels.push(_levels[i]);
+    
+    if(newLevels.length > 0)
+    {
+        localStorage.levels = JSON.stringify(newLevels);
+        _levels = _level.orig.concat(newLevels);
+    }
 }
