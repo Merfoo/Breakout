@@ -7,7 +7,7 @@ function inBetween(x, x1, x2)
         x2 = tmp;
     }
     
-    if(x > x1 && x < x2)
+    if(x >= x1 && x <= x2)
         return true;
     
     return false;

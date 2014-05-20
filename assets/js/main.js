@@ -1,5 +1,6 @@
 var _paddleInit = { startWidth: 173, startHeight: 13, startVMax: 10, startVInc: 0.15, width: 0, height: 0, vMax: 0, vInc: 0 };
 var _ballInit = { startR: 10, startReleaseHeight: 550, startVMax: 9, r: 0, releaseHeight: 0, vMax: 0 };
+var _ballAimInit = { startVMax: 150, startAng: 20, vMax: 0 };
 var _dom = { startMenu: null, howToPlayMenu: null, pause: null };
 var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["black", "green", "yellow", "red"] };
@@ -8,14 +9,15 @@ var _hitSpots = { topLeft: 0, topRight: 1, botLeft: 2, botRight: 3 };
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
 var _cvs = { borderThick: 4, game: null };
 var _modes = { single: 0, auto: 1, creative: 2, paused: false };
+var _mode = _modes.auto;
 var _levels = [];
 var _level = { index: 0, orig: [] };
-var _mode = _modes.auto;
 var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, p: 80, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
 var _keys = { left: false, right: false, space: false };
 var _mouseCodes = { leftClick: 1, rightClick: 3 };
 var _paddle = new Paddle(_paddleInit);
 var _ball = new Ball(_ballInit);
+var _ballAim = new BallAim(_ballAimInit);
 var _storeAvailable = false;
 
 document.addEventListener("DOMContentLoaded", init);
@@ -63,14 +65,24 @@ function setGameSize()
     _cvs.game.canvas.height = _map.height;
     _brick.width = _map.width / _brick.horz;
     _brick.height = _map.height / _brick.vert;
-    _paddle.width = _paddleInit.width = _paddleInit.startWidth * _map.widthMod;
-    _paddle.height = _paddleInit.height = _paddleInit.startHeight * _map.heightMod;
-    _paddle.vMax = _paddleInit.vMax = _paddleInit.startVMax * _map.widthMod;
-    _paddle.vInc = _paddleInit.vInc = _paddleInit.startVInc * _map.widthMod;
+    _ballAimInit.vMax = _ballAimInit.startVMax * _map.heightMod;
+    _paddleInit.width = _paddleInit.startWidth * _map.widthMod;
+    _paddleInit.height = _paddleInit.startHeight * _map.heightMod;
+    _paddleInit.vMax = _paddleInit.startVMax * _map.widthMod;
+    _paddleInit.vInc = _paddleInit.startVInc * _map.widthMod;
+    _ballInit.r = _ballInit.startR * _map.widthMod;
+    _ballInit.releaseHeight = _ballInit.startReleaseHeight * _map.heightMod;
+    _ballInit.vMax = _ballInit.startVMax * _map.widthMod;
+    
+    _ballAim.vMax = _ballAimInit.vMax;
+    _paddle.width = _paddleInit.width;
+    _paddle.height = _paddleInit.height;
+    _paddle.vMax = _paddleInit.vMax;
+    _paddle.vInc = _paddleInit.vInc;
     _paddle.y = _map.height - _paddleInit.height;
-    _ball.r = _ballInit.r = _ballInit.startR * _map.widthMod;
-    _ball.releaseHeight = _ballInit.releaseHeight = _ballInit.startReleaseHeight * _map.heightMod;
-    _ball.vMax = _ballInit.vMax = _ballInit.startVMax * _map.widthMod;
+    _ball.r = _ballInit.r;
+    _ball.releaseHeight = _ballInit.releaseHeight;
+    _ball.vMax = _ballInit.vMax;
     var ballMod = _ball.vMax / Math.sqrt((_ball.vX * _ball.vX) + (_ball.vY * _ball.vY));
     _ball.vX *= ballMod;
     _ball.vY *= ballMod;
@@ -89,7 +101,15 @@ function loop()
             if(_modes.paused)
                 break;
             
-            updatePaddle();
+            if(!_ball.released)
+            {
+                updateBallAim();
+                paintBallAim();
+            }
+            
+            else
+                updatePaddle();
+            
             updateBall();
             break;
             
@@ -100,7 +120,6 @@ function loop()
     paintBall();
     paintPaddle();
     paintBricks();
-    //window.setTimeout(loop, 1000/30);
     window.requestAnimFrame(loop);
 }
 
@@ -212,22 +231,44 @@ function updatePaddle()
     }
 }
 
-function updateBall()
+function updateBallAim()
 {
-    if(!_ball.released)
-    {
-        _ball.vX = 0;
-        _ball.vY = 0;
-        _ball.x = _paddle.x + (_paddle.width / 2);
-        _ball.y = _ball.releaseHeight;
-        
-        if(_keys.space)
-        {
-            _ball.released = true;
-            _ball.vY = _ball.vMax;
-        }
-    }
+    _paddle.x = (_map.width / 2) - (_paddle.width / 2);
+    _ball.vX = 0;
+    _ball.vY = 0;
+    _ball.x = _paddle.x + (_paddle.width / 2);
+    _ball.y = _paddle.y - _paddle.height - _ball.r;
+    _ballAim.x = _ball.x;
+    _ballAim.y = _ball.y;
     
+    // Left is -20, right is -160 degrees
+    if(_keys.left)
+        _ballAim.ang += _ballAim.angI;
+    
+    else if(_keys.right)
+        _ballAim.ang -= _ballAim.angI;
+    
+    if(_ballAim.ang < _ballAim.angMin)
+        _ballAim.ang = _ballAim.angMin;
+    
+    else if(_ballAim.ang > _ballAim.angMax)
+        _ballAim.ang = _ballAim.angMax;
+        
+    var newVel = getVel(_ballAim.ang, _ballAim.vMax);
+    _ballAim.vX = newVel.x;
+    _ballAim.vY = newVel.y;
+    
+    if(_keys.space)
+    {
+        var ballVel = getVel(_ballAim.ang, _ball.vMax);
+        _ball.vX = ballVel.x;
+        _ball.vY = ballVel.y;
+        _ball.released = true;
+    }
+}
+
+function updateBall()
+{    
     if(_ball.x + _ball.r > _map.width) 
         _ball.vX = -Math.abs(_ball.vX);
     
@@ -287,8 +328,8 @@ function updateBall()
                 if((xTop > brick.xLeft && xTop < brick.xRight) || (xBot > brick.xLeft && xBot < brick.xRight))
                     if(inBetween(brick.yTop, ball.y, ball.yLast) || inBetween(brick.yBot, ball.y, ball.yLast))
                         collided.y = true;
-
-                else if((yLeft > brick.yTop && yLeft < brick.yBot) || (yRight > brick.yTop && yRight < brick.yBot))
+                
+                if((yLeft > brick.yTop && yLeft < brick.yBot) || (yRight > brick.yTop && yRight < brick.yBot))
                     if(inBetween(brick.xLeft, ball.x, ball.xLast) || inBetween(brick.xRight, ball.x, ball.xLast))
                         collided.x = true;
             }
@@ -464,6 +505,17 @@ function paintBall()
     _cvs.game.fillStyle = _ball.color;
     _cvs.game.arc(_ball.x, _ball.y, _ball.r, 0, 2 * Math.PI);
     _cvs.game.fill();
+}
+
+function paintBallAim()
+{
+    _cvs.game.beginPath();
+    _cvs.game.lineWidth = _ballAim.width;
+    _cvs.game.strokeStyle = _ballAim.color;
+    _cvs.game.moveTo(_ballAim.x, _ballAim.y);
+    _cvs.game.lineTo(_ballAim.x + _ballAim.vX, _ballAim.y + _ballAim.vY);
+    _cvs.game.stroke();
+    _cvs.game.closePath();
 }
 
 function paintBrickCorner(newBrick)

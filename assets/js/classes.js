@@ -38,6 +38,21 @@ Ball = function(initVal)
     this.line = new Line();
 };
 
+BallAim = function(initVal)
+{
+    this.ang = -45;
+    this.angI = 2.22;
+    this.angMin = -160;
+    this.angMax = -20;
+    this.color = "black";
+    this.x = 0;
+    this.y = 0;
+    this.vMax = initVal.vMax;
+    this.vX = 0;
+    this.vY = 0;
+    this.width = 4;
+};
+
 Line = function()
 {
     this.slope = 1;
