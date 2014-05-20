@@ -475,11 +475,10 @@ function updateBall()
 
 function ballHitPaddle()
 {
-    var ball = { xBack: _ball.x - _ball.r, xFor: _ball.x + _ball.r, yBack: _ball.y - _ball.r, yFor: _ball.y + _ball.r };
-    var paddle = { xLeft: _paddle.x, xRight: _paddle.x + _paddle.width, y: _paddle.y };
-
-    if((ball.xBack > paddle.xLeft || ball.xFor > paddle.xLeft) && (ball.xBack < paddle.xRight || ball.xFor < paddle.xRight))
-        if(ball.yFor > paddle.y)
+    var ball = { x: _ball.x + _ball.vX, y: _ball.y + _ball.vY };
+    
+    if(ball.x >= _paddle.x && ball.x <= _paddle.x + _paddle.width)
+        if(_ball.y >= _paddle.y - (_paddle.height / 2))
             return true;
     
     return false;
