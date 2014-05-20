@@ -13,6 +13,11 @@ function inBetween(x, x1, x2)
     return false;
 }
 
+function getDist(pointA, pointB)
+{
+    return Math.sqrt(Math.pow(pointA.x - pointB.x, 2) + Math.pow(pointA.y - pointB.y, 2));
+}
+
 function getVel(ang, vel)
 {
     return { x: -Math.cos(toRad(ang)) * vel, y: Math.sin(toRad(ang)) * vel };

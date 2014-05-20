@@ -35,6 +35,7 @@ Ball = function(initVal)
     this.y = 0;
     this.xLast = 0;
     this.yLast = 0;
+    this.line = new Line();
 };
 
 Line = function()

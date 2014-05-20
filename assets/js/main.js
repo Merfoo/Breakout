@@ -4,6 +4,7 @@ var _dom = { startMenu: null, howToPlayMenu: null, pause: null };
 var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["black", "green", "yellow", "red"] };
 var _bricks = [];
+var _hitSpots = { topLeft: 0, topRight: 1, botLeft: 2, botRight: 3 };
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
 var _cvs = { borderThick: 4, game: null };
 var _modes = { single: 0, auto: 1, creative: 2, paused: false };
@@ -96,9 +97,10 @@ function loop()
             break;
     }
     
+    paintBall();
     paintPaddle();
     paintBricks();
-    paintBall();
+    //window.setTimeout(loop, 1000/30);
     window.requestAnimFrame(loop);
 }
 
@@ -246,6 +248,7 @@ function updateBall()
     }
        
     var collided = { x: false, y: false };
+    var removeLives = [];
     
     for(var brickIndex = 0, len = _bricks.length; brickIndex < len; brickIndex++)
     {
@@ -253,57 +256,169 @@ function updateBall()
             continue;
         
         var hitBrick = false;
-        var brick = _bricks[brickIndex];
-        brick = 
-        { 
-            xLeft: brick.x * _brick.width, 
-            xRight: (brick.x * _brick.width) + _brick.width, 
-            yTop: brick.y * _brick.height, 
-            yBot: (brick.y * _brick.height) + _brick.height
-        };
+        var brick = _bricks[brickIndex].clone();
+        brick.xLeft = brick.x * _brick.width; 
+        brick.xRight = (brick.x * _brick.width) + _brick.width; 
+        brick.yTop = brick.y * _brick.height;
+        brick.yBot = (brick.y * _brick.height) + _brick.height;
+        brick.cornTopLeft = { x: brick.xLeft, y: brick.yTop };
+        brick.cornTopRight = { x: brick.xRight, y: brick.yTop };
+        brick.cornBotLeft = { x: brick.xLeft, y: brick.yBot };
+        brick.cornBotRight = { x: brick.xRight, y: brick.yBot };
+        var ball = _ball.clone();
+        ball.xLast = ball.x + (_ball.r * (_ball.vX < 0 ? -1 : 1) * 0.33);
+        ball.yLast = ball.y + (_ball.r * (_ball.vY < 0 ? -1 : 1) * 0.33);
+        ball.x = ball.xLast + ball.vX;
+        ball.y = ball.yLast + ball.vY;
+        ball.line = new Line();
+        ball.line.createLine({ x: ball.x, y: ball.y }, { x: ball.xLast, y: ball.yLast });
+        var xTop = ball.line.getX(brick.yTop);
+        var xBot = ball.line.getX(brick.yBot);
+        var yLeft = ball.line.getY(brick.xLeft);
+        var yRight = ball.line.getY(brick.xRight);
         
-        var offSet = [{ x: -_ball.r, y: 0 }, { x: _ball.r, y: 0 }, { x: 0, y: -_ball.r }, { x: 0, y: _ball.r }];
-
-        for(var j in offSet)
-        {    
-            var ball = { x: _ball.x + offSet[j].x, y: _ball.y + offSet[j].y, xLast: _ball.xLast + offSet[j].x, yLast: _ball.yLast + offSet[j].y };
-        
-            if(inBetween(ball.x, brick.xLeft, brick.xRight) && inBetween(ball.y, brick.yTop, brick.yBot))
+        if((xTop > brick.xLeft && xTop < brick.xRight) || (xBot > brick.xLeft && xBot < brick.xRight) || (yLeft > brick.yTop && yLeft < brick.yBot) || (yRight > brick.yTop && yRight < brick.yBot))
+        {
+            
+            if(ball.x > brick.xLeft && ball.x < brick.xRight && ball.y > brick.yTop && ball.y < brick.yBot)
             {
                 hitBrick = true;
-                var ballLine = new Line();
-                ballLine.createLine({ x: ball.x, y: ball.y }, { x: ball.xLast, y: ball.yLast });
-                var xTop = ballLine.getX(brick.yTop);
-                var xBot = ballLine.getX(brick.yBot);
-                var yLeft = ballLine.getY(brick.xLeft);
-                var yRight = ballLine.getY(brick.xRight);
                 
                 if((xTop > brick.xLeft && xTop < brick.xRight) || (xBot > brick.xLeft && xBot < brick.xRight))
                     if(inBetween(brick.yTop, ball.y, ball.yLast) || inBetween(brick.yBot, ball.y, ball.yLast))
                         collided.y = true;
 
-                if((yLeft > brick.yTop && yLeft < brick.yBot) || (yRight > brick.yTop && yRight < brick.yBot))
+                else if((yLeft > brick.yTop && yLeft < brick.yBot) || (yRight > brick.yTop && yRight < brick.yBot))
                     if(inBetween(brick.xLeft, ball.x, ball.xLast) || inBetween(brick.xRight, ball.x, ball.xLast))
                         collided.x = true;
             }
+        }
+        
+        var hitSpot = -1;
+        var dist = ball.r * 0.75;
+        var newVel;
+
+        if(getDist(brick.cornBotLeft, ball) < dist)
+        {
+            hitBrick = true;
+            hitSpot = _hitSpots.botLeft;
+            newVel = getVel(getRandomNumber(30, 60), _ball.vMax);
+            console.log("corner bot left");
+        }
+        
+        if(getDist(brick.cornBotRight, ball) < dist)
+        {
+            hitBrick = true;
+            hitSpot = _hitSpots.botRight;
+            newVel = getVel(getRandomNumber(120, 150), _ball.vMax);
+            console.log("corner bot right");
+        }
+        
+        if(getDist(brick.cornTopLeft, ball) < dist)
+        {
+            hitBrick = true;
+            hitSpot = _hitSpots.topLeft;
+            newVel = getVel(getRandomNumber(-30, -60), _ball.vMax);
+            console.log("corner top left");
+        }
+        
+        if(getDist(brick.cornTopRight, ball) < dist)
+        {
+            hitBrick = true;
+            hitSpot = _hitSpots.topRight;
+            newVel = getVel(getRandomNumber(-120, -150), _ball.vMax);
+            console.log("corner top right");
+        }
+
+        if(hitBrick && hitSpot !== -1)
+        {
+            collided.x = true;
+            collided.y = true; 
+            var changeVel = true;
             
-            if(collided.x || collided.y)
-                break;
+            for(var i = 0; i < len; i++)
+            {
+                if(_bricks[i].lives <= 0 && !_bricks[i].invincible)
+                    continue;
+
+                var curBrick = _bricks[brickIndex];
+                var newBrick = _bricks[i];
+
+                switch(hitSpot)
+                {
+                    case _hitSpots.botLeft:
+                        if(newBrick.x + 1 === curBrick.x && newBrick.y === curBrick.y)
+                            collided.x = false;
+
+                        if(newBrick.x === curBrick.x && newBrick.y - 1 === curBrick.y)
+                            collided.y = false;
+                        
+                        if(newBrick.x + 1 === curBrick.x && newBrick.y - 1 === curBrick.y)
+                            changeVel = false;
+                        break;
+
+                    case _hitSpots.botRight:
+                        if(newBrick.x - 1 === curBrick.x && newBrick.y === curBrick.y)
+                            collided.x = false;
+
+                        if(newBrick.x === curBrick.x && newBrick.y - 1 === curBrick.y)
+                            collided.y = false;
+                        
+                        if(newBrick.x - 1 === curBrick.x && newBrick.y - 1 === curBrick.y)
+                            changeVel = false;
+                        break;
+
+                    case _hitSpots.topLeft:
+                        if(newBrick.x + 1 === curBrick.x && newBrick.y === curBrick.y)
+                            collided.x = false;
+
+                        if(newBrick.x === curBrick.x && newBrick.y + 1 === curBrick.y)
+                            collided.y = false;
+                        
+                        if(newBrick.x + 1 === curBrick.x && newBrick.y + 1 === curBrick.y)
+                            changeVel = false;
+                        break;
+
+                    case _hitSpots.topRight:
+                        if(newBrick.x - 1 === curBrick.x && newBrick.y === curBrick.y)
+                            collided.x = false;
+
+                        if(newBrick.x === curBrick.x && newBrick.y + 1 === curBrick.y)
+                            collided.y = false;
+                        
+                        if(newBrick.x - 1 === curBrick.x && newBrick.y + 1 === curBrick.y)
+                            changeVel = false;
+                        break;
+                }
+            }
+
+            if(collided.x && collided.y && changeVel)
+            {
+                _ball.vX = newVel.x * -1;
+                _ball.vY = newVel.y * -1;
+            }
+            
+            else if(!changeVel)
+            {
+                collided.x = true;
+                collided.y = true; 
+            }
         }
         
         if(_bricks[brickIndex].lives > 0 && hitBrick)
-        {
-            if(--_bricks[brickIndex].lives <= 0)
-                _brick.live--;
-        }
+            removeLives.push(brickIndex);    
     }
+    
+    for(var i = 0, len = removeLives.length; i < len; i++)
+        if(--_bricks[removeLives[i]].lives <= 0)
+            _brick.live--;
     
     if(collided.x)
         _ball.vX *= -1;
 
     if(collided.y)
         _ball.vY *= -1;
-        
+    
     _ball.xLast = _ball.x;
     _ball.yLast = _ball.y;
     _ball.x += _ball.vX;
@@ -334,11 +449,11 @@ function clearScreen()
     _cvs.game.clearRect(0, 0, _map.width, _map.height);
 }
 
-function paintBrick(brick)
+function paintBrick(brick, newColor)
 {
     var x = brick.x;
     var y = brick.y;
-    var color = brick.color;
+    var color = !!newColor ? newColor : brick.color;
     _cvs.game.fillStyle = color;
     _cvs.game.fillRect(x * _brick.width, y * _brick.height, _brick.width, _brick.height);
 }
@@ -348,6 +463,28 @@ function paintBall()
     _cvs.game.beginPath();
     _cvs.game.fillStyle = _ball.color;
     _cvs.game.arc(_ball.x, _ball.y, _ball.r, 0, 2 * Math.PI);
+    _cvs.game.fill();
+}
+
+function paintBrickCorner(newBrick)
+{
+    var brick = { x: newBrick.x * _brick.width, y: newBrick.y * _brick.height };
+    var r = _ball.r;
+    _cvs.game.beginPath();  // Top left
+    _cvs.game.fillStyle = "blue";
+    _cvs.game.arc(brick.x, brick.y, r, 0, 2 * Math.PI);
+    _cvs.game.fill();       
+    _cvs.game.beginPath();  // Bot left
+    _cvs.game.fillStyle = "blue";
+    _cvs.game.arc(brick.x, brick.y + _brick.height, r, 0, 2 * Math.PI);
+    _cvs.game.fill();      
+    _cvs.game.beginPath();  // Top right
+    _cvs.game.fillStyle = "blue";
+    _cvs.game.arc(brick.x + _brick.width, brick.y, r, 0, 2 * Math.PI);
+    _cvs.game.fill();
+    _cvs.game.beginPath();  // Bot right
+    _cvs.game.fillStyle = "blue";
+    _cvs.game.arc(brick.x + _brick.width, brick.y + _brick.height, r, 0, 2 * Math.PI);
     _cvs.game.fill();
 }
 
