@@ -564,7 +564,7 @@ function makeLevels()
     _level.orig.push(makeLevel5());
     _levels = [].concat(_level.orig);
     
-    if(_storeAvailable && localStorage.levels)
+    if(_storeAvailable && !!localStorage.levels)
         _levels = _levels.concat(JSON.parse(localStorage.levels));
 }
 
@@ -881,8 +881,6 @@ function saveLevels()
         if(_levels[i].length > 0)
             newLevels.push(_levels[i]);
     
-    if(newLevels.length > 0)
-        localStorage.levels = JSON.stringify(newLevels);
-    
+    localStorage.levels = JSON.stringify(newLevels);
     _levels = _level.orig.concat(newLevels);
 }
