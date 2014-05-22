@@ -1,13 +1,14 @@
 var _paddleInit = { startWidth: 173, startHeight: 13, startVMax: 10, startVInc: 0.15, width: 0, height: 0, vMax: 0, vInc: 0 };
 var _ballInit = { startR: 10, startReleaseHeight: 550, startVMax: 9, r: 0, releaseHeight: 0, vMax: 0 };
 var _ballAimInit = { startVMax: 150, startAng: 20, vMax: 0 };
-var _dom = { startMenu: null, howToPlayMenu: null, pause: null };
+var _dom = { startMenu: null, howToPlayMenu: null, pause: null, hud: null, lives: null };
 var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["black", "green", "yellow", "red"] };
 var _bricks = [];
 var _hitSpots = { topLeft: 0, topRight: 1, botLeft: 2, botRight: 3 };
-var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 647 };
-var _cvs = { borderThick: 4, game: null };
+var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 622 }; // = total height - hud height
+var _hud = { height: 0, livesText: "Lives: " };
+var _cvs = { game: null };
 var _modes = { single: 0, auto: 1, creative: 2, paused: false };
 var _mode = _modes.auto;
 var _levels = [];
@@ -15,14 +16,15 @@ var _level = { index: 0, orig: [] };
 var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, p: 80, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
 var _keys = { left: false, right: false, space: false };
 var _mouseCodes = { leftClick: 1, rightClick: 3 };
+var _lives = { cur: 3, starting: 3, inc: 1 };
 var _paddle = new Paddle(_paddleInit);
 var _ball = new Ball(_ballInit);
 var _ballAim = new BallAim(_ballAimInit);
 var _storeAvailable = false;
 
 document.addEventListener("DOMContentLoaded", init);
-document.documentElement.style.overflowX = "hidden";	 // Horizontal scrollbar will be hidden
-document.documentElement.style.overflowY = "hidden";     // Vertical scrollbar will be hidden
+document.documentElement.style.overflowX = "hidden";	 // Horz scrollbar will be hidden
+document.documentElement.style.overflowY = "hidden";     // Vert scrollbar will be hidden
 document.addEventListener("keyup", keyUpEvent);
 document.addEventListener("keydown", keyDownEvent);
 document.addEventListener("mousedown", mouseDownEvent);
@@ -33,11 +35,10 @@ function init()
     _dom.startMenu = document.getElementById("startMenu");
     _dom.howToPlayMenu = document.getElementById("howToPlay");
     _dom.pause = document.getElementById("paused");
+    _dom.hud = document.getElementById("hud");
+    _dom.lives = document.getElementById("lives");
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
-    _cvs.game.canvas.style.borderTopWidth = _cvs.borderThick + "px";
-    _cvs.game.canvas.style.borderRightWidth = _cvs.borderThick + "px";
-    _cvs.game.canvas.style.borderBottomWidth = _cvs.borderThick + "px";
-    _cvs.game.canvas.style.borderLeftWidth = _cvs.borderThick + "px";
+    _hud.height = _dom.hud.clientHeight;
     document.getElementById("creativeMode").onclick = initCreativeMode;
     document.getElementById("instructions").onclick = showHowToPlayMenu;
     document.getElementById("backToStartMenu").onclick = showStartMenu;
@@ -57,8 +58,8 @@ function init()
 
 function setGameSize()
 {
-    _map.width = window.innerWidth - (_cvs.borderThick * 2);
-    _map.height = window.innerHeight - (_cvs.borderThick * 2);
+    _map.width = window.innerWidth;
+    _map.height = window.innerHeight - _hud.height;
     _map.widthMod = _map.width / _map.origWidth;
     _map.heightMod = _map.height / _map.origHeight;
     _cvs.game.canvas.width = _map.width;
@@ -111,6 +112,7 @@ function loop()
                 updatePaddle();
             
             updateBall();
+            updateHud();
             break;
             
         case _modes.creative:
@@ -134,6 +136,7 @@ function initGame()
     _keys.left = false;
     _keys.right = false;
     _keys.space = false;
+    _lives.cur = _lives.starting;
     getLevel(_level.index);
 }
 
@@ -233,6 +236,7 @@ function updatePaddle()
 
 function updateBallAim()
 {
+    _paddle.v = 0;
     _paddle.x = (_map.width / 2) - (_paddle.width / 2);
     _ball.vX = 0;
     _ball.vY = 0;
@@ -267,6 +271,11 @@ function updateBallAim()
     }
 }
 
+function updateHud()
+{
+    _dom.lives.innerHTML = _hud.livesText + _lives.cur;
+}
+
 function updateBall()
 {    
     if(_ball.x + _ball.r > _map.width) 
@@ -279,7 +288,13 @@ function updateBall()
         _ball.vY = Math.abs(_ball.vY);
     
     else if(_ball.y > _map.height)
+    {
+        if(_mode === _modes.single)
+            if(--_lives.cur <= 0)
+                initAutoMode();
+
         _ball.released = false;
+    }
     
     if(ballHitPaddle())
     {
@@ -467,6 +482,9 @@ function updateBall()
         
     if(_brick.live <= 0)
     {
+        if(_mode === _modes.single)
+            _lives.cur += _lives.inc;
+        
         _ball.released = false;
         getNextLevel();
         console.log("bricks destroyed");
@@ -660,13 +678,7 @@ function keyUpEvent(e)
     switch(e.keyCode)
     {
         case _keyCodes.esc:
-            showStartMenu();
-            
-            if(_mode === _modes.creative)
-                endCreativeMode();
-            
-            _mode = _modes.auto;
-                
+            initAutoMode();       
             break;
         
         case _keyCodes.tilda:
@@ -674,10 +686,7 @@ function keyUpEvent(e)
             break;
             
         case _keyCodes.enter:
-            hideStartMenu();
-            hideHowToPlayMenu();
-            initGame();
-            _mode = _modes.single;
+            initSingleMode();
             break;
             
         case _keyCodes.a:
@@ -768,7 +777,7 @@ function mouseDownEvent(e)
     if(_mode === _modes.creative)
     {
         var x = Math.floor(e.clientX / _brick.width);
-        var y = Math.floor(e.clientY / _brick.height);
+        var y = Math.floor((e.clientY - _hud.height) / _brick.height);
         var brickIndex = -1;
         
         for(var i in _bricks)
@@ -832,6 +841,25 @@ function printLevel()
     
     str += "\n\treturn ret;";
     download("level.txt", str);
+}
+
+function initAutoMode()
+{   
+    _lives.cur = _lives.starting;
+    showStartMenu();
+            
+    if(_mode === _modes.creative)
+        endCreativeMode();
+    
+    _mode = _modes.auto;
+}
+
+function initSingleMode()
+{
+    hideStartMenu();
+    hideHowToPlayMenu();
+    initGame();
+    _mode = _modes.single;
 }
 
 function initCreativeMode()

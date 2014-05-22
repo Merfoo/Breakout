@@ -3,7 +3,6 @@
     display: none;
     z-index: 2; 
     position: absolute;
-    border: 5px solid gray;
     top: 0px;
     left: 2000px;
     width: 100%;
