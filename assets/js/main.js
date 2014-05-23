@@ -4,7 +4,6 @@ var _ballAimInit = { startVMax: 150, startAng: 20, vMax: 0 };
 var _dom = { startMenu: null, howToPlayMenu: null, pause: null, hud: null, lives: null };
 var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["black", "green", "yellow", "red"] };
-var _bricks = [];
 var _brickMap = [];
 var _hitSpots = { topLeft: 0, topRight: 1, botLeft: 2, botRight: 3 };
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 622 }; // = total height - hud height
@@ -149,14 +148,11 @@ function initGame()
 
 function paintBricks()
 {
-    for(var brickIndex in _bricks)
-    {
-        if(_bricks[brickIndex].lives > 0 || _bricks[brickIndex].invincible)
-        {
-            _bricks[brickIndex].color = _brick.colors[_bricks[brickIndex].lives];
-            paintBrick(_bricks[brickIndex]);
-        }
-    }
+    for(var x = 0; x < _brick.horz; x++)
+        for(var y = 0; y < _brick.vert; y++)
+            if(_brickMap[x][y] !== null)
+                if(_brickMap[x][y].lives > 0 || _brickMap[x][y].invincible)
+                    paintBrick(_brickMap[x][y], _brickMap[x][y].color = _brick.colors[_brickMap[x][y].lives]);
 }
 
 function updateAi()
@@ -525,7 +521,7 @@ function getBrick(x, y)
 
 function isBrickHere(x, y)
 {
-    if(x >= _brick.width || y >= _brick.height || x < 0 || y < 0)
+    if(x >= _brick.horz || y >= _brick.vert || x < 0 || y < 0)
         return false;
     
     if(_brickMap[x][y] !== null)
@@ -659,25 +655,36 @@ function makeLevels()
 
 function getLevel(index)
 {
+    if(index < 0)
+        index = 0;
+    
+    else if(index >= _levels.length)
+        index = _levels.length - 1;
+    
     _level.index = index;
-    _bricks = _levels[_level.index].clone();
     _brick.live = 0;
     _brickMap = [];
     
-    for(var i = 0; i < _brick.width; i++)
-    {
-        _brickMap.push([]);
+    for(var x = 0; x < _brick.horz; x++)
+    {    
+        _brickMap[x] = [];
         
-        for(var j = 0; j < _brick.height; j++)
-            _brickMap[i].push(null);
-    }
-    
-    for(var i = 0, len = _bricks.length; i < len; i++)
-    {
-        _brickMap[_bricks[i].x][_bricks[i].y] = _bricks[i];
-        
-        if(!_bricks[i].invincible)
-            _brick.live++;
+        for(var y = 0; y < _brick.vert; y++)
+        {   
+            if(_levels[_level.index][x][y] !== null)
+            {
+                _brickMap[x][y] = cloneObj(_levels[_level.index][x][y]);
+                
+              
+                    console.log(_brickMap[x][y]);
+                
+                if(!_brickMap[x][y].invincible)
+                    _brick.live++;
+            }
+            
+            else
+                _brickMap[x][y] = null;
+        }
     }
 }
 
@@ -862,42 +869,32 @@ function mouseDownEvent(e)
     {
         var x = Math.floor(e.clientX / _brick.width);
         var y = Math.floor((e.clientY - _hud.height) / _brick.height);
-        var brickIndex = -1;
-        
-        for(var i in _bricks)
-        {
-            if(_bricks[i].x === x && _bricks[i].y === y)
-            {
-                brickIndex = i;
-                break;
-            }
-        }
         
         if(e.which === _mouseCodes.leftClick)
         {
-            if(brickIndex === -1)
-                _bricks.push(new Brick(x, y));
+            if(isBrickHere(x, y))
+                _brickMap[x][y] = null;
             
             else
-                _bricks.splice(brickIndex, 1);
+                _brickMap[x][y] = new Brick(x, y);
         }
         
         if(e.which === _mouseCodes.rightClick)
         {
-            if(brickIndex !== -1)
-            {    
-                if(++_bricks[brickIndex].lives > _brick.maxLives)
-                    _bricks[brickIndex].lives = 0;
-                
-                if(_bricks[brickIndex].lives === 0)
-                    _bricks[brickIndex].invincible = true;
+            if(isBrickHere(x, y))
+            {
+                if(++_brickMap[x][y].lives > _brick.maxLives)
+                {
+                    _brickMap[x][y].lives = 0;
+                    _brickMap[x][y].invincible = true;
+                }
                 
                 else
-                    _bricks[brickIndex].invincible = false;
+                    _brickMap[x][y].inivincble = false;
             }
         }
         
-        _levels[_level.index] = _bricks.clone();
+        _levels[_level.index][x][y] = cloneObj(_brickMap[x][y]);
     }
 }
 
@@ -908,22 +905,7 @@ function saveCanvasImg()
     
 function printLevel()
 {
-    var str = "\tvar ret = [];\n";
-    
-    for(var i = 0, len = _bricks.length; i < len; i++)
-    {
-        str += "\tret.push(new Brick(";
-        str += _bricks[i].x;
-        str += ", ";
-        str += _bricks[i].y;
-        str += ", ";
-        str += _bricks[i].lives;
-        str += ", ";
-        str += _bricks[i].invincible;
-        str += "));\n";
-    }
-    
-    str += "\n\treturn ret;";
+    var str = "return JSON.parse('" + JSON.stringify(_brickMap) + "');";
     download("level.txt", str);
 }
 
@@ -940,6 +922,9 @@ function initAutoMode()
 
 function initSingleMode()
 {
+    if(_mode === _modes.creative)
+        endCreativeMode();
+    
     hideStartMenu();
     hideHowToPlayMenu();
     initGame();
@@ -951,22 +936,20 @@ function initCreativeMode()
     hideStartMenu();
     initGame();
     _mode = _modes.creative;
-    _levels.push([]);
-    getLevel(_levels.length - 1);
+    _level.index = _levels.length - 1;
+    addLevel();
 }
 
 function endCreativeMode()
 {
     saveLevels();
-    getLevel(0);
+    getLevel(_level.index);
 }
 
 function removeLevel()
 {
     if(_level.index >= _level.orig.length)
     {
-        _levels[_level.index] = [];
-        _bricks = [];
         _levels.splice(_level.index, 1);
         
         if(_level.index >= _levels.length)
@@ -981,17 +964,45 @@ function removeLevel()
 
 function addLevel()
 {
-    _levels.splice(++_level.index, 0, []);
+    var newLevel = [];
+    
+    for(var i = 0; i < _brick.horz; i++)
+    {
+        newLevel[i] = [];
+        
+        for(var j = 0; j < _brick.vert; j++)
+            newLevel[i][j] = null;
+    }
+            
+    _levels.splice(++_level.index, 0, newLevel);
     getLevel(_level.index);
 }
 
 function saveLevels()
 {
     var newLevels = [];
+    var addedLevel = false;
     
     for(var i = _level.orig.length, len = _levels.length; i < len; i++)
-        if(_levels[i].length > 0)
-            newLevels.push(_levels[i]);
+    {    
+        addedLevel = false;
+        
+        for(var x = 0; x < _brick.horz; x++)
+        {   
+            for(var y = 0; y < _brick.vert; y++)
+            {    
+                if(_levels[i][x][y] !== null)
+                {
+                    newLevels.push(_levels[i]);
+                    addedLevel = true;
+                    break;
+                }
+            }
+            
+            if(addedLevel)
+                break;
+        }
+    }
     
     localStorage.levels = JSON.stringify(newLevels);
     _levels = _level.orig.concat(newLevels);
