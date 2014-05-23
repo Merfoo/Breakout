@@ -5,6 +5,7 @@ var _dom = { startMenu: null, howToPlayMenu: null, pause: null, hud: null, lives
 var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["black", "green", "yellow", "red"] };
 var _bricks = [];
+var _brickMap = [];
 var _hitSpots = { topLeft: 0, topRight: 1, botLeft: 2, botRight: 3 };
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 622 }; // = total height - hud height
 var _hud = { height: 0, livesText: "Lives: " };
@@ -18,7 +19,8 @@ var _keys = { left: false, right: false, space: false };
 var _mouseCodes = { leftClick: 1, rightClick: 3 };
 var _lives = { cur: 3, starting: 3, inc: 1 };
 var _paddle = new Paddle(_paddleInit);
-var _ball = new Ball(_ballInit);
+var ball = new Ball(_ballInit);
+var _balls = [];
 var _ballAim = new BallAim(_ballAimInit);
 var _storeAvailable = false;
 
@@ -81,12 +83,16 @@ function setGameSize()
     _paddle.vMax = _paddleInit.vMax;
     _paddle.vInc = _paddleInit.vInc;
     _paddle.y = _map.height - _paddleInit.height;
-    _ball.r = _ballInit.r;
-    _ball.releaseHeight = _ballInit.releaseHeight;
-    _ball.vMax = _ballInit.vMax;
-    var ballMod = _ball.vMax / Math.sqrt((_ball.vX * _ball.vX) + (_ball.vY * _ball.vY));
-    _ball.vX *= ballMod;
-    _ball.vY *= ballMod;
+    
+    for(var i = 0, len = _balls.length; i < len; i++)
+    {
+        _balls[i].r = _ballInit.r;
+        _balls[i].releaseHeight = _ballInit.releaseHeight;
+        _balls[i].vMax = _ballInit.vMax;
+        var ballMod = _balls[i].vMax / Math.sqrt((_balls[i].vX * _balls[i].vX) + (_balls[i].vY * _balls[i].vY));
+        _balls[i].vX *= ballMod;
+        _balls[i].vY *= ballMod;
+    }
 }
 
 function loop()
@@ -102,7 +108,7 @@ function loop()
             if(_modes.paused)
                 break;
             
-            if(!_ball.released)
+            if(!_balls[0].released)
             {
                 updateBallAim();
                 paintBallAim();
@@ -111,7 +117,8 @@ function loop()
             else
                 updatePaddle();
             
-            updateBall();
+            
+            updateBalls();
             updateHud();
             break;
             
@@ -119,7 +126,7 @@ function loop()
             break;
     }
     
-    paintBall();
+    paintBalls();
     paintPaddle();
     paintBricks();
     window.requestAnimFrame(loop);
@@ -127,12 +134,12 @@ function loop()
 
 function initGame()
 {    
-    _ball = new Ball(_ballInit);
     _paddle = new Paddle(_paddleInit);
     _paddle.x = (_map.width / 2) - (_paddle.width / 2);
     _paddle.y = _map.height - _paddle.height;
-    _ball.x = _paddle.x + _paddle.width / 2;
-    _ball.y = _ball.releaseHeight;
+    _balls = [new Ball(_ballInit)];
+    _balls[0].x = _paddle.x + _paddle.width / 2;
+    _balls[0].y = _balls[0].releaseHeight;
     _keys.left = false;
     _keys.right = false;
     _keys.space = false;
@@ -155,10 +162,10 @@ function paintBricks()
 function updateAi()
 {
     var ballLine = new Line();
-    ballLine.createLine({ x: _ball.x, y: _ball.y }, { x: _ball.xLast, y: _ball.yLast });
+    ballLine.createLine({ x: _balls[0].x, y: _balls[0].y }, { x: _balls[0].xLast, y: _balls[0].yLast });
     var colX = ballLine.getX(_paddle.y);
 
-    if(_ball.vY < 0)
+    if(_balls[0].vY < 0)
         colX = ballLine.getX(0);
 
     if((colX > _paddle.x + _paddle.width))
@@ -179,14 +186,14 @@ function updateAi()
         _keys.right = false;
     } 
 
-    if(!_ball.released)
+    if(!_balls[0].released)
     {
-        var vel = getVel(getRandomNumber(-90 - _ball.maxAng, -90 + _ball.maxAng), _ball.vMax);
-        _ball.vX = vel.x;
-        _ball.vY = vel.y;
-        _ball.x = _paddle.x + (_paddle.width / 2);
-        _ball.y = _ball.releaseHeight;
-        _ball.released = true;
+        var vel = getVel(getRandomNumber(-90 - _balls[0].maxAng, -90 + _balls[0].maxAng), _balls[0].vMax);
+        _balls[0].vX = vel.x;
+        _balls[0].vY = vel.y;
+        _balls[0].x = _paddle.x + (_paddle.width / 2);
+        _balls[0].y = _balls[0].releaseHeight;
+        _balls[0].released = true;
     }
 }
 
@@ -238,12 +245,12 @@ function updateBallAim()
 {
     _paddle.v = 0;
     _paddle.x = (_map.width / 2) - (_paddle.width / 2);
-    _ball.vX = 0;
-    _ball.vY = 0;
-    _ball.x = _paddle.x + (_paddle.width / 2);
-    _ball.y = _paddle.y - _paddle.height - _ball.r;
-    _ballAim.x = _ball.x;
-    _ballAim.y = _ball.y;
+    _balls[0].vX = 0;
+    _balls[0].vY = 0;
+    _balls[0].x = _paddle.x + (_paddle.width / 2);
+    _balls[0].y = _paddle.y - _paddle.height - _balls[0].r;
+    _ballAim.x = _balls[0].x;
+    _ballAim.y = _balls[0].y;
     
     // Left is -20, right is -160 degrees
     if(_keys.left)
@@ -264,10 +271,10 @@ function updateBallAim()
     
     if(_keys.space)
     {
-        var ballVel = getVel(_ballAim.ang, _ball.vMax);
-        _ball.vX = ballVel.x;
-        _ball.vY = ballVel.y;
-        _ball.released = true;
+        var ballVel = getVel(_ballAim.ang, _balls[0].vMax);
+        _balls[0].vX = ballVel.x;
+        _balls[0].vY = ballVel.y;
+        _balls[0].released = true;
     }
 }
 
@@ -276,230 +283,290 @@ function updateHud()
     _dom.lives.innerHTML = _hud.livesText + _lives.cur;
 }
 
-function updateBall()
+function updateBalls()
 {    
-    if(_ball.x + _ball.r > _map.width) 
-        _ball.vX = -Math.abs(_ball.vX);
-    
-    else if(_ball.x - _ball.r < 0)
-        _ball.vX = Math.abs(_ball.vX);
-        
-    if(_ball.y - _ball.r < 0)
-        _ball.vY = Math.abs(_ball.vY);
-    
-    else if(_ball.y > _map.height)
+    for(var i = 0; i < _balls.length; i++)
     {
-        if(_mode === _modes.single)
-            if(--_lives.cur <= 0)
-                initAutoMode();
+        if(_balls[i].x + _balls[i].r > _map.width) 
+            _balls[i].vX = -Math.abs(_balls[i].vX);
 
-        _ball.released = false;
-    }
-    
-    if(ballHitPaddle())
-    {
-        var newVel = getVel((-_ball.maxAng * ((_ball.x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2))) - 90, _ball.vMax);
-        _ball.vX = newVel.x;
-        _ball.vY = newVel.y;
-    }
-       
-    var collided = { x: false, y: false };
-    var removeLives = [];
-    
-    for(var brickIndex = 0, len = _bricks.length; brickIndex < len; brickIndex++)
-    {
-        if(_bricks[brickIndex].lives <= 0 && !_bricks[brickIndex].invincible)
-            continue;
-        
-        var hitBrick = false;
-        var brick = _bricks[brickIndex].clone();
-        brick.xLeft = brick.x * _brick.width; 
-        brick.xRight = (brick.x * _brick.width) + _brick.width; 
-        brick.yTop = brick.y * _brick.height;
-        brick.yBot = (brick.y * _brick.height) + _brick.height;
-        brick.cornTopLeft = { x: brick.xLeft, y: brick.yTop };
-        brick.cornTopRight = { x: brick.xRight, y: brick.yTop };
-        brick.cornBotLeft = { x: brick.xLeft, y: brick.yBot };
-        brick.cornBotRight = { x: brick.xRight, y: brick.yBot };
-        var ball = _ball.clone();
-        ball.xLast = ball.x + (_ball.r * (_ball.vX < 0 ? -1 : 1) * 0.33);
-        ball.yLast = ball.y + (_ball.r * (_ball.vY < 0 ? -1 : 1) * 0.33);
-        ball.x = ball.xLast + ball.vX;
-        ball.y = ball.yLast + ball.vY;
-        ball.line = new Line();
-        ball.line.createLine({ x: ball.x, y: ball.y }, { x: ball.xLast, y: ball.yLast });
-        var xTop = ball.line.getX(brick.yTop);
-        var xBot = ball.line.getX(brick.yBot);
-        var yLeft = ball.line.getY(brick.xLeft);
-        var yRight = ball.line.getY(brick.xRight);
-        
-        if((xTop > brick.xLeft && xTop < brick.xRight) || (xBot > brick.xLeft && xBot < brick.xRight) || (yLeft > brick.yTop && yLeft < brick.yBot) || (yRight > brick.yTop && yRight < brick.yBot))
+        else if(_balls[i].x - _balls[i].r < 0)
+            _balls[i].vX = Math.abs(_balls[i].vX);
+
+        if(_balls[i].y - _balls[i].r < 0)
+            _balls[i].vY = Math.abs(_balls[i].vY);
+
+        else if(_balls[i].y > _map.height)
         {
+            if(_balls.length === 1)
+            { 
+                if(_mode === _modes.single)
+                    if(--_lives.cur <= 0)
+                        initAutoMode();
+
+                _balls[i].released = false;
+            }
+
+            else
+            {
+                _balls.splice(i, 1);
+                i--;
+                continue;
+            }
             
-            if(ball.x > brick.xLeft && ball.x < brick.xRight && ball.y > brick.yTop && ball.y < brick.yBot)
+        }
+
+        if(ballHitPaddle(_balls[i]))
+        {
+            var newVel = getVel((-_balls[i].maxAng * ((_balls[i].x - _paddle.x - (_paddle.width / 2)) / (_paddle.width / 2))) - 90, _balls[i].vMax);
+            _balls[i].vX = newVel.x;
+            _balls[i].vY = newVel.y;
+        }
+
+        var collided = { x: false, y: false };
+        var removeLives = [];
+        var localBricks = getLocalBricks(Math.floor(_balls[i].x / _brick.width), Math.floor(_balls[i].y / _brick.height));
+        
+        for(var brickIndex = 0, len = localBricks.length; brickIndex < len; brickIndex++)
+        {
+            var hitBrick = false;
+            var brick = {};
+            brick.x = localBricks[brickIndex].x;
+            brick.y = localBricks[brickIndex].y;
+            brick.xLeft = brick.x * _brick.width; 
+            brick.xRight = (brick.x * _brick.width) + _brick.width; 
+            brick.yTop = brick.y * _brick.height;
+            brick.yBot = (brick.y * _brick.height) + _brick.height;
+            brick.topLeft = { x: brick.xLeft, y: brick.yTop };
+            brick.topRight = { x: brick.xRight, y: brick.yTop };
+            brick.botLeft=  { x: brick.xLeft, y: brick.yBot };
+            brick.botRight = { x: brick.xRight, y: brick.yBot };
+            var modBall = {};
+            modBall.r = _balls[i].r;
+            modBall.xLast = _balls[i].x + (modBall.r * (_balls[i].vX < 0 ? -1 : 1) * 0.33);
+            modBall.yLast = _balls[i].y + (modBall.r * (_balls[i].vY < 0 ? -1 : 1) * 0.33);
+            modBall.x = modBall.xLast + _balls[i].vX;
+            modBall.y = modBall.yLast + _balls[i].vY;
+            modBall.line = new Line();
+            modBall.line.createLine({ x: modBall.x, y: modBall.y }, { x: modBall.xLast, y: modBall.yLast });
+            var xTop = modBall.line.getX(brick.yTop);
+            var xBot = modBall.line.getX(brick.yBot);
+            var yLeft = modBall.line.getY(brick.xLeft);
+            var yRight = modBall.line.getY(brick.xRight);
+
+            if((xTop > brick.xLeft && xTop < brick.xRight) || (xBot > brick.xLeft && xBot < brick.xRight) || (yLeft > brick.yTop && yLeft < brick.yBot) || (yRight > brick.yTop && yRight < brick.yBot))
+            {
+
+                if(modBall.x > brick.xLeft && modBall.x < brick.xRight && modBall.y > brick.yTop && modBall.y < brick.yBot)
+                {
+                    hitBrick = true;
+
+                    if((xTop > brick.xLeft && xTop < brick.xRight) || (xBot > brick.xLeft && xBot < brick.xRight))
+                        if(inBetween(brick.yTop, modBall.y, modBall.yLast) || inBetween(brick.yBot, modBall.y, modBall.yLast))
+                            collided.y = true;
+
+                    if((yLeft > brick.yTop && yLeft < brick.yBot) || (yRight > brick.yTop && yRight < brick.yBot))
+                        if(inBetween(brick.xLeft, modBall.x, modBall.xLast) || inBetween(brick.xRight, modBall.x, modBall.xLast))
+                            collided.x = true;
+                }
+            }
+
+            var hitSpot = -1;
+            var dist = modBall.r * 0.75;
+            var newVel;
+
+            if(getDist(brick.botLeft, modBall) < dist)
             {
                 hitBrick = true;
-                
-                if((xTop > brick.xLeft && xTop < brick.xRight) || (xBot > brick.xLeft && xBot < brick.xRight))
-                    if(inBetween(brick.yTop, ball.y, ball.yLast) || inBetween(brick.yBot, ball.y, ball.yLast))
-                        collided.y = true;
-                
-                if((yLeft > brick.yTop && yLeft < brick.yBot) || (yRight > brick.yTop && yRight < brick.yBot))
-                    if(inBetween(brick.xLeft, ball.x, ball.xLast) || inBetween(brick.xRight, ball.x, ball.xLast))
-                        collided.x = true;
+                hitSpot = _hitSpots.botLeft;
+                newVel = getVel(getRandomNumber(30, 60), _balls[i].vMax);
+                console.log("corner bot left");
             }
-        }
-        
-        var hitSpot = -1;
-        var dist = ball.r * 0.75;
-        var newVel;
 
-        if(getDist(brick.cornBotLeft, ball) < dist)
-        {
-            hitBrick = true;
-            hitSpot = _hitSpots.botLeft;
-            newVel = getVel(getRandomNumber(30, 60), _ball.vMax);
-            console.log("corner bot left");
-        }
-        
-        if(getDist(brick.cornBotRight, ball) < dist)
-        {
-            hitBrick = true;
-            hitSpot = _hitSpots.botRight;
-            newVel = getVel(getRandomNumber(120, 150), _ball.vMax);
-            console.log("corner bot right");
-        }
-        
-        if(getDist(brick.cornTopLeft, ball) < dist)
-        {
-            hitBrick = true;
-            hitSpot = _hitSpots.topLeft;
-            newVel = getVel(getRandomNumber(-30, -60), _ball.vMax);
-            console.log("corner top left");
-        }
-        
-        if(getDist(brick.cornTopRight, ball) < dist)
-        {
-            hitBrick = true;
-            hitSpot = _hitSpots.topRight;
-            newVel = getVel(getRandomNumber(-120, -150), _ball.vMax);
-            console.log("corner top right");
-        }
-
-        if(hitBrick && hitSpot !== -1)
-        {
-            collided.x = true;
-            collided.y = true; 
-            var changeVel = true;
-            
-            for(var i = 0; i < len; i++)
+            if(getDist(brick.botRight, modBall) < dist)
             {
-                if(_bricks[i].lives <= 0 && !_bricks[i].invincible)
-                    continue;
+                hitBrick = true;
+                hitSpot = _hitSpots.botRight;
+                newVel = getVel(getRandomNumber(120, 150), _balls[i].vMax);
+                console.log("corner bot right");
+            }
 
-                var curBrick = _bricks[brickIndex];
-                var newBrick = _bricks[i];
+            if(getDist(brick.topLeft, modBall) < dist)
+            {
+                hitBrick = true;
+                hitSpot = _hitSpots.topLeft;
+                newVel = getVel(getRandomNumber(-30, -60), _balls[i].vMax);
+                console.log("corner top left");
+            }
 
+            if(getDist(brick.topRight, modBall) < dist)
+            {
+                hitBrick = true;
+                hitSpot = _hitSpots.topRight;
+                newVel = getVel(getRandomNumber(-120, -150), _balls[i].vMax);
+                console.log("corner top right");
+            }
+
+            if(hitBrick && hitSpot !== -1)
+            {
+                collided.x = true;
+                collided.y = true; 
+                var changeVel = true;
+                
                 switch(hitSpot)
                 {
                     case _hitSpots.botLeft:
-                        if(newBrick.x + 1 === curBrick.x && newBrick.y === curBrick.y)
+                        if(isBrickHere(localBricks[brickIndex].x - 1, localBricks[brickIndex].y))
                             collided.x = false;
 
-                        if(newBrick.x === curBrick.x && newBrick.y - 1 === curBrick.y)
+                        if(isBrickHere(localBricks[brickIndex].x, localBricks[brickIndex].y + 1))
                             collided.y = false;
-                        
-                        if(newBrick.x + 1 === curBrick.x && newBrick.y - 1 === curBrick.y)
+
+                        if(isBrickHere(localBricks[brickIndex].x - 1, localBricks[brickIndex].y + 1))
                             changeVel = false;
                         break;
 
                     case _hitSpots.botRight:
-                        if(newBrick.x - 1 === curBrick.x && newBrick.y === curBrick.y)
+                        if(isBrickHere(localBricks[brickIndex].x + 1, localBricks[brickIndex].y))
                             collided.x = false;
 
-                        if(newBrick.x === curBrick.x && newBrick.y - 1 === curBrick.y)
+                        if(isBrickHere(localBricks[brickIndex].x, localBricks[brickIndex].y + 1))
                             collided.y = false;
-                        
-                        if(newBrick.x - 1 === curBrick.x && newBrick.y - 1 === curBrick.y)
+
+                        if(isBrickHere(localBricks[brickIndex].x + 1, localBricks[brickIndex].y + 1))
                             changeVel = false;
                         break;
 
                     case _hitSpots.topLeft:
-                        if(newBrick.x + 1 === curBrick.x && newBrick.y === curBrick.y)
+                        if(isBrickHere(localBricks[brickIndex].x - 1, localBricks[brickIndex].y))
                             collided.x = false;
 
-                        if(newBrick.x === curBrick.x && newBrick.y + 1 === curBrick.y)
+                        if(isBrickHere(localBricks[brickIndex].x, localBricks[brickIndex].y - 1))
                             collided.y = false;
-                        
-                        if(newBrick.x + 1 === curBrick.x && newBrick.y + 1 === curBrick.y)
+
+                        if(isBrickHere(localBricks[brickIndex].x - 1, localBricks[brickIndex].y - 1))
                             changeVel = false;
                         break;
 
                     case _hitSpots.topRight:
-                        if(newBrick.x - 1 === curBrick.x && newBrick.y === curBrick.y)
+                        if(isBrickHere(localBricks[brickIndex].x + 1, localBricks[brickIndex].y))
                             collided.x = false;
 
-                        if(newBrick.x === curBrick.x && newBrick.y + 1 === curBrick.y)
+                        if(isBrickHere(localBricks[brickIndex].x, localBricks[brickIndex].y - 1))
                             collided.y = false;
-                        
-                        if(newBrick.x - 1 === curBrick.x && newBrick.y + 1 === curBrick.y)
+
+                        if(isBrickHere(localBricks[brickIndex].x + 1, localBricks[brickIndex].y - 1))
                             changeVel = false;
                         break;
                 }
+
+                if(collided.x && collided.y && changeVel)
+                {
+                    _balls[i].vX = newVel.x * -1;
+                    _balls[i].vY = newVel.y * -1;
+                }
+
+                else if(!changeVel)
+                {
+                    collided.x = true;
+                    collided.y = true; 
+                }
             }
 
-            if(collided.x && collided.y && changeVel)
-            {
-                _ball.vX = newVel.x * -1;
-                _ball.vY = newVel.y * -1;
-            }
-            
-            else if(!changeVel)
-            {
-                collided.x = true;
-                collided.y = true; 
-            }
+            if(localBricks[brickIndex].lives > 0 && hitBrick)
+                removeLives.push(brickIndex);    
         }
-        
-        if(_bricks[brickIndex].lives > 0 && hitBrick)
-            removeLives.push(brickIndex);    
-    }
-    
-    for(var i = 0, len = removeLives.length; i < len; i++)
-        if(--_bricks[removeLives[i]].lives <= 0)
-            _brick.live--;
-    
-    if(collided.x)
-        _ball.vX *= -1;
 
-    if(collided.y)
-        _ball.vY *= -1;
-    
-    _ball.xLast = _ball.x;
-    _ball.yLast = _ball.y;
-    _ball.x += _ball.vX;
-    _ball.y += _ball.vY;
-        
-    if(_brick.live <= 0)
-    {
-        if(_mode === _modes.single)
-            _lives.cur += _lives.inc;
-        
-        _ball.released = false;
-        getNextLevel();
-        console.log("bricks destroyed");
+        for(var j = 0, len = removeLives.length; j < len; j++)
+            if(--localBricks[removeLives[j]].lives <= 0)
+                _brick.live--;
+
+        if(collided.x)
+            _balls[i].vX *= -1;
+
+        if(collided.y)
+            _balls[i].vY *= -1;
+
+        _balls[i].xLast = _balls[i].x;
+        _balls[i].yLast = _balls[i].y;
+        _balls[i].x += _balls[i].vX;
+        _balls[i].y += _balls[i].vY;
+
+        if(_brick.live <= 0)
+        {
+            if(_mode === _modes.single)
+                _lives.cur += _lives.inc;
+
+            _balls[i].released = false;
+            getNextLevel();
+            console.log("bricks destroyed");
+        }
     }
 }
 
-function ballHitPaddle()
+function ballHitPaddle(newBall)
 {
-    var ball = { x: _ball.x + _ball.vX, y: _ball.y + _ball.vY };
+    var ball = { x: newBall.x + newBall.vX, y: newBall.y + newBall.vY };
     
     if(ball.x >= _paddle.x && ball.x <= _paddle.x + _paddle.width)
-        if(_ball.y >= _paddle.y - (_paddle.height / 2))
+        if(ball.y >= _paddle.y - (_paddle.height / 2))
             return true;
     
     return false;
+}
+
+function getBrick(x, y)
+{
+    if(isBrickHere(x, y))
+        return _brickMap[x][y];
+    
+    return null;
+}
+
+function isBrickHere(x, y)
+{
+    if(x >= _brick.width || y >= _brick.height || x < 0 || y < 0)
+        return false;
+    
+    if(_brickMap[x][y] !== null)
+        if(_brickMap[x][y].lives > 0 || _brickMap[x][y].invincible)
+            return true;
+    
+    return false;
+}
+
+function getLocalBricks(x, y)
+{
+    var bricks = [];
+    
+    if(isBrickHere(x, y))           // center
+        bricks.push(getBrick(x, y));
+    
+    if(isBrickHere(x - 1, y - 1))   // top left
+        bricks.push(getBrick(x - 1, y - 1));
+    
+    if(isBrickHere(x, y - 1))       // top
+        bricks.push(getBrick(x, y - 1));
+    
+    if(isBrickHere(x + 1, y - 1))   // top right
+        bricks.push(getBrick(x + 1, y - 1));
+    
+    if(isBrickHere(x + 1, y))       // right
+        bricks.push(getBrick(x + 1, y));
+    
+    if(isBrickHere(x + 1, y + 1))   // bot right
+        bricks.push(getBrick(x + 1, y + 1));
+    
+    if(isBrickHere(x, y + 1))       // bot
+        bricks.push(getBrick(x, y + 1));
+    
+    if(isBrickHere(x - 1, y + 1))   // bot left
+        bricks.push(getBrick(x - 1, y + 1));
+    
+    if(isBrickHere(x - 1, y))       // left 
+        bricks.push(getBrick(x - 1, y));
+    
+    return bricks;
 }
 
 function clearScreen()
@@ -516,12 +583,16 @@ function paintBrick(brick, newColor)
     _cvs.game.fillRect(x * _brick.width, y * _brick.height, _brick.width, _brick.height);
 }
 
-function paintBall()
+function paintBalls()
 {
-    _cvs.game.beginPath();
-    _cvs.game.fillStyle = _ball.color;
-    _cvs.game.arc(_ball.x, _ball.y, _ball.r, 0, 2 * Math.PI);
-    _cvs.game.fill();
+    for(var i = 0, len = _balls.length; i < len; i++)
+    {
+        var ball = _balls[i];
+        _cvs.game.beginPath();
+        _cvs.game.fillStyle = ball.color;
+        _cvs.game.arc(ball.x, ball.y, ball.r, 0, 2 * Math.PI);
+        _cvs.game.fill();
+    }
 }
 
 function paintBallAim()
@@ -538,7 +609,7 @@ function paintBallAim()
 function paintBrickCorner(newBrick)
 {
     var brick = { x: newBrick.x * _brick.width, y: newBrick.y * _brick.height };
-    var r = _ball.r;
+    var r = _ballInit.r;
     _cvs.game.beginPath();  // Top left
     _cvs.game.fillStyle = "blue";
     _cvs.game.arc(brick.x, brick.y, r, 0, 2 * Math.PI);
@@ -591,10 +662,23 @@ function getLevel(index)
     _level.index = index;
     _bricks = _levels[_level.index].clone();
     _brick.live = 0;
+    _brickMap = [];
     
-    for(var i = 0, len = _levels[_level.index].length; i < len; i++)
-        if(!_levels[_level.index][i].invincible)
+    for(var i = 0; i < _brick.width; i++)
+    {
+        _brickMap.push([]);
+        
+        for(var j = 0; j < _brick.height; j++)
+            _brickMap[i].push(null);
+    }
+    
+    for(var i = 0, len = _bricks.length; i < len; i++)
+    {
+        _brickMap[_bricks[i].x][_bricks[i].y] = _bricks[i];
+        
+        if(!_bricks[i].invincible)
             _brick.live++;
+    }
 }
 
 function getPrevLevel()
