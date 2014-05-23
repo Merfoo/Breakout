@@ -16,9 +16,9 @@ var _level = { index: 0, orig: [] };
 var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, p: 80, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
 var _keys = { left: false, right: false, space: false };
 var _mouseCodes = { leftClick: 1, rightClick: 3 };
+var _mouse = { x: 0, y: 0, xLast: 0, yLast: 0 };
 var _lives = { cur: 3, starting: 3, inc: 1 };
 var _paddle = new Paddle(_paddleInit);
-var ball = new Ball(_ballInit);
 var _balls = [];
 var _ballAim = new BallAim(_ballAimInit);
 var _storeAvailable = false;
@@ -28,6 +28,7 @@ document.documentElement.style.overflowX = "hidden";	 // Horz scrollbar will be 
 document.documentElement.style.overflowY = "hidden";     // Vert scrollbar will be hidden
 document.addEventListener("keyup", keyUpEvent);
 document.addEventListener("keydown", keyDownEvent);
+document.addEventListener("mousemove", mouseMoveEvent);
 document.addEventListener("mousedown", mouseDownEvent);
 
 function init()
@@ -860,38 +861,72 @@ function keyDownEvent(e)
     }
 }
 
+// Add/Remove brick
+function modBrick(x, y)
+{
+    if(isBrickHere(x, y))
+        _brickMap[x][y] = null;
+
+    else
+        _brickMap[x][y] = new Brick(x, y);
+    
+    _levels[_level.index][x][y] = cloneObj(_brickMap[x][y]);
+}
+
+// Increase brick life
+function incBrick(x, y)
+{
+    if(isBrickHere(x, y))
+    {
+        if(++_brickMap[x][y].lives > _brick.maxLives)
+        {
+            _brickMap[x][y].lives = 0;
+            _brickMap[x][y].invincible = true;
+        }
+
+        else
+            _brickMap[x][y].inivincble = false;
+    }
+    
+    _levels[_level.index][x][y] = cloneObj(_brickMap[x][y]);
+}
+
+function mouseMoveEvent(e)
+{
+    if(_mode === _modes.creative)
+    {
+        _mouse.xLast = _mouse.x;
+        _mouse.yLast = _mouse.y;
+        _mouse.x = e.clientX;
+        _mouse.y = e.clientY;
+        var x = Math.floor(_mouse.x / _brick.width);
+        var y = Math.floor((_mouse.y - _hud.height) / _brick.height);
+        var xLast = Math.floor(_mouse.xLast / _brick.width);
+        var yLast = Math.floor((_mouse.yLast - _hud.height) / _brick.height);
+        
+        if(x === xLast && y === yLast)
+            return;
+        
+        if(e.which === _mouseCodes.leftClick)
+            modBrick(x, y);
+        
+        if(e.which === _mouseCodes.rightClick)
+            incBrick(x, y);
+    }
+}
+
 function mouseDownEvent(e)
 {
     if(_mode === _modes.creative)
     {
-        var x = Math.floor(e.clientX / _brick.width);
-        var y = Math.floor((e.clientY - _hud.height) / _brick.height);
+        var x = Math.floor(_mouse.x / _brick.width);
+        var y = Math.floor((_mouse.y - _hud.height) / _brick.height);
         
         if(e.which === _mouseCodes.leftClick)
-        {
-            if(isBrickHere(x, y))
-                _brickMap[x][y] = null;
-            
-            else
-                _brickMap[x][y] = new Brick(x, y);
-        }
+            modBrick(x, y);
         
         if(e.which === _mouseCodes.rightClick)
-        {
-            if(isBrickHere(x, y))
-            {
-                if(++_brickMap[x][y].lives > _brick.maxLives)
-                {
-                    _brickMap[x][y].lives = 0;
-                    _brickMap[x][y].invincible = true;
-                }
-                
-                else
-                    _brickMap[x][y].inivincble = false;
-            }
-        }
-        
-        _levels[_level.index][x][y] = cloneObj(_brickMap[x][y]);
+            incBrick(x, y);
     }
 }
 
