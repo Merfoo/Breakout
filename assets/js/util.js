@@ -83,3 +83,18 @@ function downloadImg(filename, imgSrc)
     el.setAttribute("download", filename);
     el.click();
 }
+
+// Clones objs
+function cloneObj(obj)
+{
+    if(obj === null)
+        return null;
+    
+    var newObj = {};
+    
+    for(var prop in obj)
+        if(obj.hasOwnProperty(prop))
+            newObj[prop] = obj[prop];
+    
+    return newObj;
+}
