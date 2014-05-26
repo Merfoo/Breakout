@@ -1,8 +1,8 @@
 var _paddleInit = { startWidth: 173, startHeight: 13, startVMax: 10, startVInc: 0.15, width: 0, height: 0, vMax: 0, vInc: 0 };
 var _ballInit = { startR: 10, startReleaseHeight: 550, startVMax: 9, r: 0, releaseHeight: 0, vMax: 0 };
 var _ballAimInit = { startVMax: 150, startAng: 20, vMax: 0 };
-var _dom = { startMenu: null, howToPlayMenu: null, pause: null, hud: null, lives: null };
-var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut" };
+var _dom = { startMenu: null, howToPlayMenu: null, pause: null, hud: null, lives: null, creativeOptions: null, brickModeAdd: null, brickModeDel: null, brickLife0: null, brickLife1: null, brickLife2: null, brickLife3: null };
+var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut", darken: "animateDarken", lighten: "animateLighten" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["black", "green", "yellow", "red"] };
 var _brickMap = [];
 var _hitSpots = { topLeft: 0, topRight: 1, botLeft: 2, botRight: 3 };
@@ -11,12 +11,13 @@ var _hud = { height: 0, livesText: "Lives: " };
 var _cvs = { game: null };
 var _modes = { single: 0, auto: 1, creative: 2, paused: false };
 var _mode = _modes.auto;
+var _creative = { add: true, life: -1 };
 var _levels = [];
 var _level = { index: 0, orig: [] };
-var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, p: 80, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46 };
+var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, p: 80, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46, q: 81, w: 87, zero: 48, one: 49, two: 50, three: 51 };
 var _keys = { left: false, right: false, space: false };
 var _mouseCodes = { leftClick: 1, rightClick: 3 };
-var _mouse = { x: 0, y: 0, xLast: 0, yLast: 0 };
+var _mouse = { x: 0, y: 0, xLast: 0, yLast: 0, leftDown: false, rightDown: false };
 var _lives = { cur: 3, starting: 3, inc: 1 };
 var _paddle = new Paddle(_paddleInit);
 var _balls = [];
@@ -30,6 +31,7 @@ document.addEventListener("keyup", keyUpEvent);
 document.addEventListener("keydown", keyDownEvent);
 document.addEventListener("mousemove", mouseMoveEvent);
 document.addEventListener("mousedown", mouseDownEvent);
+document.addEventListener("mouseup", mouseUpEvent);
 
 function init()
 {
@@ -39,11 +41,24 @@ function init()
     _dom.pause = document.getElementById("paused");
     _dom.hud = document.getElementById("hud");
     _dom.lives = document.getElementById("lives");
+    _dom.brickModeAdd = document.getElementById("brickModeAdd");
+    _dom.brickModeDel = document.getElementById("brickModeDel");
+    _dom.brickLife0 = document.getElementById("brickLife0");
+    _dom.brickLife1 = document.getElementById("brickLife1");
+    _dom.brickLife2 = document.getElementById("brickLife2");
+    _dom.brickLife3 = document.getElementById("brickLife3");
+    _dom.creativeOptions = document.getElementById("creativeOptions");
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
     _hud.height = _dom.hud.clientHeight;
     document.getElementById("creativeMode").onclick = initCreativeMode;
     document.getElementById("instructions").onclick = showHowToPlayMenu;
     document.getElementById("backToStartMenu").onclick = showStartMenu;
+    _dom.brickModeAdd.onclick = brickAddClicked;
+    _dom.brickModeDel.onclick = brickDelClicked;
+    _dom.brickLife0.onclick = brickLife0Clicked;
+    _dom.brickLife1.onclick = brickLife1Clicked;
+    _dom.brickLife2.onclick = brickLife2Clicked;
+    _dom.brickLife3.onclick = brickLife3Clicked;
     window.addEventListener("resize", setGameSize);
     window.requestAnimFrame = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -52,6 +67,8 @@ function init()
             window.setTimeout(callback, 1000 / 60);
         };
     
+    updateBrickModeAnim();
+    updateBrickLifeAnim();
     makeLevels();
     setGameSize();
     initGame();
@@ -142,7 +159,7 @@ function initGame()
     _balls[0].y = _balls[0].releaseHeight;
     _keys.left = false;
     _keys.right = false;
-    _keys.space = false;
+    _keys.enter = false;
     _lives.cur = _lives.starting;
     getLevel(_level.index);
 }
@@ -266,7 +283,7 @@ function updateBallAim()
     _ballAim.vX = newVel.x;
     _ballAim.vY = newVel.y;
     
-    if(_keys.space)
+    if(_keys.enter)
     {
         var ballVel = getVel(_ballAim.ang, _balls[0].vMax);
         _balls[0].vX = ballVel.x;
@@ -762,6 +779,83 @@ function hidePause()
     _dom.pause.classList.add(_anim.fadeOut);
 }
 
+
+function brickAddClicked()
+{
+    _creative.add = true;
+    updateBrickModeAnim();
+}
+
+function brickDelClicked()
+{
+    _creative.add = false;
+    updateBrickModeAnim();
+}
+
+function updateBrickModeAnim()
+{
+    removeAllAnimations(_dom.brickModeAdd);
+    removeAllAnimations(_dom.brickModeDel);
+    _dom.brickModeAdd.classList.add(_creative.add ? _anim.darken : _anim.lighten);
+    _dom.brickModeDel.classList.add(!_creative.add ? _anim.darken : _anim.lighten);
+}
+
+function brickLife0Clicked()
+{
+    if(_creative.life === 0)
+        _creative.life = -1;
+    
+    else
+        _creative.life = 0;
+    
+    updateBrickLifeAnim();
+}
+
+function brickLife1Clicked()
+{
+    if(_creative.life === 1)
+        _creative.life = -1;
+    
+    else
+        _creative.life = 1;
+    
+    updateBrickLifeAnim();
+}
+
+function brickLife2Clicked()
+{
+    if(_creative.life === 2)
+        _creative.life = -1;
+    
+    else
+        _creative.life = 2;
+    
+    updateBrickLifeAnim();
+}
+
+function brickLife3Clicked()
+{
+    if(_creative.life === 3)
+        _creative.life = -1;
+    
+    else
+        _creative.life = 3;
+    
+    updateBrickLifeAnim();
+}
+
+function updateBrickLifeAnim()
+{
+    removeAllAnimations(_dom.brickLife0);
+    removeAllAnimations(_dom.brickLife1);
+    removeAllAnimations(_dom.brickLife2);
+    removeAllAnimations(_dom.brickLife3);
+    _dom.brickLife0.classList.add(_creative.life === 0 ? _anim.darken : _anim.lighten);
+    _dom.brickLife1.classList.add(_creative.life === 1 ? _anim.darken : _anim.lighten);
+    _dom.brickLife2.classList.add(_creative.life === 2 ? _anim.darken : _anim.lighten);
+    _dom.brickLife3.classList.add(_creative.life === 3 ? _anim.darken : _anim.lighten);
+}
+
 function keyUpEvent(e)
 {    
     switch(e.keyCode)
@@ -775,7 +869,8 @@ function keyUpEvent(e)
             break;
             
         case _keyCodes.enter:
-            initSingleMode();
+            if(_mode !== _modes.single)
+                initSingleMode();
             break;
             
         case _keyCodes.a:
@@ -803,8 +898,8 @@ function keyUpEvent(e)
                 _keys.right = false;
                 break;
                 
-            case _keyCodes.space:
-                _keys.space = false;
+            case _keyCodes.enter:
+                _keys.enter = false;
                 break;
                 
             case _keyCodes.p:
@@ -824,6 +919,30 @@ function keyUpEvent(e)
             case _keyCodes.ctr:
                 addLevel();
                 break;
+                
+            case _keyCodes.q:
+                brickAddClicked();
+                break;
+                
+            case _keyCodes.w:
+                brickDelClicked();
+                break;
+                
+            case _keyCodes.zero:
+                brickLife0Clicked();
+                break;
+                
+            case _keyCodes.one:
+                brickLife1Clicked();
+                break;
+                
+            case _keyCodes.two:
+                brickLife2Clicked();
+                break;
+                
+            case _keyCodes.three:
+                brickLife3Clicked();
+                break;
         }
     }
 }
@@ -842,8 +961,8 @@ function keyDownEvent(e)
                 _keys.right = true;
                 break;
                 
-            case _keyCodes.space:
-                _keys.space = true;
+            case _keyCodes.enter:
+                _keys.enter = true;
                 break;
         }
     }
@@ -864,11 +983,22 @@ function keyDownEvent(e)
 // Add/Remove brick
 function modBrick(x, y)
 {
-    if(isBrickHere(x, y))
-        _brickMap[x][y] = null;
+    var life = _creative.life === -1 ? 1 : _creative.life;
+    
+    if(_creative.add)
+    {    
+        if(!isBrickHere(x, y))
+        {
+            _brickMap[x][y] = new Brick(x, y, life);
+            
+            if(_creative.life === 0)
+                _brickMap[x][y].invincible = true;
+        }
+        
+    }
 
     else
-        _brickMap[x][y] = new Brick(x, y);
+        _brickMap[x][y] = null;
     
     _levels[_level.index][x][y] = cloneObj(_brickMap[x][y]);
 }
@@ -878,14 +1008,16 @@ function incBrick(x, y)
 {
     if(isBrickHere(x, y))
     {
-        if(++_brickMap[x][y].lives > _brick.maxLives)
+        if(_creative.life === -1)
         {
-            _brickMap[x][y].lives = 0;
-            _brickMap[x][y].invincible = true;
+            if(++_brickMap[x][y].lives > _brick.maxLives)
+                _brickMap[x][y].lives = 0;
         }
-
+        
         else
-            _brickMap[x][y].inivincble = false;
+            _brickMap[x][y].lives = _creative.life;
+        
+        _brickMap[x][y].invincible = (_brickMap[x][y].lives === 0);
     }
     
     _levels[_level.index][x][y] = cloneObj(_brickMap[x][y]);
@@ -907,10 +1039,10 @@ function mouseMoveEvent(e)
         if(x === xLast && y === yLast)
             return;
         
-        if(e.which === _mouseCodes.leftClick)
+        if(_mouse.leftDown)
             modBrick(x, y);
         
-        if(e.which === _mouseCodes.rightClick)
+        if(_mouse.rightDown)
             incBrick(x, y);
     }
 }
@@ -923,11 +1055,26 @@ function mouseDownEvent(e)
         var y = Math.floor((_mouse.y - _hud.height) / _brick.height);
         
         if(e.which === _mouseCodes.leftClick)
+        {
             modBrick(x, y);
+            _mouse.leftDown = true;
+        }
         
         if(e.which === _mouseCodes.rightClick)
+        {
             incBrick(x, y);
+            _mouse.rightDown = true;
+        }
     }
+}
+
+function mouseUpEvent(e)
+{
+    if(e.which === _mouseCodes.leftClick)
+        _mouse.leftDown = false;
+    
+    if(e.which === _mouseCodes.rightClick)
+        _mouse.rightDown = false;
 }
 
 function saveCanvasImg()
@@ -970,12 +1117,16 @@ function initCreativeMode()
     _mode = _modes.creative;
     _level.index = _levels.length - 1;
     addLevel();
+    removeAllAnimations(_dom.creativeOptions);
+    _dom.creativeOptions.classList.add(_anim.fadeIn);
 }
 
 function endCreativeMode()
 {
     saveLevels();
     getLevel(_level.index);
+    removeAllAnimations(_dom.creativeOptions);
+    _dom.creativeOptions.classList.add(_anim.fadeOut);
 }
 
 function removeLevel()

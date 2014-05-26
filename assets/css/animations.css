@@ -9,13 +9,13 @@
 @-webkit-keyframes animateDown
 {
     0%  {top: 0px;}
-    100%  {top: 1000px;}
+    100%  {top: 1000px; display: none;}
 }
 
 @keyframes animateDown
 {
     0%  {top: 0px;}
-    100%  {top: 1000px;}
+    100%  {top: 1000px; display: none;}
 }
 
 .animateUp
@@ -69,13 +69,13 @@
 @-webkit-keyframes animateRight
 {
     0% {left: 0px;}
-    100% {left: 2000px;}
+    100% {left: 2000px; display: none;}
 }
 
 @keyframes animateRight
 {
     0% {left: 0px;}
-    100% {left: 2000px}
+    100% {left: 2000px display: none;}
 }
 
 .animateFadeIn
@@ -116,4 +116,44 @@
 {
     0% {opacity: 1;}
     100% {opacity: 0}
+}
+
+.animateLighten
+{
+    -webkit-animation: animateLighten 1s;
+    -webkit-animation-fill-mode: forwards;
+    animation: animateLighten 1s;
+    animation-fill-mode: forwards;
+}
+
+@-webkit-keyframes animateLighten
+{
+    0% {opacity: 1;}
+    100% {opacity: 0.4;}
+}
+
+@keyframes animateLighten
+{
+    0% {opacity: 1;}
+    100% {opacity: 0.4}
+}
+
+.animateDarken
+{
+    -webkit-animation: animateDarken 1s;
+    -webkit-animation-fill-mode: forwards;
+    animation: animateDarken 1s;
+    animation-fill-mode: forwards;
+}
+
+@-webkit-keyframes animateDarken
+{
+    0% {opacity: 0.4;}
+    100% {opacity: 1;}
+}
+
+@keyframes animateDarken
+{
+    0% {opacity: 0.4;}
+    100% {opacity: 1;}
 }
