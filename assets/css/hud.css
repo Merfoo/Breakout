@@ -16,3 +16,57 @@
     left: 5px;
     font-family: openSansLight;
 }
+
+#creativeOptions
+{
+    opacity: 0;
+}
+
+.brickModeItem
+{
+    top: 0px;
+    margin: 0px 25px 0px 0px;
+    font-family: openSansLight;
+    float: left;
+}
+
+#brickModeBox
+{
+    position: absolute;
+    top: 3px;
+    left: 225px;
+}
+
+#brickMode
+{
+    top: 0px;
+    left: 0px;
+    margin-right: 25px;
+    font-family: openSansLight;
+    float: left;
+}
+
+.brickLifeItem
+{
+    top: 0px;
+    margin: 0px 25px 0px 0px;
+    font-family: openSansLight;
+    float: left;
+}
+
+
+#brickLifeBox
+{
+    position: absolute;
+    top: 3px;
+    right: 25px;
+}
+
+#brickLife
+{
+    top: 0px;
+    left: 0px;
+    margin-right: 25px;
+    font-family: openSansLight;
+    float: left;
+}
