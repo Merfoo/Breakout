@@ -1,0 +1,30 @@
+CACHE MANIFEST
+
+# Version 1
+
+# css
+css/style.css
+css/hud.css
+css/howToPlay.css
+css/animations.css
+
+# fonts
+fonts/open-sans.light.ttf
+
+# images
+images/pressEsc.png
+images/pressEnter.png
+images/paused.png
+images/logoThumbnail.png
+images/leftArrow.png
+images/instructions.png
+images/creativeMode.png
+
+# js
+js/util.js
+js/main.js
+js/levels.js
+js/classes.js
+
+# html
+index.html

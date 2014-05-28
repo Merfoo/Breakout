@@ -25,7 +25,7 @@
 .brickModeItem
 {
     top: 0px;
-    margin: 0px 25px 0px 0px;
+    margin: 0px 0px 0px 25px;
     font-family: openSansLight;
     float: left;
 }
@@ -33,7 +33,7 @@
 #brickModeBox
 {
     position: absolute;
-    top: 3px;
+    top: 2px;
     left: 225px;
 }
 
@@ -41,24 +41,27 @@
 {
     top: 0px;
     left: 0px;
-    margin-right: 25px;
     font-family: openSansLight;
     float: left;
 }
 
-.brickLifeItem
+select, option
+{
+    color: black;
+}
+
+.brickDropDown
 {
     top: 0px;
-    margin: 0px 25px 0px 0px;
+    margin: 0px 0px 0px 25px;
     font-family: openSansLight;
     float: left;
 }
-
 
 #brickLifeBox
 {
     position: absolute;
-    top: 3px;
+    top: 2px;
     right: 25px;
 }
 
@@ -66,7 +69,6 @@
 {
     top: 0px;
     left: 0px;
-    margin-right: 25px;
     font-family: openSansLight;
     float: left;
 }

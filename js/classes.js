@@ -9,6 +9,13 @@ Brick = function(x, y, lives, invincible, spawnBonus)
     this.invincible = typeof(invincible) === "undefined" ? false : invincible;
 };
 
+PowerUp = function(type, x, y)
+{
+    this.x = x;
+    this.y = y;
+    this.type = type;
+};
+
 Paddle = function(initVal)
 {
     this.color = "black";
