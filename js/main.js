@@ -1,7 +1,7 @@
 var _paddleInit = { startWidth: 173, startHeight: 13, startVMax: 10, startVInc: 0.15, width: 0, height: 0, vMax: 0, vInc: 0 };
-var _ballInit = { startR: 10, startReleaseHeight: 550, startVMax: 9, r: 0, releaseHeight: 0, vMax: 0 };
+var _ballInit = { startR: 10, startVMax: 9, r: 0, vMax: 0 };
 var _ballAimInit = { startVMax: 150, startAng: 20, vMax: 0 };
-var _dom = { startMenu: null, howToPlayMenu: null, pause: null, hud: null, lives: null, creativeOptions: null, brickModeAdd: null, brickModeDel: null, brickLife0: null, brickLife1: null, brickLife2: null, brickLife3: null };
+var _dom = { startMenu: null, howToPlayMenu: null, pause: null, hud: null, lives: null, creativeOptions: null, brickModeAdd: null, brickModeDel: null, brickLifeOptions: null };
 var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut", darken: "animateDarken", lighten: "animateLighten" };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["black", "green", "yellow", "red"] };
 var _brickMap = [];
@@ -14,7 +14,14 @@ var _mode = _modes.auto;
 var _creative = { add: true, life: -1 };
 var _levels = [];
 var _level = { index: 0, orig: [] };
-var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, p: 80, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46, q: 81, w: 87, zero: 48, one: 49, two: 50, three: 51 };
+var _powerUp = { width: 0, height: 0, vY: 0, initVY: 10, minDistY: 0, multiBall: 0, superBall: 1, lazers: 2, longPaddle: 3 };
+var _powerUps = [];
+var _multiBall = { start: -1, dur: 5, count: 5 };
+var _superBall = { start: -1, dur: 5 };
+var _lazer = { start: -1, dur: 5, initWidth: 5, initHeight: 25, width: 0, height: 0 };
+var _longPaddle = { start: -1, dur: 5, initWidthAdd: 500, widthAdd: 0 };
+var _powerUps = [];
+var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, p: 80, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46, q: 81, w: 87, zero: 48, one: 49, two: 50, three: 51, nine: 57 };
 var _keys = { left: false, right: false, space: false };
 var _mouseCodes = { leftClick: 1, rightClick: 3 };
 var _mouse = { x: 0, y: 0, xLast: 0, yLast: 0, leftDown: false, rightDown: false };
@@ -43,10 +50,7 @@ function init()
     _dom.lives = document.getElementById("lives");
     _dom.brickModeAdd = document.getElementById("brickModeAdd");
     _dom.brickModeDel = document.getElementById("brickModeDel");
-    _dom.brickLife0 = document.getElementById("brickLife0");
-    _dom.brickLife1 = document.getElementById("brickLife1");
-    _dom.brickLife2 = document.getElementById("brickLife2");
-    _dom.brickLife3 = document.getElementById("brickLife3");
+    _dom.brickLifeOptions = document.getElementById("brickLifeOptions");
     _dom.creativeOptions = document.getElementById("creativeOptions");
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
     _hud.height = _dom.hud.clientHeight;
@@ -55,10 +59,7 @@ function init()
     document.getElementById("backToStartMenu").onclick = showStartMenu;
     _dom.brickModeAdd.onclick = brickAddClicked;
     _dom.brickModeDel.onclick = brickDelClicked;
-    _dom.brickLife0.onclick = brickLife0Clicked;
-    _dom.brickLife1.onclick = brickLife1Clicked;
-    _dom.brickLife2.onclick = brickLife2Clicked;
-    _dom.brickLife3.onclick = brickLife3Clicked;
+    _dom.brickLifeOptions.onchange = brickLifeChanged;
     window.addEventListener("resize", setGameSize);
     window.requestAnimFrame = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -68,7 +69,6 @@ function init()
         };
     
     updateBrickModeAnim();
-    updateBrickLifeAnim();
     makeLevels();
     setGameSize();
     initGame();
@@ -85,14 +85,20 @@ function setGameSize()
     _cvs.game.canvas.height = _map.height;
     _brick.width = _map.width / _brick.horz;
     _brick.height = _map.height / _brick.vert;
+    _powerUp.width = _brick.width;
+    _powerUp.height = _brick.height;
+    _powerUp.vY = _powerUp.initVY * _map.heightMod;
+    _powerUp.minDistY = _powerUp.vY * 1.5;
     _ballAimInit.vMax = _ballAimInit.startVMax * _map.heightMod;
     _paddleInit.width = _paddleInit.startWidth * _map.widthMod;
     _paddleInit.height = _paddleInit.startHeight * _map.heightMod;
     _paddleInit.vMax = _paddleInit.startVMax * _map.widthMod;
     _paddleInit.vInc = _paddleInit.startVInc * _map.widthMod;
     _ballInit.r = _ballInit.startR * _map.widthMod;
-    _ballInit.releaseHeight = _ballInit.startReleaseHeight * _map.heightMod;
     _ballInit.vMax = _ballInit.startVMax * _map.widthMod;
+    _lazer.width = _lazer.initWidth * _map.widthMod;
+    _lazer.height = _lazer.initHeight;
+    _longPaddle.widthAdd = _longPaddle.initWidthAdd * _map.widthMod;
     
     _ballAim.vMax = _ballAimInit.vMax;
     _paddle.width = _paddleInit.width;
@@ -104,7 +110,6 @@ function setGameSize()
     for(var i = 0, len = _balls.length; i < len; i++)
     {
         _balls[i].r = _ballInit.r;
-        _balls[i].releaseHeight = _ballInit.releaseHeight;
         _balls[i].vMax = _ballInit.vMax;
         var ballMod = _balls[i].vMax / Math.sqrt((_balls[i].vX * _balls[i].vX) + (_balls[i].vY * _balls[i].vY));
         _balls[i].vX *= ballMod;
@@ -125,17 +130,10 @@ function loop()
             if(_modes.paused)
                 break;
             
-            if(!_balls[0].released)
-            {
-                updateBallAim();
-                paintBallAim();
-            }
-            
-            else
-                updatePaddle();
-            
-            
+            updatePaddle();
+            //updatePowerUps();
             updateBalls();
+            updateBallAim();
             updateHud();
             break;
             
@@ -143,9 +141,11 @@ function loop()
             break;
     }
     
+    paintBallAim();
     paintBalls();
     paintPaddle();
     paintBricks();
+    //paintPowerUps();
     window.requestAnimFrame(loop);
 }
 
@@ -156,7 +156,7 @@ function initGame()
     _paddle.y = _map.height - _paddle.height;
     _balls = [new Ball(_ballInit)];
     _balls[0].x = _paddle.x + _paddle.width / 2;
-    _balls[0].y = _balls[0].releaseHeight;
+    _balls[0].y = _paddle.y - _paddle.height - _balls[0].r;
     _keys.left = false;
     _keys.right = false;
     _keys.enter = false;
@@ -202,12 +202,59 @@ function updateAi()
 
     if(!_balls[0].released)
     {
-        var vel = getVel(getRandomNumber(-90 - _balls[0].maxAng, -90 + _balls[0].maxAng), _balls[0].vMax);
+        var ballAng = getRandomNumber(-90 - _balls[0].maxAng, -90 + _balls[0].maxAng);
+        var vel = getVel(ballAng, _balls[0].vMax);
+        _ballAim.ang = ballAng;
         _balls[0].vX = vel.x;
         _balls[0].vY = vel.y;
         _balls[0].x = _paddle.x + (_paddle.width / 2);
-        _balls[0].y = _balls[0].releaseHeight;
+        _balls[0].y = _paddle.y - _paddle.height - _balls[0].r;
         _balls[0].released = true;
+    }
+}
+
+function updatePowerUps()
+{
+    var curTime = new Date().getTime();
+    
+    for(var i = 0; i < _powerUps.length; i++)
+    {
+        _powerUps[i].y += _powerUp.vY;
+        
+        if(_paddle.y - _powerUps[i].y <= _powerUp.minDistY && getDist(_powerUps[i], _paddle) <= _paddle.width)
+        {
+            switch(_powerUps[i].type)
+            {
+                case _powerUp.multiBall: _multiBall.start = curTime; break;
+                case _powerUp.superBall: _superBall.start = curTime; break;
+                case _powerUp.lazers: _lazer.start = curTime; break;
+                case _powerUp.longPaddle: _longPaddle.start = curTime; break;
+            }
+            
+            _powerUps.splice(i, 1);
+            i--;
+        }
+    }
+    
+    if(_longPaddle.start > -1)
+    {
+        if(curTime - _longPaddle.start <= _longPaddle.dur * 1000)
+            _paddle.width = _paddleInit.width + _longPaddle.widthAdd;
+        
+        else
+        {
+            _longPaddle.start = -1;
+            _paddle.width = _paddleInit.width;
+        }
+    }
+}
+
+function paintPowerUps()
+{
+    for(var i = 0, len = _powerUps.length; i < len; i++)
+    {
+        _cvs.game.fillStyle = "black";
+        _cvs.game.fillRect(_powerUps[i].x, _powerUps[i].y, _powerUp.width, _powerUp.height);
     }
 }
 
@@ -257,6 +304,9 @@ function updatePaddle()
 
 function updateBallAim()
 {
+    if(_balls[0].released)
+        return;
+    
     _paddle.v = 0;
     _paddle.x = (_map.width / 2) - (_paddle.width / 2);
     _balls[0].vX = 0;
@@ -493,7 +543,10 @@ function updateBalls()
 
         for(var j = 0, len = removeLives.length; j < len; j++)
             if(--localBricks[removeLives[j]].lives <= 0)
+            {
                 _brick.live--;
+                //_powerUps.push(new PowerUp(_powerUp.longPaddle, localBricks[i].x * _powerUp.width, localBricks[i].y * _powerUp.height));
+            }
 
         if(collided.x)
             _balls[i].vX *= -1;
@@ -611,6 +664,9 @@ function paintBalls()
 
 function paintBallAim()
 {
+    if(_balls[0].released || _mode === _modes.auto)
+        return;
+    
     _cvs.game.beginPath();
     _cvs.game.lineWidth = _ballAim.width;
     _cvs.game.strokeStyle = _ballAim.color;
@@ -732,9 +788,20 @@ function getNextLevel()
 
 function removeAllAnimations(elem)
 {
+    var isArray = Object.prototype.toString.call(elem) === "[object Array]";
+    
     for(var prop in _anim)
+    {
         if(_anim.hasOwnProperty(prop))
-            elem.classList.remove(_anim[prop]);
+        {
+            if(isArray)
+                for(var i = 0, len = elem.length; i < len; i++)
+                    elem[i].classList.remove(_anim[prop]);
+            
+            else
+                elem.classList.remove(_anim[prop]);   
+        }
+    }
 }
 
 function showStartMenu()
@@ -794,66 +861,17 @@ function brickDelClicked()
 
 function updateBrickModeAnim()
 {
-    removeAllAnimations(_dom.brickModeAdd);
-    removeAllAnimations(_dom.brickModeDel);
+    removeAllAnimations([_dom.brickModeAdd, _dom.brickModeDel]);
     _dom.brickModeAdd.classList.add(_creative.add ? _anim.darken : _anim.lighten);
     _dom.brickModeDel.classList.add(!_creative.add ? _anim.darken : _anim.lighten);
 }
 
-function brickLife0Clicked()
+function brickLifeChanged(newVal)
 {
-    if(_creative.life === 0)
-        _creative.life = -1;
-    
-    else
-        _creative.life = 0;
-    
-    updateBrickLifeAnim();
-}
-
-function brickLife1Clicked()
-{
-    if(_creative.life === 1)
-        _creative.life = -1;
-    
-    else
-        _creative.life = 1;
-    
-    updateBrickLifeAnim();
-}
-
-function brickLife2Clicked()
-{
-    if(_creative.life === 2)
-        _creative.life = -1;
-    
-    else
-        _creative.life = 2;
-    
-    updateBrickLifeAnim();
-}
-
-function brickLife3Clicked()
-{
-    if(_creative.life === 3)
-        _creative.life = -1;
-    
-    else
-        _creative.life = 3;
-    
-    updateBrickLifeAnim();
-}
-
-function updateBrickLifeAnim()
-{
-    removeAllAnimations(_dom.brickLife0);
-    removeAllAnimations(_dom.brickLife1);
-    removeAllAnimations(_dom.brickLife2);
-    removeAllAnimations(_dom.brickLife3);
-    _dom.brickLife0.classList.add(_creative.life === 0 ? _anim.darken : _anim.lighten);
-    _dom.brickLife1.classList.add(_creative.life === 1 ? _anim.darken : _anim.lighten);
-    _dom.brickLife2.classList.add(_creative.life === 2 ? _anim.darken : _anim.lighten);
-    _dom.brickLife3.classList.add(_creative.life === 3 ? _anim.darken : _anim.lighten);
+    if(typeof(newVal) !== "undefined" && newVal >= -1 && newVal <= _brick.maxLives)
+        _dom.brickLifeOptions.selectedIndex = newVal + 1;
+        
+    _creative.life = parseInt(_dom.brickLifeOptions.options[_dom.brickLifeOptions.selectedIndex].value);
 }
 
 function keyUpEvent(e)
@@ -928,20 +946,24 @@ function keyUpEvent(e)
                 brickDelClicked();
                 break;
                 
+            case _keyCodes.nine:
+                brickLifeChanged(-1);
+                break;
+                
             case _keyCodes.zero:
-                brickLife0Clicked();
+                brickLifeChanged(0);
                 break;
                 
             case _keyCodes.one:
-                brickLife1Clicked();
+                brickLifeChanged(1);
                 break;
                 
             case _keyCodes.two:
-                brickLife2Clicked();
+                brickLifeChanged(2);
                 break;
                 
             case _keyCodes.three:
-                brickLife3Clicked();
+                brickLifeChanged(3);
                 break;
         }
     }
