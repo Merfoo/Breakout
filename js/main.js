@@ -1,5 +1,5 @@
-var _paddleInit = { startWidth: 173, startHeight: 13, startVMax: 10, startVInc: 0.15, width: 0, height: 0, vMax: 0, vInc: 0 };
-var _ballInit = { startR: 10, startVMax: 9, r: 0, vMax: 0 };
+var _paddleInit = { startWidth: 173, startHeight: 13, width: 0, height: 0, vMax: 10, vInc: 0.15 };
+var _ballInit = { startR: 10, r: 0, vMax: 8 };
 var _ballAimInit = { startVMax: 150, startAng: 20, vMax: 0 };
 var _dom = { startMenu: null, howToPlayMenu: null, pause: null, hud: null, lives: null, creativeOptions: null, brickModeAdd: null, brickModeDel: null, brickLifeOptions: null };
 var _anim = { moveUp: "animateUp", moveDown: "animateDown", moveLeft: "animateLeft", moveRight: "animateRight", fadeIn: "animateFadeIn", fadeOut: "animateFadeOut", darken: "animateDarken", lighten: "animateLighten" };
@@ -92,10 +92,7 @@ function setGameSize()
     _ballAimInit.vMax = _ballAimInit.startVMax * _map.heightMod;
     _paddleInit.width = _paddleInit.startWidth * _map.widthMod;
     _paddleInit.height = _paddleInit.startHeight * _map.heightMod;
-    _paddleInit.vMax = _paddleInit.startVMax * _map.widthMod;
-    _paddleInit.vInc = _paddleInit.startVInc * _map.widthMod;
     _ballInit.r = _ballInit.startR * _map.widthMod;
-    _ballInit.vMax = _ballInit.startVMax * _map.widthMod;
     _lazer.width = _lazer.initWidth * _map.widthMod;
     _lazer.height = _lazer.initHeight * _map.heightMod;
     _lazer.vY = _lazer.initVY * _map.heightMod;
