@@ -11,16 +11,16 @@ var _hud = { height: 0, livesText: "Lives: " };
 var _cvs = { game: null };
 var _modes = { single: 0, auto: 1, creative: 2, paused: false };
 var _mode = _modes.auto;
-var _creative = { add: true, life: -1 };
+var _creative = { add: true, life: -1, lastLife: 0 };
 var _levels = [];
 var _level = { index: 0, orig: [] };
 var _powerUp = { width: 0, height: 0, vY: 0, initVY: 10, minDistY: 0, multiBall: 0, superBall: 1, lazers: 2, longPaddle: 3 };
 var _powerUps = [];
-var _multiBall = { start: -1, dur: 5, count: 5 };
-var _superBall = { start: -1, dur: 5 };
-var _lazer = { start: -1, dur: 5, initWidth: 5, initHeight: 25, width: 0, height: 0 };
-var _longPaddle = { start: -1, dur: 5, initWidthAdd: 500, widthAdd: 0 };
-var _powerUps = [];
+var _multiBall = { start: -1, dur: 2500, count: 5 };
+var _superBall = { start: -1, dur: 2500 };
+var _lazer = { start: -1, dur: 5000, initVY: 10, initWidth: 5, initHeight: 25, vY: 0, width: 0, height: 0, minShoot: 500, lastShoot: 0, color: "red" };
+var _lazers = [];
+var _longPaddle = { start: -1, dur: 5000, initWidthAdd: 125, widthAdd: 0 };
 var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, p: 80, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46, q: 81, w: 87, zero: 48, one: 49, two: 50, three: 51, nine: 57 };
 var _keys = { left: false, right: false, space: false };
 var _mouseCodes = { leftClick: 1, rightClick: 3 };
@@ -97,7 +97,8 @@ function setGameSize()
     _ballInit.r = _ballInit.startR * _map.widthMod;
     _ballInit.vMax = _ballInit.startVMax * _map.widthMod;
     _lazer.width = _lazer.initWidth * _map.widthMod;
-    _lazer.height = _lazer.initHeight;
+    _lazer.height = _lazer.initHeight * _map.heightMod;
+    _lazer.vY = _lazer.initVY * _map.heightMod;
     _longPaddle.widthAdd = _longPaddle.initWidthAdd * _map.widthMod;
     
     _ballAim.vMax = _ballAimInit.vMax;
@@ -130,8 +131,8 @@ function loop()
             if(_modes.paused)
                 break;
             
+            updatePowerUps();
             updatePaddle();
-            //updatePowerUps();
             updateBalls();
             updateBallAim();
             updateHud();
@@ -145,7 +146,7 @@ function loop()
     paintBalls();
     paintPaddle();
     paintBricks();
-    //paintPowerUps();
+    paintPowerUps();
     window.requestAnimFrame(loop);
 }
 
@@ -161,6 +162,11 @@ function initGame()
     _keys.right = false;
     _keys.enter = false;
     _lives.cur = _lives.starting;
+    _powerUps = [];
+    _longPaddle.start = -1;
+    _multiBall.start = -1;
+    _superBall.start = -1;
+    _lazer.start = -1;
     getLevel(_level.index);
 }
 
@@ -238,7 +244,7 @@ function updatePowerUps()
     
     if(_longPaddle.start > -1)
     {
-        if(curTime - _longPaddle.start <= _longPaddle.dur * 1000)
+        if(curTime - _longPaddle.start <= _longPaddle.dur)
             _paddle.width = _paddleInit.width + _longPaddle.widthAdd;
         
         else
@@ -247,15 +253,104 @@ function updatePowerUps()
             _paddle.width = _paddleInit.width;
         }
     }
+    
+    if(_multiBall.start > -1)
+    {
+        for(var i = 0; i < _multiBall.count; i++)
+        {
+            var newBall = new Ball(_ballInit);
+            var newVel = getVel(getRandomNumber(0, 360), _ballInit.vMax);
+            newBall.x = _balls[0].x;
+            newBall.y = _balls[0].y;
+            newBall.vX = newVel.x;
+            newBall.vY = newVel.y;
+            newBall.released = true;
+            _balls.push(newBall);
+        }
+        
+        _multiBall.start = -1;
+    }
+    
+    if(_lazer.start > -1)
+    {
+        if(curTime - _lazer.lastShoot >= _lazer.minShoot)
+        {
+            var xRight = _paddle.x + _paddle.width;
+            var xLeft = _paddle.x;
+            var y = _paddle.y - _lazer.height;
+            _lazers.push(new Lazer(xLeft, y));
+            _lazers.push(new Lazer(xRight, y));
+            _lazer.lastShoot = curTime;
+        }
+        
+        if(curTime - _lazer.start >= _lazer.dur)
+            _lazer.start = -1;
+    }
+    
+    if(_superBall.start > -1 && curTime - _superBall.start >= _superBall.dur)
+        _superBall.start = -1;
+        
+    updateLazers();
+}
+
+function updateLazers()
+{
+    for(var i = 0; i < _lazers.length; i++)
+    {
+        _lazers[i].y -= _lazer.vY;
+        
+        if(_lazers[i].y < 0)
+        {
+            _lazers.splice(i, 1);
+            i--;
+            continue;
+        }
+    
+        var brickX = Math.floor(_lazers[i].x / _brick.width);
+        var brickY = Math.floor(_lazers[i].y / _brick.height);
+        
+        if(isBrickHere(brickX, brickY))
+        {
+            _brickMap[brickX][brickY] = null;
+            _brick.live--;
+            _lazers.splice(i--, 1);
+            continue;
+        }
+        
+        _cvs.game.lineCap = "round";
+        _cvs.game.lineWidth = _lazer.width;
+        _cvs.game.beginPath();
+        _cvs.game.moveTo(_lazers[i].x, _lazers[i].y);
+        _cvs.game.lineTo(_lazers[i].x, _lazers[i].y + _lazer.height);
+        _cvs.game.strokeStyle = _lazer.color;
+        _cvs.game.stroke();
+        _cvs.game.closePath();
+    }
 }
 
 function paintPowerUps()
 {
     for(var i = 0, len = _powerUps.length; i < len; i++)
     {
-        _cvs.game.fillStyle = "black";
+        _cvs.game.fillStyle = getRandomColor(0, 255);
         _cvs.game.fillRect(_powerUps[i].x, _powerUps[i].y, _powerUp.width, _powerUp.height);
     }
+}
+
+
+function getPowerUp(x, y)
+{
+    var type = 0;
+    
+    switch(Math.floor(Math.random() * 4))
+    {
+        case 0: type = _powerUp.multiBall; break;
+        case 1: type = _powerUp.superBall; break;
+        case 2: type = _powerUp.lazers; break;
+        case 3: type = _powerUp.longPaddle; break;
+    }
+    
+    return new PowerUp(type, x, y);
 }
 
 function updatePaddle()
@@ -386,7 +481,7 @@ function updateBalls()
             _balls[i].vX = newVel.x;
             _balls[i].vY = newVel.y;
         }
-
+        
         var collided = { x: false, y: false };
         var removeLives = [];
         var localBricks = getLocalBricks(Math.floor(_balls[i].x / _brick.width), Math.floor(_balls[i].y / _brick.height));
@@ -471,7 +566,7 @@ function updateBalls()
                 console.log("corner top right");
             }
 
-            if(hitBrick && hitSpot !== -1)
+            if(hitBrick && hitSpot !== -1 && !(_superBall.start > -1))
             {
                 collided.x = true;
                 collided.y = true; 
@@ -537,17 +632,33 @@ function updateBalls()
                 }
             }
 
-            if(localBricks[brickIndex].lives > 0 && hitBrick)
-                removeLives.push(brickIndex);    
+            if(hitBrick)
+            {
+                if(localBricks[brickIndex].lives > 0 || _superBall.start > -1)
+                    removeLives.push(brickIndex);
+            }    
         }
 
         for(var j = 0, len = removeLives.length; j < len; j++)
+        {
             if(--localBricks[removeLives[j]].lives <= 0)
             {
-                _brick.live--;
-                //_powerUps.push(new PowerUp(_powerUp.longPaddle, localBricks[i].x * _powerUp.width, localBricks[i].y * _powerUp.height));
+                if(!localBricks[removeLives[j]].invincible)
+                    _brick.live--;
+                
+                if(localBricks[removeLives[j]].spawnBonus)
+                    _powerUps.push(getPowerUp(localBricks[removeLives[j]].x * _brick.width, localBricks[removeLives[j]].y * _brick.height));
+                
+                _brickMap[localBricks[removeLives[j]].x][localBricks[removeLives[j]].y] = null;
             }
+        }
 
+        if(_superBall.start > -1)
+        {
+            collided.x = false;
+            collided.y = false;
+        }
+        
         if(collided.x)
             _balls[i].vX *= -1;
 
@@ -656,7 +767,7 @@ function paintBalls()
     {
         var ball = _balls[i];
         _cvs.game.beginPath();
-        _cvs.game.fillStyle = ball.color;
+        _cvs.game.fillStyle = _superBall.start > -1 ? getRandomColor(0, 255) : ball.color;
         _cvs.game.arc(ball.x, ball.y, ball.r, 0, 2 * Math.PI);
         _cvs.game.fill();
     }
@@ -751,6 +862,9 @@ function getLevel(index)
                 
                 if(!_brickMap[x][y].invincible)
                     _brick.live++;
+                
+                if(_brickMap[x][y].lives === _brick.maxLives)
+                    _brickMap[x][y].spawnBonus = Math.random() <= 0.75;
             }
             
             else
@@ -1004,16 +1118,19 @@ function keyDownEvent(e)
 
 // Add/Remove brick
 function modBrick(x, y)
-{
-    var life = _creative.life === -1 ? 1 : _creative.life;
-    
+{    
     if(_creative.add)
     {    
         if(!isBrickHere(x, y))
         {
+            var life = _creative.life === -1 ? _creative.lastLife++ : _creative.life;
+    
+            if(_creative.lastLife > _brick.maxLives)
+                _creative.lastLife = 0;
+            
             _brickMap[x][y] = new Brick(x, y, life);
             
-            if(_creative.life === 0)
+            if(_brickMap[x][y].lives === 0)
                 _brickMap[x][y].invincible = true;
         }
         

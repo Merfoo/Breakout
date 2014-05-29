@@ -16,6 +16,12 @@ PowerUp = function(type, x, y)
     this.type = type;
 };
 
+Lazer = function(x, y)
+{
+    this.x = x;
+    this.y = y;
+};
+
 Paddle = function(initVal)
 {
     this.color = "black";
@@ -33,7 +39,6 @@ Ball = function(initVal)
     this.color = "red";
     this.maxAng = 70;
     this.released = false;
-    this.releaseHeight = initVal.releaseHeight;
     this.vMax = initVal.vMax;
     this.vX = 0;
     this.vY = 0;
