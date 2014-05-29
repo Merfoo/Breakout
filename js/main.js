@@ -14,13 +14,13 @@ var _mode = _modes.auto;
 var _creative = { add: true, life: -1, lastLife: 0 };
 var _levels = [];
 var _level = { index: 0, orig: [] };
-var _powerUp = { width: 0, height: 0, vY: 0, initVY: 10, minDistY: 0, multiBall: 0, superBall: 1, lazers: 2, longPaddle: 3 };
+var _powerUp = { width: 0, height: 0, vY: 0, initVY: 5, minDistY: 0, multiBall: 0, superBall: 1, lazers: 2, longPaddle: 3 };
 var _powerUps = [];
-var _multiBall = { start: -1, dur: 2500, count: 5 };
+var _multiBall = { start: -1, dur: 2500, count: 4 };
 var _superBall = { start: -1, dur: 2500 };
-var _lazer = { start: -1, dur: 5000, initVY: 10, initWidth: 5, initHeight: 25, vY: 0, width: 0, height: 0, minShoot: 500, lastShoot: 0, color: "red" };
+var _lazer = { start: -1, dur: 6000, initVY: 10, initWidth: 5, initHeight: 25, vY: 0, width: 0, height: 0, minShoot: 500, lastShoot: 0, color: "red" };
 var _lazers = [];
-var _longPaddle = { start: -1, dur: 5000, initWidthAdd: 125, widthAdd: 0 };
+var _longPaddle = { start: -1, dur: 10000, initWidthAdd: 133, widthAdd: 0 };
 var _keyCodes = { up: 38, down: 40, left: 37, right: 39, space: 32, tilda: 192, a: 65, d: 68, p: 80, ctr: 17, alt: 18, enter: 13, esc: 27, shift: 16, del: 46, q: 81, w: 87, zero: 48, one: 49, two: 50, three: 51, nine: 57 };
 var _keys = { left: false, right: false, space: false };
 var _mouseCodes = { leftClick: 1, rightClick: 3 };
@@ -256,7 +256,16 @@ function updatePowerUps()
         for(var i = 0; i < _multiBall.count; i++)
         {
             var newBall = new Ball(_ballInit);
-            var newVel = getVel(getRandomNumber(0, 360), _ballInit.vMax);
+            var newVel = null;
+            
+            switch(Math.floor(Math.random() * 4))
+            {
+                case 0: newVel = getVel(getRandomNumber(1, 89), _ballInit.vMax); break;
+                case 1: newVel = getVel(getRandomNumber(91, 179), _ballInit.vMax); break;
+                case 2: newVel = getVel(getRandomNumber(181, 269), _ballInit.vMax); break;
+                case 3: newVel = getVel(getRandomNumber(271, 360), _ballInit.vMax); break;
+            }
+            
             newBall.x = _balls[0].x;
             newBall.y = _balls[0].y;
             newBall.vX = newVel.x;
