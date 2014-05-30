@@ -1,6 +1,6 @@
 CACHE MANIFEST
 
-# Version 5
+# Version 6
 
 # css
 css/style.css
@@ -22,9 +22,12 @@ images/creativeMode.png
 
 # js
 js/util.js
-js/main.js
 js/levels.js
-js/classes.js
+js/vars.js
+js/ui.js
+js/powerUps.js
+js/eventHandlers.js
+js/main.js
 
 # html
 index.html
