@@ -19,7 +19,8 @@ function keyUpEvent(e)
             break;
             
         case _keyCodes.enter:
-            initSingleMode();
+            if(_mode !== _modes.single)
+                initSingleMode();
             break;
             
         case _keyCodes.space:

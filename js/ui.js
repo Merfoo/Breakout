@@ -156,16 +156,16 @@ function paintBalls()
 
 function paintBallAim()
 {
-    if(_balls[0].released || _mode === _modes.auto)
-        return;
-    
-    _cvs.game.beginPath();
-    _cvs.game.lineWidth = _ballAim.width;
-    _cvs.game.strokeStyle = _ballAim.color;
-    _cvs.game.moveTo(_ballAim.x, _ballAim.y);
-    _cvs.game.lineTo(_ballAim.x + _ballAim.vX, _ballAim.y + _ballAim.vY);
-    _cvs.game.stroke();
-    _cvs.game.closePath();
+    if(_mode === _modes.single && !_balls[0].released)
+    {    
+        _cvs.game.beginPath();
+        _cvs.game.lineWidth = _ballAim.width;
+        _cvs.game.strokeStyle = _ballAim.color;
+        _cvs.game.moveTo(_ballAim.x, _ballAim.y);
+        _cvs.game.lineTo(_ballAim.x + _ballAim.vX, _ballAim.y + _ballAim.vY);
+        _cvs.game.stroke();
+        _cvs.game.closePath();
+    }
 }
 
 function paintBrickCorner(newBrick)
