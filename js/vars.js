@@ -30,7 +30,6 @@ Paddle = function(initVal)
     this.x = 0;
     this.y = 0;
     this.vMax = initVal.vMax;
-    this.vInc = initVal.vInc;
     this.v = 0;
 };
 
@@ -106,7 +105,7 @@ Line = function()
 };
 
 
-var _paddleInit = { initWidth: 173, initHeight: 13, width: 0, height: 0, vMax: 10, vInc: 0.15 };
+var _paddleInit = { initWidth: 173, initHeight: 13, width: 0, height: 0, vMax: 10 };
 var _ballInit = { initR: 10, r: 0, vMax: 8 };
 var _ballAimInit = { initVMax: 150, vMax: 0 };
 var _dom = { startMenu: null, howToPlayMenu: null, pause: null, hud: null, lives: null, creativeOptions: null, brickModeAdd: null, brickModeDel: null, brickLifeOptions: null };

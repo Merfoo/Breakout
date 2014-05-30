@@ -27,7 +27,6 @@ function setGameSize()
     _paddle.width = _paddleInit.width;
     _paddle.height = _paddleInit.height;
     _paddle.vMax = _paddleInit.vMax;
-    _paddle.vInc = _paddleInit.vInc;
     _paddle.y = _map.height - _paddleInit.height;
     
     oldMap.width = oldMap.width === 0 ? _map.width : oldMap.width;

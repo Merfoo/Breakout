@@ -19,10 +19,13 @@ function keyUpEvent(e)
             break;
             
         case _keyCodes.enter:
-            if(_mode !== _modes.single)
-                initSingleMode();
+            initSingleMode();
             break;
             
+        case _keyCodes.space:
+            if(_mode === _modes.single)
+                _balls[0].released = true;
+            break;
         case _keyCodes.a:
             getPrevLevel();
             break;
@@ -50,6 +53,10 @@ function keyUpEvent(e)
                 
             case _keyCodes.enter:
                 _keys.enter = false;
+                break;
+            
+            case _keyCodes.space:
+                _keys.space = false;
                 break;
                 
             case _keyCodes.p:
@@ -117,6 +124,10 @@ function keyDownEvent(e)
                 
             case _keyCodes.enter:
                 _keys.enter = true;
+                break;
+                
+            case _keyCodes.space:
+                _keys.space = true;
                 break;
         }
     }
@@ -214,6 +225,9 @@ function mouseMoveEvent(e)
         if(_mouse.rightDown)
             incBrick(x, y);
     }
+    
+    else if(_mode === _modes.single)
+        _paddle.x = e.clientX - (_paddle.width / 2);
 }
 
 function mouseDownEvent(e)

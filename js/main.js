@@ -85,6 +85,7 @@ function initGame()
     _keys.left = false;
     _keys.right = false;
     _keys.enter = false;
+    _keys.space = false;
     _lives.cur = _lives.starting;
     _powerUps = [];
     _longPaddle.start = -1;
@@ -139,43 +140,22 @@ function updatePaddle()
     if(_keys.left || _keys.right)
     {
         if(_keys.left)
-            _paddle.v -= _paddle.vInc;
+            _paddle.v = -_paddle.vMax;
 
         if(_keys.right)
-            _paddle.v += _paddle.vInc;
-        
-        if(_paddle.v > 1)
-            _paddle.v = 1;
-        
-        if(_paddle.v < -1)
-            _paddle.v = -1;
+            _paddle.v = _paddle.vMax;
     }
     
     else
-    {
-        if(_paddle.v > 0 + _paddle.vInc)
-            _paddle.v -= _paddle.vInc;
-        
-        if(_paddle.v < 0 - _paddle.vInc)
-            _paddle.v += _paddle.vInc;
-        
-        if(Math.abs(_paddle.v) <= _paddle.vInc)
-            _paddle.v = 0;
-    }
+        _paddle.v = 0;
     
-    _paddle.x += _paddle.vMax * _paddle.v;
+    _paddle.x += _paddle.v;
     
     if(_paddle.x + _paddle.width + _paddle.height > _map.width)
-    {
         _paddle.x = _map.width - _paddle.width - _paddle.height;
-        _paddle.v = 0;
-    }
     
     if(_paddle.x  - _paddle.height < 0)
-    {
         _paddle.x = _paddle.height;
-        _paddle.v = 0;
-    }
 }
 
 function updateBallAim()
@@ -209,7 +189,7 @@ function updateBallAim()
     _ballAim.vX = newVel.x;
     _ballAim.vY = newVel.y;
     
-    if(_keys.enter)
+    if(_keys.space)
     {
         var ballVel = getVel(_ballAim.ang, _balls[0].vMax);
         _balls[0].vX = ballVel.x;
