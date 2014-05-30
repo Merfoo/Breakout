@@ -403,7 +403,7 @@ function updateBalls()
                     _brick.live--;
                 
                 if(localBricks[removeLives[j]].spawnBonus)
-                    _powerUps.push(getPowerUp(localBricks[removeLives[j]].x * _brick.width, localBricks[removeLives[j]].y * _brick.height));
+                    _powerUps.push(getPowerUp((localBricks[removeLives[j]].x * _brick.width) + (_brick.width / 2), (localBricks[removeLives[j]].y * _brick.height) + (_brick.height / 2)));
                 
                 _brickMap[localBricks[removeLives[j]].x][localBricks[removeLives[j]].y] = null;
             }

@@ -98,3 +98,21 @@ function cloneObj(obj)
     
     return newObj;
 }
+
+function cos(ang)
+{
+    return Math.cos(ang * Math.PI / 180) * 180 / Math.PI;
+}
+
+function sin(ang)
+{
+    return Math.sin(ang * Math.PI / 180) * 180 / Math.PI;
+}
+
+function rotatePoint(x, y, ang, cornerX, cornerY)
+{
+    var newX = cos(ang)*(x - cornerX) - sin(ang)*( y - cornerY) + cornerX;
+    var newY = sin(ang)*(x - cornerX) + cos(ang)*( y - cornerY) + cornerY;
+    
+    return { x: newX, y: newY };
+}

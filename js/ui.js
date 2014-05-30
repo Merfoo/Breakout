@@ -9,8 +9,9 @@ function setGameSize()
     _cvs.game.canvas.height = _map.height;
     _brick.width = _map.width / _brick.horz;
     _brick.height = _map.height / _brick.vert;
-    _powerUp.width = _brick.width;
-    _powerUp.height = _brick.height;
+    _powerUp.long = _powerUp.initLong * _map.widthMod;
+    _powerUp.short = _powerUp.initShort * _map.widthMod;
+    _powerUp.width = rotatePoint(0, 0, 0, _powerUp.long, 0).x * 2;
     _powerUp.vY = _powerUp.initVY * _map.heightMod;
     _powerUp.minDistY = _powerUp.vY * 1.5;
     _ballAimInit.vMax = _ballAimInit.initVMax * _map.heightMod;
@@ -208,10 +209,7 @@ function paintPaddle()
 function paintPowerUps()
 {
     for(var i = 0, len = _powerUps.length; i < len; i++)
-    {
-        _cvs.game.fillStyle = getRandomColor(0, 255);
-        _cvs.game.fillRect(_powerUps[i].x, _powerUps[i].y, _powerUp.width, _powerUp.height);
-    }
+        paintStar(_powerUps[i].x, _powerUps[i].y);
 }
 
 function paintLazer(lazer)
@@ -247,4 +245,33 @@ function printLevel()
 {
     var str = "return JSON.parse('" + JSON.stringify(_brickMap) + "');";
     download("level.txt", str);
+}
+
+function paintStar(cenX, cenY)
+{
+    var ang = 360 / 10;
+    var sumAng = 0;
+    var yOff = _powerUp.long;
+    var point = rotatePoint(cenX, cenY - yOff, sumAng, cenX, cenY);
+    
+    _cvs.game.strokeStyle = _powerUp.color;
+    _cvs.game.lineWidth = _powerUp.lineWidth;
+    _cvs.game.beginPath();
+    _cvs.game.moveTo(point.x, point.y);
+    
+    for(var i = 0; i < 11; i++)
+    {
+        sumAng += ang;
+        yOff = _powerUp.long;
+        
+        if(i % 2 === 0)
+            yOff = _powerUp.short;
+        
+        point = rotatePoint(cenX, cenY - yOff, sumAng, cenX, cenY);
+        console.log(point);
+        _cvs.game.lineTo(point.x, point.y);
+    }
+    
+    _cvs.game.stroke();
+    _cvs.game.closePath();
 }

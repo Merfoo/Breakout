@@ -227,7 +227,7 @@ function mouseMoveEvent(e)
             incBrick(x, y);
     }
     
-    else if(_mode === _modes.single)
+    else if(_mode === _modes.single && !_modes.paused)
         _paddle.x = e.clientX - (_paddle.width / 2);
 }
 

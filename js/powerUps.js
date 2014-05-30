@@ -152,7 +152,7 @@ function getPowerUp(x, y)
 function hitPowerUp(powerUp)
 {
     if(_paddle.y - powerUp.y <= _powerUp.minDistY)
-        if(getDist({ x: powerUp.x + (_powerUp.width / 2), y: powerUp.y }, { x: _paddle.x + (_paddle.width / 2), y: _paddle.y }) <= _paddle.width)
+        if(getDist({ x: powerUp.x + (_powerUp.width / 2), y: powerUp.y + (_powerUp.width / 2)}, { x: _paddle.x + (_paddle.width / 2), y: _paddle.y }) <= _paddle.width / 2)
             return true;
             
     return false;
