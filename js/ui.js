@@ -1,5 +1,6 @@
 function setGameSize()
 {
+    var oldMap = { width: _map.width, height: _map.height };
     _map.width = window.innerWidth;
     _map.height = window.innerHeight - _hud.height;
     _map.widthMod = _map.width / _map.origWidth;
@@ -29,13 +30,33 @@ function setGameSize()
     _paddle.vInc = _paddleInit.vInc;
     _paddle.y = _map.height - _paddleInit.height;
     
+    oldMap.width = oldMap.width === 0 ? _map.width : oldMap.width;
+    oldMap.height = oldMap.height === 0 ? _map.height : oldMap.height;
+    
+    // balls
     for(var i = 0, len = _balls.length; i < len; i++)
     {
+        _balls[i].x *= _map.width / oldMap.width;
+        _balls[i].y *= _map.height / oldMap.height; 
         _balls[i].r = _ballInit.r;
         _balls[i].vMax = _ballInit.vMax;
         var ballMod = _balls[i].vMax / Math.sqrt((_balls[i].vX * _balls[i].vX) + (_balls[i].vY * _balls[i].vY));
         _balls[i].vX *= ballMod;
         _balls[i].vY *= ballMod;
+    }
+    
+    // lazers
+    for(var i = 0, len = _lazers.length; i < len; i++)
+    {
+        _lazers[i].x *= _map.width / oldMap.width;
+        _lazers[i].y *= _map.height / oldMap.height;
+    }
+    
+    // powerups
+    for(var i = 0, len = _powerUps.length; i < len; i++)
+    {
+        _powerUps[i].x *= _map.width / oldMap.width;
+        _powerUps[i].y *= _map.height / oldMap.height;
     }
 }
 
