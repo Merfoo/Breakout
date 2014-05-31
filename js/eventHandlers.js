@@ -206,12 +206,21 @@ function incBrick(x, y)
 
 function mouseMoveEvent(e)
 {
+    var eX = e.clientX;
+    var eY = e.clientY;
+    
+    if(!!e.touches)
+    {
+        eX = e.touches[0].clientX;
+        eY = e.touches[0].clientY;
+    }
+    
     if(_mode === _modes.creative)
     {
         _mouse.xLast = _mouse.x;
         _mouse.yLast = _mouse.y;
-        _mouse.x = e.clientX;
-        _mouse.y = e.clientY;
+        _mouse.x = eX;
+        _mouse.y = eY;
         var x = Math.floor(_mouse.x / _brick.width);
         var y = Math.floor((_mouse.y - _hud.height) / _brick.height);
         var xLast = Math.floor(_mouse.xLast / _brick.width);
@@ -228,7 +237,7 @@ function mouseMoveEvent(e)
     }
     
     else if(_mode === _modes.single && !_modes.paused)
-        _paddle.x = e.clientX - (_paddle.width / 2);
+        _paddle.x = eX - (_paddle.width / 2);
 }
 
 function mouseDownEvent(e)
@@ -250,6 +259,10 @@ function mouseDownEvent(e)
             _mouse.rightDown = true;
         }
     }
+    
+    if(_mode === _modes.single)
+        if(!_balls[0].released)
+            releaseBall(_ballAim.ang);
 }
 
 function mouseUpEvent(e)

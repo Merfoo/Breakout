@@ -9,6 +9,7 @@ document.addEventListener("mouseup", mouseUpEvent);
 document.body.addEventListener('touchmove', function(event) {
   event.preventDefault();
 }, false);
+document.addEventListener("touchmove", mouseMoveEvent);
 
 function init()
 {
@@ -137,14 +138,19 @@ function updateAi()
     if(!_balls[0].released)
     {
         var ballAng = getRandomNumber(-90 - _balls[0].maxAng, -90 + _balls[0].maxAng);
-        var vel = getVel(ballAng, _balls[0].vMax);
-        _ballAim.ang = ballAng;
-        _balls[0].vX = vel.x;
-        _balls[0].vY = vel.y;
-        _balls[0].x = _paddle.x + (_paddle.width / 2);
-        _balls[0].y = _paddle.y - _paddle.height - _balls[0].r;
-        _balls[0].released = true;
+        releaseBall(ballAng)
     }
+}
+
+function releaseBall(ang)
+{
+    var vel = getVel(ang, _balls[0].vMax);
+    _ballAim.ang = ang;
+    _balls[0].vX = vel.x;
+    _balls[0].vY = vel.y;
+    _balls[0].x = _paddle.x + (_paddle.width / 2);
+    _balls[0].y = _paddle.y - _paddle.height - _balls[0].r;
+    _balls[0].released = true;
 }
 
 function updatePaddle()
@@ -202,12 +208,7 @@ function updateBallAim()
     _ballAim.vY = newVel.y;
     
     if(_keys.space)
-    {
-        var ballVel = getVel(_ballAim.ang, _balls[0].vMax);
-        _balls[0].vX = ballVel.x;
-        _balls[0].vY = ballVel.y;
-        _balls[0].released = true;
-    }
+        releaseBall(_ballAim.ang);
 }
 
 function updateBalls()
