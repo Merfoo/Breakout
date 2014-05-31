@@ -6,6 +6,9 @@ document.addEventListener("keydown", keyDownEvent);
 document.addEventListener("mousemove", mouseMoveEvent);
 document.addEventListener("mousedown", mouseDownEvent);
 document.addEventListener("mouseup", mouseUpEvent);
+document.body.addEventListener('touchmove', function(event) {
+  event.preventDefault();
+}, false);
 
 function init()
 {
