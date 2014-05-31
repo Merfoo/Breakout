@@ -9,11 +9,11 @@ function setGameSize()
     _cvs.game.canvas.height = _map.height;
     _brick.width = _map.width / _brick.horz;
     _brick.height = _map.height / _brick.vert;
-    _powerUp.long = _powerUp.initLong * _map.widthMod;
-    _powerUp.short = _powerUp.initShort * _map.widthMod;
-    _powerUp.width = rotatePoint(0, 0, 0, _powerUp.long, 0).x * 2;
-    _powerUp.vY = _powerUp.initVY * _map.heightMod;
-    _powerUp.minDistY = _powerUp.vY * 1.5;
+    _star.long = _star.initLong * _map.widthMod;
+    _star.short = _star.initShort * _map.widthMod;
+    _star.width = rotatePoint(0, 0, 0, _star.long, 0).x * 2;
+    _star.vY = _star.initVY * _map.heightMod;
+    _star.minDistY = _star.vY * 1.5;
     _ballAimInit.vMax = _ballAimInit.initVMax * _map.heightMod;
     _paddleInit.width = _paddleInit.initWidth * _map.widthMod;
     _paddleInit.height = _paddleInit.initHeight * _map.heightMod;
@@ -23,7 +23,6 @@ function setGameSize()
     _lazer.vY = _lazer.initVY * _map.heightMod;
     _longPaddle.widthAdd = _longPaddle.initWidthAdd * _map.widthMod;
     _longPaddle.widthInc = _longPaddle.initWidthInc * _map.widthMod;
-    
     _ballAim.vMax = _ballAimInit.vMax;
     _paddle.width = _paddleInit.width;
     _paddle.height = _paddleInit.height;
@@ -251,27 +250,52 @@ function paintStar(cenX, cenY)
 {
     var ang = 360 / 10;
     var sumAng = 0;
-    var yOff = _powerUp.long;
+    var yOff = _star.long;
     var point = rotatePoint(cenX, cenY - yOff, sumAng, cenX, cenY);
     
-    _cvs.game.strokeStyle = _powerUp.color;
-    _cvs.game.lineWidth = _powerUp.lineWidth;
+    _cvs.game.strokeStyle = _star.color;
+    _cvs.game.lineWidth = _star.lineWidth;
     _cvs.game.beginPath();
     _cvs.game.moveTo(point.x, point.y);
     
     for(var i = 0; i < 11; i++)
     {
         sumAng += ang;
-        yOff = _powerUp.long;
+        yOff = _star.long;
         
         if(i % 2 === 0)
-            yOff = _powerUp.short;
+            yOff = _star.short;
         
         point = rotatePoint(cenX, cenY - yOff, sumAng, cenX, cenY);
-        console.log(point);
         _cvs.game.lineTo(point.x, point.y);
     }
     
     _cvs.game.stroke();
     _cvs.game.closePath();
+}
+
+function hideSingleHud()
+{
+    removeAllAnimations([_dom.lives, _dom.bonusBox]);
+    _dom.lives.classList.add(_anim.fadeOut);
+    _dom.bonusBox.classList.add(_anim.fadeOut);
+}
+
+function showSingleHud()
+{
+    removeAllAnimations([_dom.lives, _dom.bonusBox]);
+    _dom.lives.classList.add(_anim.fadeIn);
+    _dom.bonusBox.classList.add(_anim.fadeIn);
+}
+
+function hideCreativeHud()
+{
+    removeAllAnimations(_dom.creativeOptions);
+    _dom.creativeOptions.classList.add(_anim.fadeOut);
+}
+
+function showCreativeHud()
+{
+    removeAllAnimations(_dom.creativeOptions);
+    _dom.creativeOptions.classList.add(_anim.fadeIn);
 }

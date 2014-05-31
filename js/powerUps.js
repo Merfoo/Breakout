@@ -1,10 +1,15 @@
 function updatePowerUps()
 {
+    _dom.bonusLongPaddle.style.opacity = _powerUp.minOpac;
+    _dom.bonusLazers.style.opacity = _powerUp.minOpac;
+    _dom.bonusMultiBall.style.opacity = _powerUp.minOpac;
+    _dom.bonusSuperBall.style.opacity = _powerUp.minOpac;
+    _dom.bonusLife.style.opacity = _powerUp.minOpac;
     var curTime = new Date().getTime();
     
     for(var i = 0; i < _powerUps.length; i++)
     {
-        _powerUps[i].y += _powerUp.vY;
+        _powerUps[i].y += _star.vY;
         
         if(hitPowerUp(_powerUps[i]))
         {
@@ -22,8 +27,11 @@ function updatePowerUps()
         }
     }
     
+    // longpaddle
     if(_longPaddle.start > -1)
     {
+        _dom.bonusLongPaddle.style.opacity = 1;
+                
         if(curTime - _longPaddle.start <= _longPaddle.dur)
         {
             if(_paddle.width < _paddleInit.width + _longPaddle.widthAdd)
@@ -43,40 +51,54 @@ function updatePowerUps()
             
             if(_paddle.width <= _paddleInit.width)
             {
+                _dom.bonusLongPaddle.style.opacity = _powerUp.minOpac;
                 _longPaddle.start = -1;
                 _paddle.width = _paddleInit.width;
             }
         }
     }
     
+    // multiball
     if(_multiBall.start > -1)
     {
-        for(var i = 0; i < _multiBall.count; i++)
+        _dom.bonusMultiBall.style.opacity = 1;
+        
+        if(_multiBall.start === curTime)
         {
-            var newBall = new Ball(_ballInit);
-            var newVel = null;
-            
-            switch(Math.floor(Math.random() * 4))
+            for(var i = 0; i < _multiBall.count; i++)
             {
-                case 0: newVel = getVel(getRandomNumber(1, 89), _ballInit.vMax); break;
-                case 1: newVel = getVel(getRandomNumber(91, 179), _ballInit.vMax); break;
-                case 2: newVel = getVel(getRandomNumber(181, 269), _ballInit.vMax); break;
-                case 3: newVel = getVel(getRandomNumber(271, 359), _ballInit.vMax); break;
+                var newBall = new Ball(_ballInit);
+                var newVel = null;
+
+                switch(Math.floor(Math.random() * 4))
+                {
+                    case 0: newVel = getVel(getRandomNumber(1, 89), _ballInit.vMax); break;
+                    case 1: newVel = getVel(getRandomNumber(91, 179), _ballInit.vMax); break;
+                    case 2: newVel = getVel(getRandomNumber(181, 269), _ballInit.vMax); break;
+                    case 3: newVel = getVel(getRandomNumber(271, 359), _ballInit.vMax); break;
+                }
+
+                newBall.x = _balls[0].x;
+                newBall.y = _balls[0].y;
+                newBall.vX = newVel.x;
+                newBall.vY = newVel.y;
+                newBall.released = true;
+                _balls.push(newBall);
             }
-            
-            newBall.x = _balls[0].x;
-            newBall.y = _balls[0].y;
-            newBall.vX = newVel.x;
-            newBall.vY = newVel.y;
-            newBall.released = true;
-            _balls.push(newBall);
         }
         
-        _multiBall.start = -1;
+        if(curTime - _multiBall.start >= _multiBall.dur)
+        {
+            _dom.bonusMultiBall.style.opacity = _powerUp.minOpac;
+            _multiBall.start = -1;
+        }
     }
     
+    // lazers
     if(_lazer.start > -1)
     {
+        _dom.bonusLazers.style.opacity = 1;
+        
         if(curTime - _lazer.lastShoot >= _lazer.minShoot)
         {
             var xRight = _paddle.x + _paddle.width;
@@ -88,18 +110,39 @@ function updatePowerUps()
         }
         
         if(curTime - _lazer.start >= _lazer.dur)
+        {
+            _dom.bonusLazers.style.opacity = _powerUp.minOpac;
             _lazer.start = -1;
+        }
     }
     
     updateLazers();
     
-    if(_superBall.start > -1 && curTime - _superBall.start >= _superBall.dur)
-        _superBall.start = -1;
+    // super ball
+    if(_superBall.start > -1)
+    {
+        _dom.bonusSuperBall.style.opacity = 1;
         
+        if(curTime - _superBall.start >= _superBall.dur)
+        {
+            _dom.bonusSuperBall.style.opacity = _powerUp.minOpac;
+            _superBall.start = -1;
+        }
+    }
+    
+    // life
     if(_life.start > -1)
     {
-        _lives.cur += _life.count;
-        _life.start = -1;
+        _dom.bonusLife.style.opacity = 1;
+        
+        if(_life.start === curTime)
+            _lives.cur += _life.count; 
+        
+        if(curTime - _life.start >= _life.dur)
+        {
+            _dom.bonusLife.style.opacity = _powerUp.minOpac;
+            _life.start = -1;
+        }
     }
 }
 
@@ -151,8 +194,8 @@ function getPowerUp(x, y)
 
 function hitPowerUp(powerUp)
 {
-    if(_paddle.y - powerUp.y <= _powerUp.minDistY)
-        if(getDist({ x: powerUp.x + (_powerUp.width / 2), y: powerUp.y + (_powerUp.width / 2)}, { x: _paddle.x + (_paddle.width / 2), y: _paddle.y }) <= _paddle.width / 2)
+    if(_paddle.y - powerUp.y <= _star.minDistY)
+        if(getDist({ x: powerUp.x + (_star.width / 2), y: powerUp.y + (_star.width / 2)}, { x: _paddle.x + (_paddle.width / 2), y: _paddle.y }) <= _paddle.width / 2)
             return true;
             
     return false;

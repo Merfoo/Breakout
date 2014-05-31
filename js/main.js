@@ -19,11 +19,19 @@ function init()
     _dom.brickModeDel = document.getElementById("brickModeDel");
     _dom.brickLifeOptions = document.getElementById("brickLifeOptions");
     _dom.creativeOptions = document.getElementById("creativeOptions");
+    _dom.bonus = document.getElementById("bonus");
+    _dom.bonusBox = document.getElementById("bonusBox");
+    _dom.bonusLazers = document.getElementById("bonusLazers");
+    _dom.bonusSuperBall = document.getElementById("bonusSuperBall");
+    _dom.bonusLongPaddle = document.getElementById("bonusLongPaddle");
+    _dom.bonusMultiBall = document.getElementById("bonusMultiBall");
+    _dom.bonusLife = document.getElementById("bonusLife");
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
     _hud.height = _dom.hud.clientHeight;
     document.getElementById("creativeMode").onclick = initCreativeMode;
     document.getElementById("instructions").onclick = showHowToPlayMenu;
     document.getElementById("backToStartMenu").onclick = showStartMenu;
+    document.getElementById("pressEnter").onclick = initSingleMode;
     _dom.brickModeAdd.onclick = brickAddClicked;
     _dom.brickModeDel.onclick = brickDelClicked;
     _dom.brickLifeOptions.onchange = brickLifeChanged;
@@ -35,6 +43,7 @@ function init()
             window.setTimeout(callback, 1000 / 60);
         };
     
+    hideSingleHud();
     updateBrickModeAnim();
     makeLevels();
     setGameSize();
@@ -542,8 +551,7 @@ function getLevel(index)
                 if(!_brickMap[x][y].invincible)
                     _brick.live++;
                 
-                if(_brickMap[x][y].lives === _brick.maxLives)
-                    _brickMap[x][y].spawnBonus = Math.random() <= 0.75;
+                _brickMap[x][y].spawnBonus = Math.random() <= _brick.bonusChance[_brickMap[x][y].lives];
             }
             
             else
@@ -587,6 +595,9 @@ function initAutoMode()
     if(_mode === _modes.creative)
         endCreativeMode();
     
+    else if(_mode === _modes.single)
+        hideSingleHud();
+    
     _mode = _modes.auto;
 }
 
@@ -597,27 +608,29 @@ function initSingleMode()
     
     hideStartMenu();
     hideHowToPlayMenu();
+    showSingleHud();
     initGame();
     _mode = _modes.single;
 }
 
 function initCreativeMode()
 {
+    if(_mode === _modes.single)
+        hideSingleHud();
+    
     hideStartMenu();
     initGame();
     _mode = _modes.creative;
     _level.index = _levels.length - 1;
     addLevel();
-    removeAllAnimations(_dom.creativeOptions);
-    _dom.creativeOptions.classList.add(_anim.fadeIn);
+    showCreativeHud();
 }
 
 function endCreativeMode()
 {
     saveLevels();
     getLevel(_level.index);
-    removeAllAnimations(_dom.creativeOptions);
-    _dom.creativeOptions.classList.add(_anim.fadeOut);
+    hideCreativeHud();
 }
 
 function removeLevel()
