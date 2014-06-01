@@ -12,9 +12,6 @@ try
     document.addEventListener('touchmove', function(event) { // Prevent scrolling on touch devices
         event.preventDefault();
     }, false);
-    document.addEventListener('touchstart', function(event) { // Prevent scrolling on touch devices
-        event.preventDefault();
-    }, false);
     document.addEventListener("touchmove", mouseMoveEvent);
 }
 
