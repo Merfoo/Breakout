@@ -9,10 +9,10 @@ document.addEventListener("mouseup", mouseUpEvent);
 
 try
 {
-    document.body.addEventListener('touchmove', function(event) { // Prevent scrolling on touch devices
+    document.addEventListener('touchmove', function(event) { // Prevent scrolling on touch devices
         event.preventDefault();
     }, false);
-    document.body.addEventListener('touchstart', function(event) { // Prevent scrolling on touch devices
+    document.addEventListener('touchstart', function(event) { // Prevent scrolling on touch devices
         event.preventDefault();
     }, false);
     document.addEventListener("touchmove", mouseMoveEvent);
