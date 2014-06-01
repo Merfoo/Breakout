@@ -61,7 +61,7 @@ function keyUpEvent(e)
                 break;
                 
             case _keyCodes.p:
-                (_modes.paused = !_modes.paused) ? showPause() : hidePause();
+                (_modes.paused = !_modes.paused) ? pauseSingle() : unPauseSingle();
                 break;
         }
     }
@@ -215,6 +215,8 @@ function mouseMoveEvent(e)
         eY = e.touches[0].clientY;
     }
     
+    eY -= _hud.height;
+    
     if(_mode === _modes.creative)
     {
         _mouse.xLast = _mouse.x;
@@ -237,7 +239,16 @@ function mouseMoveEvent(e)
     }
     
     else if(_mode === _modes.single && !_modes.paused)
+    {
         _paddle.x = eX - (_paddle.width / 2);
+        _ballAim.ang = Math.atan((_balls[0].y - eY) / (eX - _balls[0].x)) * 180 / Math.PI;
+        
+        if(_ballAim.ang >= 0)
+            _ballAim.ang = (180 - _ballAim.ang) * -1;
+        
+        if(_balls[0].y - eY < 0)
+            _ballAim.ang = eX - _balls[0].x >= 0 ? _ballAim.angMin : _ballAim.angMax;
+    }
 }
 
 function mouseDownEvent(e)
@@ -260,7 +271,7 @@ function mouseDownEvent(e)
         }
     }
     
-    if(_mode === _modes.single)
+    if(_mode === _modes.single && !_modes.paused)
         if(!_balls[0].released)
             releaseBall(_ballAim.ang);
 }
@@ -272,4 +283,24 @@ function mouseUpEvent(e)
     
     if(e.which === _mouseCodes.rightClick)
         _mouse.rightDown = false;
+}
+
+function pauseSingle()
+{
+    _multiBall.timer.pause();
+    _superBall.timer.pause();
+    _lazer.timer.pause();
+    _longPaddle.timer.pause();
+    _life.timer.pause();
+    showPause();
+}
+
+function unPauseSingle()
+{
+    _multiBall.timer.unPause();
+    _superBall.timer.unPause();
+    _lazer.timer.unPause();
+    _longPaddle.timer.unPause();
+    _life.timer.unPause();
+    hidePause();
 }

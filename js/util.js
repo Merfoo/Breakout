@@ -116,3 +116,106 @@ function rotatePoint(x, y, ang, cornerX, cornerY)
     
     return { x: newX, y: newY };
 }
+
+Timer = function()
+{
+    this.beg = 0;
+    this.end = 0;
+    this.bRunning = false;
+    this.pauseBeg = 0;
+    this.pauseEnd = 0;
+    this.bPaused = false;
+    
+    this.start = function()
+    {
+        this.beg = new Date().getTime();
+        this.bRunning = true;
+    };
+    
+    this.stop = function()
+    {
+        this.end = new Date().getTime();
+        this.bRunning = false;
+    };
+    
+    this.isRunning = function()
+    {
+        return this.bRunning;
+    };
+    
+    this.pause = function()
+    {
+        this.pauseBeg = new Date().getTime();
+        this.bPaused = true;
+    };
+    
+    this.unPause = function()
+    {
+        this.pauseEnd =  new Date().getTime();
+        this.bPaused = false;
+    };
+    
+    this.isPaused = function()
+    {
+        return this.bPaused;
+    };
+    
+    this.reset = function(stop)
+    {
+        this.beg = 0;
+        this.end = 0;
+        this.pauseBeg = 0;
+        this.pauseEnd = 0;
+        
+        if(stop)
+        {
+            this.bRunning = false;
+            this.bPaused = false;
+        }
+    };
+    
+    this.get = function()
+    {
+        return (((this.bRunning ? new Date().getTime() : this.end) - this.beg) - ((this.bPaused ? new Date().getTime() : this.pauseEnd) - this.pauseBeg)) / 1000;
+    };
+};
+
+Line = function()
+{
+    this.slope = 1;
+    this.yInt = 1;
+    this.xInt = 1;
+    
+    this.getX = function(y)
+    {
+        if(this.slope !== null)
+            return (y - this.yInt) / this.slope;
+        
+        return this.xInt;
+    };
+    
+    this.getY = function(x)
+    {
+        if(this.slope !== null)
+            return (this.slope * x) + this.yInt;
+        
+        return 0;
+    };
+    
+    this.createLine = function(pointA, pointB)
+    {
+        if((pointB.x - pointA.x) !== 0)
+        {
+            this.slope = (pointB.y - pointA.y) / (pointB.x - pointA.x);
+            this.yInt = pointB.y - (this.slope * pointB.x);
+            this.xInt = (pointB.y - this.yInt) / this.slope;
+        }
+        
+        else
+        {
+            this.slope = null;
+            this.yInt = null;
+            this.xInt = pointA.x;
+        }
+    };
+};

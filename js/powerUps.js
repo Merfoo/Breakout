@@ -15,11 +15,46 @@ function updatePowerUps()
         {
             switch(_powerUps[i].type)
             {
-                case _powerUp.multiBall: _multiBall.start = curTime; break;
-                case _powerUp.superBall: _superBall.start = curTime; break;
-                case _powerUp.lazers: _lazer.start = curTime; break;
-                case _powerUp.longPaddle: _longPaddle.start = curTime; break;
-                case _powerUp.life: _life.start = curTime; break;
+                case _powerUp.longPaddle: 
+                    _longPaddle.timer.start(); 
+                    break;
+                    
+                case _powerUp.superBall: 
+                    _superBall.timer.start(); 
+                    break;
+                    
+                case _powerUp.lazers: 
+                    _lazer.timer.start(); 
+                    break;
+                    
+                case _powerUp.multiBall: 
+                    for(var ballI = 0; ballI < _multiBall.count; ballI++)
+                    {
+                        var newBall = new Ball(_ballInit);
+                        var newVel = null;
+
+                        switch(Math.floor(Math.random() * 4))
+                        {
+                            case 0: newVel = getVel(getRandomNumber(1, 89), _ballInit.vMax); break;
+                            case 1: newVel = getVel(getRandomNumber(91, 179), _ballInit.vMax); break;
+                            case 2: newVel = getVel(getRandomNumber(181, 269), _ballInit.vMax); break;
+                            case 3: newVel = getVel(getRandomNumber(271, 359), _ballInit.vMax); break;
+                        }
+
+                        newBall.x = _balls[0].x;
+                        newBall.y = _balls[0].y;
+                        newBall.vX = newVel.x;
+                        newBall.vY = newVel.y;
+                        newBall.released = true;
+                        _balls.push(newBall);
+                    }
+                    _multiBall.timer.start(); 
+                    break;
+                    
+                case _powerUp.life: 
+                    _lives.cur += _life.count; 
+                    _life.timer.start(); 
+                    break;
             }
             
             _powerUps.splice(i, 1);
@@ -27,12 +62,14 @@ function updatePowerUps()
         }
     }
     
+    console.log(_longPaddle.timer.get());
+    
     // longpaddle
-    if(_longPaddle.start > -1)
+    if(_longPaddle.timer.isRunning())
     {
         _dom.bonusLongPaddle.style.opacity = 1;
                 
-        if(curTime - _longPaddle.start <= _longPaddle.dur)
+        if(_longPaddle.timer.get() <= _longPaddle.dur)
         {
             if(_paddle.width < _paddleInit.width + _longPaddle.widthAdd)
             {
@@ -52,50 +89,26 @@ function updatePowerUps()
             if(_paddle.width <= _paddleInit.width)
             {
                 _dom.bonusLongPaddle.style.opacity = _powerUp.minOpac;
-                _longPaddle.start = -1;
+                _longPaddle.timer.reset(true);
                 _paddle.width = _paddleInit.width;
             }
         }
     }
     
     // multiball
-    if(_multiBall.start > -1)
+    if(_multiBall.timer.isRunning())
     {
         _dom.bonusMultiBall.style.opacity = 1;
         
-        if(_multiBall.start === curTime)
-        {
-            for(var i = 0; i < _multiBall.count; i++)
-            {
-                var newBall = new Ball(_ballInit);
-                var newVel = null;
-
-                switch(Math.floor(Math.random() * 4))
-                {
-                    case 0: newVel = getVel(getRandomNumber(1, 89), _ballInit.vMax); break;
-                    case 1: newVel = getVel(getRandomNumber(91, 179), _ballInit.vMax); break;
-                    case 2: newVel = getVel(getRandomNumber(181, 269), _ballInit.vMax); break;
-                    case 3: newVel = getVel(getRandomNumber(271, 359), _ballInit.vMax); break;
-                }
-
-                newBall.x = _balls[0].x;
-                newBall.y = _balls[0].y;
-                newBall.vX = newVel.x;
-                newBall.vY = newVel.y;
-                newBall.released = true;
-                _balls.push(newBall);
-            }
-        }
-        
-        if(curTime - _multiBall.start >= _multiBall.dur)
+        if(_multiBall.timer.get() >= _multiBall.dur)
         {
             _dom.bonusMultiBall.style.opacity = _powerUp.minOpac;
-            _multiBall.start = -1;
+            _multiBall.timer.reset(true);
         }
     }
     
     // lazers
-    if(_lazer.start > -1)
+    if(_lazer.timer.isRunning())
     {
         _dom.bonusLazers.style.opacity = 1;
         
@@ -109,39 +122,38 @@ function updatePowerUps()
             _lazer.lastShoot = curTime;
         }
         
-        if(curTime - _lazer.start >= _lazer.dur)
+        if(_lazer.timer.get() >= _lazer.dur)
         {
             _dom.bonusLazers.style.opacity = _powerUp.minOpac;
-            _lazer.start = -1;
+            _lazer.timer.reset(true);
         }
     }
     
     updateLazers();
     
     // super ball
-    if(_superBall.start > -1)
+    if(_superBall.timer.isRunning())
     {
         _dom.bonusSuperBall.style.opacity = 1;
+        _superBall.active = true;
         
-        if(curTime - _superBall.start >= _superBall.dur)
+        if(_superBall.timer.get() >= _superBall.dur)
         {
             _dom.bonusSuperBall.style.opacity = _powerUp.minOpac;
-            _superBall.start = -1;
+            _superBall.active = false;
+            _superBall.timer.reset(true);
         }
     }
     
     // life
-    if(_life.start > -1)
+    if(_life.timer.isRunning())
     {
         _dom.bonusLife.style.opacity = 1;
         
-        if(_life.start === curTime)
-            _lives.cur += _life.count; 
-        
-        if(curTime - _life.start >= _life.dur)
+        if(_life.timer.get() >= _life.dur)
         {
             _dom.bonusLife.style.opacity = _powerUp.minOpac;
-            _life.start = -1;
+            _life.timer.reset(true);
         }
     }
 }
@@ -171,8 +183,6 @@ function updateLazers()
             _lazers.splice(i--, 1);
             continue;
         }
-        
-        paintLazer(_lazers[i]);
     }
 }
 

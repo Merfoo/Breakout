@@ -83,6 +83,7 @@ function loop()
     paintBalls();
     paintPaddle();
     paintBricks();
+    paintLazers();
     paintPowerUps();
     window.requestAnimFrame(loop);
 }
@@ -101,10 +102,12 @@ function initGame()
     _keys.space = false;
     _lives.cur = _lives.starting;
     _powerUps = [];
-    _longPaddle.start = -1;
-    _multiBall.start = -1;
-    _superBall.start = -1;
-    _lazer.start = -1;
+    _lazers = [];
+    _longPaddle.timer.reset(true);
+    _multiBall.timer.reset(true);
+    _lazer.timer.reset(true);
+    _superBall.timer.reset(true);
+    _superBall.active = false;
     getLevel(_level.index);
 }
 
@@ -138,7 +141,7 @@ function updateAi()
     if(!_balls[0].released)
     {
         var ballAng = getRandomNumber(-90 - _balls[0].maxAng, -90 + _balls[0].maxAng);
-        releaseBall(ballAng)
+        releaseBall(ballAng);
     }
 }
 
@@ -335,7 +338,7 @@ function updateBalls()
                 console.log("corner top right");
             }
 
-            if(hitBrick && hitSpot !== -1 && !(_superBall.start > -1))
+            if(hitBrick && hitSpot !== -1 && !_superBall.active)
             {
                 collided.x = true;
                 collided.y = true; 
@@ -403,7 +406,7 @@ function updateBalls()
 
             if(hitBrick)
             {
-                if(localBricks[brickIndex].lives > 0 || _superBall.start > -1)
+                if(localBricks[brickIndex].lives > 0 || _superBall.active)
                     removeLives.push(brickIndex);
             }    
         }
@@ -422,7 +425,7 @@ function updateBalls()
             }
         }
 
-        if(_superBall.start > -1)
+        if(_superBall.active)
         {
             collided.x = false;
             collided.y = false;

@@ -1,88 +1,88 @@
 .animateDown
 {
-    -webkit-animation: animateDown 2.25s; /* Chrome, Safari, Opera */
+    -webkit-animation: animateDown 1.25s; /* Chrome, Safari, Opera */
     -webkit-animation-fill-mode: forwards;
-    animation: animateDown 2.25s;
+    animation: animateDown 1.25s;
     animation-fill-mode: forwards;
 }
 
 @-webkit-keyframes animateDown
 {
     0%  {top: 0px;}
-    100%  {top: 1000px; display: none;}
+    100%  {top: 100%; display: none;}
 }
 
 @keyframes animateDown
 {
     0%  {top: 0px;}
-    100%  {top: 1000px; display: none;}
+    100%  {top: 100%; display: none;}
 }
 
 .animateUp
 {
-    -webkit-animation: animateUp 2.25s; /* Chrome, Safari, Opera */
+    -webkit-animation: animateUp 1.25s; /* Chrome, Safari, Opera */
     -webkit-animation-fill-mode: forwards;
-    animation: animateUp 2.25s;
+    animation: animateUp 1.25s;
     animation-fill-mode: forwards;
 }
 
 @-webkit-keyframes animateUp
 {
-    0%  {top: 1000px;}
+    0%  {top: 100%;}
     100%  {top: 0px;}
 }
 
 @keyframes animateUp
 {
-    0%  {top: 1000px;}
+    0%  {top: 100%;}
     100%  {top: 0px;}
 }
 
 .animateLeft
 {
-    -webkit-animation: animateLeft 2.25s;
+    -webkit-animation: animateLeft 1.25s;
     -webkit-animation-fill-mode: forwards;
-    animation: animateLeft 2.25s;
+    animation: animateLeft 1.25s;
     animation-fill-mode: forwards;
 }
 
 @-webkit-keyframes animateLeft
 {
-    0% {left: 2000px;}
+    0% {left: 100%;}
     100% {left: 0px;}
 }
 
 @keyframes animateLeft
 {
-    0% {left: 2000px;}
+    0% {left: 100%;}
     100% {left: 0px}
 }
 
 .animateRight
 {
-    -webkit-animation: animateRight 2.25s;
+    -webkit-animation: animateRight 1.25s;
     -webkit-animation-fill-mode: forwards;
-    animation: animateRight 2.25s;
+    animation: animateRight 1.25s;
     animation-fill-mode: forwards;
 }
 
 @-webkit-keyframes animateRight
 {
     0% {left: 0px;}
-    100% {left: 2000px; display: none;}
+    100% {left: 100%; display: none;}
 }
 
 @keyframes animateRight
 {
     0% {left: 0px;}
-    100% {left: 2000px display: none;}
+    100% {left: 100%; display: none;}
 }
 
 .animateFadeIn
 {
-    -webkit-animation: animateFadeIn 2.25s;
+    -webkit-animation: animateFadeIn 1s;
     -webkit-animation-fill-mode: forwards;
-    animation: animateFadeIn 2.25s;
+    animation: animateFadeIn 1s;
     animation-fill-mode: forwards;
 }
 
@@ -100,9 +100,9 @@
 
 .animateFadeOut
 {
-    -webkit-animation: animateFadeOut 2.25s;
+    -webkit-animation: animateFadeOut 1s;
     -webkit-animation-fill-mode: forwards;
-    animation: animateFadeOut 2.25s;
+    animation: animateFadeOut 1s;
     animation-fill-mode: forwards;
 }
 

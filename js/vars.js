@@ -64,46 +64,6 @@ BallAim = function(initVal)
     this.width = 4;
 };
 
-Line = function()
-{
-    this.slope = 1;
-    this.yInt = 1;
-    this.xInt = 1;
-    
-    this.getX = function(y)
-    {
-        if(this.slope !== null)
-            return (y - this.yInt) / this.slope;
-        
-        return this.xInt;
-    };
-    
-    this.getY = function(x)
-    {
-        if(this.slope !== null)
-            return (this.slope * x) + this.yInt;
-        
-        return 0;
-    };
-    
-    this.createLine = function(pointA, pointB)
-    {
-        if((pointB.x - pointA.x) !== 0)
-        {
-            this.slope = (pointB.y - pointA.y) / (pointB.x - pointA.x);
-            this.yInt = pointB.y - (this.slope * pointB.x);
-            this.xInt = (pointB.y - this.yInt) / this.slope;
-        }
-        
-        else
-        {
-            this.slope = null;
-            this.yInt = null;
-            this.xInt = pointA.x;
-        }
-    };
-};
-
 
 var _paddleInit = { initWidth: 173, initHeight: 13, width: 0, height: 0, vMax: 10 };
 var _ballInit = { initR: 10, r: 0, vMax: 8 };
@@ -122,12 +82,12 @@ var _level = { index: 0, orig: [] };
 var _star = { initLong: 0.75, initShort: 0.25, long: 0, short: 0, lineWidth: 10, width: 10, color: "gold", initVY: 5, vY: 0, minDistY: 0 };
 var _powerUp = { minOpac: 0.25, multiBall: 0, superBall: 1, lazers: 2, longPaddle: 3, life: 4 };
 var _powerUps = [];
-var _multiBall = { start: -1, dur: 3000, count: 4 };
-var _superBall = { start: -1, dur: 3000 };
-var _lazer = { start: -1, dur: 6000, initVY: 10, initWidth: 5, initHeight: 25, vY: 0, width: 0, height: 0, minShoot: 500, lastShoot: 0, color: "red" };
+var _multiBall = { start: -1, dur: 3, count: 4, timer: new Timer() };
+var _superBall = { start: -1, dur: 3, timer: new Timer(), active: false };
+var _lazer = { start: -1, dur: 6, timer: new Timer(), initVY: 10, initWidth: 5, initHeight: 25, vY: 0, width: 0, height: 0, minShoot: 500, lastShoot: 0, color: "red" };
 var _lazers = [];
-var _longPaddle = { start: -1, dur: 10000, initWidthAdd: 200, initWidthInc: 6, widthAdd: 0, widthInc: 0 };
-var _life = { start: -1, dur: 3000, count: 1 };
+var _longPaddle = { start: -1, dur: 10, timer: new Timer(), initWidthAdd: 200, initWidthInc: 6, widthAdd: 0, widthInc: 0 };
+var _life = { start: -1, dur: 3, timer: new Timer(), count: 1 };
 var _keys = { left: false, right: false, space: false };
 var _mouseCodes = { leftClick: 1, rightClick: 3 };
 var _mouse = { x: 0, y: 0, xLast: 0, yLast: 0, leftDown: false, rightDown: false };

@@ -148,7 +148,7 @@ function paintBalls()
     {
         var ball = _balls[i];
         _cvs.game.beginPath();
-        _cvs.game.fillStyle = _superBall.start > -1 ? getRandomColor(0, 255) : ball.color;
+        _cvs.game.fillStyle = _superBall.active ? getRandomColor(0, 255) : ball.color;
         _cvs.game.arc(ball.x, ball.y, ball.r, 0, 2 * Math.PI);
         _cvs.game.fill();
     }
@@ -211,16 +211,20 @@ function paintPowerUps()
         paintStar(_powerUps[i].x, _powerUps[i].y);
 }
 
-function paintLazer(lazer)
+function paintLazers()
 {
     _cvs.game.lineCap = "round";
     _cvs.game.lineWidth = _lazer.width;
-    _cvs.game.beginPath();
-    _cvs.game.moveTo(lazer.x, lazer.y);
-    _cvs.game.lineTo(lazer.x, lazer.y + _lazer.height);
     _cvs.game.strokeStyle = _lazer.color;
-    _cvs.game.stroke();
-    _cvs.game.closePath();
+    
+    for(var i = 0, len = _lazers.length; i < len; i++)
+    {
+        _cvs.game.beginPath();
+        _cvs.game.moveTo(_lazers[i].x, _lazers[i].y);
+        _cvs.game.lineTo(_lazers[i].x, _lazers[i].y + _lazer.height);
+        _cvs.game.stroke();
+        _cvs.game.closePath();
+    }
 }
 
 function updateHud()
