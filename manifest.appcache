@@ -1,6 +1,6 @@
 CACHE MANIFEST
 
-# Version 18
+# Version 19
 
 # css
 css/style.css
@@ -16,7 +16,6 @@ images/pressEsc.png
 images/pressEnter.png
 images/paused.png
 images/logoThumbnail.png
-images/leftArrow.png
 images/instructions.png
 images/creativeMode.png
 

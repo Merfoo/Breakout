@@ -44,7 +44,7 @@ function init()
     _hud.height = _dom.hud.clientHeight;
     document.getElementById("creativeMode").onclick = initCreativeMode;
     document.getElementById("instructions").onclick = showHowToPlayMenu;
-    document.getElementById("backToStartMenu").onclick = showStartMenu;
+    document.getElementById("backToStartMenu").onclick = initAutoMode;
     document.getElementById("pressEnter").onclick = initSingleMode;
     _dom.brickModeAdd.onclick = brickAddClicked;
     _dom.brickModeDel.onclick = brickDelClicked;
