@@ -241,20 +241,19 @@ function mouseMoveEvent(e)
     else if(_mode === _modes.single && !_modes.paused)
     {
         _paddle.x = eX - (_paddle.width / 2);
-        _ballAim.ang = Math.atan((_balls[0].y - eY) / (eX - _balls[0].x)) * 180 / Math.PI;
-        
-        if(_ballAim.ang >= 0)
-            _ballAim.ang = (180 - _ballAim.ang) * -1;
-        
-        if(_balls[0].y - eY < 0)
-            _ballAim.ang = eX - _balls[0].x >= 0 ? _ballAim.angMin : _ballAim.angMax;
+        _ballAim.ang = getBallAimAngle(eX, eY);
     }
 }
 
 function mouseDownEvent(e)
 {
+    var eX = e.clientX;
+    var eY = e.clientY - _hud.height;
+    
     if(_mode === _modes.creative)
     {
+        _mouse.x = eX;
+        _mouse.y = eY;
         var x = Math.floor(_mouse.x / _brick.width);
         var y = Math.floor((_mouse.y - _hud.height) / _brick.height);
         
@@ -273,7 +272,7 @@ function mouseDownEvent(e)
     
     if(_mode === _modes.single && !_modes.paused)
         if(!_balls[0].released)
-            releaseBall(_ballAim.ang);
+            releaseBall(_ballAim.ang = getBallAimAngle(eX, eY));
 }
 
 function mouseUpEvent(e)
@@ -303,4 +302,17 @@ function unPauseSingle()
     _longPaddle.timer.unPause();
     _life.timer.unPause();
     hidePause();
+}
+
+function getBallAimAngle(x, y)
+{
+    var ang = Math.atan((_balls[0].y - y) / (x - _balls[0].x)) * 180 / Math.PI;
+        
+    if(ang >= 0)
+        ang = (180 - ang) * -1;
+
+    if(_balls[0].y - y < 0)
+        ang = x - _balls[0].x >= 0 ? _ballAim.angMin : _ballAim.angMax;
+    
+    return ang;
 }

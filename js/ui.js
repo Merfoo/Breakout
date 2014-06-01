@@ -15,9 +15,11 @@ function setGameSize()
     _star.vY = _star.initVY * _map.heightMod;
     _star.minDistY = _star.vY * 1.5;
     _ballAimInit.vMax = _ballAimInit.initVMax * _map.heightMod;
+    _ballAimInit.width = _ballAimInit.initWidth * _map.widthMod;
     _paddleInit.width = _paddleInit.initWidth * _map.widthMod;
     _paddleInit.height = _paddleInit.initHeight * _map.heightMod;
     _ballInit.r = _ballInit.initR * _map.widthMod;
+    _ballInit.vMax = _ballInit.initVMax * _map.widthMod;
     _lazer.width = _lazer.initWidth * _map.widthMod;
     _lazer.height = _lazer.initHeight * _map.heightMod;
     _lazer.vY = _lazer.initVY * _map.heightMod;
