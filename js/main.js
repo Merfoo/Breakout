@@ -6,13 +6,26 @@ document.addEventListener("keydown", keyDownEvent);
 document.addEventListener("mousemove", mouseMoveEvent);
 document.addEventListener("mousedown", mouseDownEvent);
 document.addEventListener("mouseup", mouseUpEvent);
-document.body.addEventListener('touchmove', function(event) {
-  event.preventDefault();
-}, false);
-document.addEventListener("touchmove", mouseMoveEvent);
+
+try
+{
+    document.body.addEventListener('touchmove', function(event) { // Prevent scrolling on touch devices
+        event.preventDefault();
+    }, false);
+    document.body.addEventListener('touchstart', function(event) { // Prevent scrolling on touch devices
+        event.preventDefault();
+    }, false);
+    document.addEventListener("touchmove", mouseMoveEvent);
+}
+
+catch(e)
+{
+    
+}
 
 function init()
 {
+    document.onmousewheel = function() { return false; }; // Prevent mouse scrolling
     _storeAvailable = typeof(Storage) !== "undefined";
     _dom.startMenu = document.getElementById("startMenu");
     _dom.howToPlayMenu = document.getElementById("howToPlay");
