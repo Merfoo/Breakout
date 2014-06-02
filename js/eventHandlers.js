@@ -252,6 +252,12 @@ function mouseDownEvent(e)
     var eX = e.clientX;
     var eY = e.clientY - _hud.height;
     
+    if(!!e.touches)
+    {
+        eX = e.touches[0].clientX;
+        eY = e.touches[0].clientY;
+    }
+    
     if(_mode === _modes.creative)
     {
         _mouse.x = eX;
@@ -278,7 +284,7 @@ function mouseDownEvent(e)
 }
 
 function mouseUpEvent(e)
-{
+{    
     if(e.which === _mouseCodes.leftClick)
         _mouse.leftDown = false;
     

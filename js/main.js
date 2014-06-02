@@ -13,6 +13,8 @@ try
         event.preventDefault();
     }, false);
     document.addEventListener("touchmove", mouseMoveEvent);
+    document.addEventListener("touchstart", mouseDownEvent);
+    //document.addEventListener("touchend", mouseUpEvent);
 }
 
 catch(e)
