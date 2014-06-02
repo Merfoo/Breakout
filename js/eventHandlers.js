@@ -240,7 +240,9 @@ function mouseMoveEvent(e)
     
     else if(_mode === _modes.single && !_modes.paused)
     {
-        _paddle.x = eX - (_paddle.width / 2);
+        if(_balls[0].released)
+            _paddle.x = eX - (_paddle.width / 2);
+        
         _ballAim.ang = getBallAimAngle(eX, eY);
     }
 }

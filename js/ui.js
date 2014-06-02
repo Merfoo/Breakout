@@ -26,6 +26,7 @@ function setGameSize()
     _longPaddle.widthAdd = _longPaddle.initWidthAdd * _map.widthMod;
     _longPaddle.widthInc = _longPaddle.initWidthInc * _map.widthMod;
     _ballAim.vMax = _ballAimInit.vMax;
+    _ballAim.width = _ballAimInit.width;
     _paddle.width = _paddleInit.width;
     _paddle.height = _paddleInit.height;
     _paddle.vMax = _paddleInit.vMax;
@@ -160,9 +161,9 @@ function paintBallAim()
 {
     if(_mode === _modes.single && !_balls[0].released)
     {    
-        _cvs.game.beginPath();
         _cvs.game.lineWidth = _ballAim.width;
         _cvs.game.strokeStyle = _ballAim.color;
+        _cvs.game.beginPath();
         _cvs.game.moveTo(_ballAim.x, _ballAim.y);
         _cvs.game.lineTo(_ballAim.x + _ballAim.vX, _ballAim.y + _ballAim.vY);
         _cvs.game.stroke();

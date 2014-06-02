@@ -62,8 +62,6 @@ function updatePowerUps()
         }
     }
     
-    console.log(_longPaddle.timer.get());
-    
     // longpaddle
     if(_longPaddle.timer.isRunning())
     {

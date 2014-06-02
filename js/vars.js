@@ -66,7 +66,7 @@ BallAim = function(initVal)
 
 
 var _paddleInit = { initWidth: 173, initHeight: 13, width: 0, height: 0, vMax: 10 };
-var _ballInit = { initR: 10, r: 0, initVMax: 8, vMax: 8 };
+var _ballInit = { initR: 10, r: 0, initVMax: 8, vMax: 10 };
 var _ballAimInit = { initVMax: 150, vMax: 0, initWidth: 4, width: 0 };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["black", "green", "yellow", "red"], bonusChance: [0.15, 0.25, 0.33, 0.5] };
 var _brickMap = [];

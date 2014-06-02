@@ -321,7 +321,7 @@ function updateBalls()
                 hitBrick = true;
                 hitSpot = _hitSpots.botLeft;
                 newVel = getVel(getRandomNumber(30, 60), _balls[i].vMax);
-                console.log("corner bot left");
+                //console.log("corner bot left");
             }
 
             if(getDist(brick.botRight, modBall) < dist)
@@ -329,7 +329,7 @@ function updateBalls()
                 hitBrick = true;
                 hitSpot = _hitSpots.botRight;
                 newVel = getVel(getRandomNumber(120, 150), _balls[i].vMax);
-                console.log("corner bot right");
+                //console.log("corner bot right");
             }
 
             if(getDist(brick.topLeft, modBall) < dist)
@@ -337,7 +337,7 @@ function updateBalls()
                 hitBrick = true;
                 hitSpot = _hitSpots.topLeft;
                 newVel = getVel(getRandomNumber(-30, -60), _balls[i].vMax);
-                console.log("corner top left");
+                //console.log("corner top left");
             }
 
             if(getDist(brick.topRight, modBall) < dist)
@@ -345,7 +345,7 @@ function updateBalls()
                 hitBrick = true;
                 hitSpot = _hitSpots.topRight;
                 newVel = getVel(getRandomNumber(-120, -150), _balls[i].vMax);
-                console.log("corner top right");
+                //console.log("corner top right");
             }
 
             if(hitBrick && hitSpot !== -1 && !_superBall.active)
