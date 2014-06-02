@@ -206,27 +206,21 @@ function incBrick(x, y)
 
 function mouseMoveEvent(e)
 {
-    var eX = e.clientX;
-    var eY = e.clientY;
-    
-    if(!!e.touches)
-    {
-        eX = e.touches[0].clientX;
-        eY = e.touches[0].clientY;
-    }
-    
-    eY -= _hud.height;
-    
+    _mouse.moving = true;
+    var tmp = getMouseCoord(e, true);
+    var eX = tmp.x;
+    var eY = tmp.y;
+    _mouse.xLast = _mouse.x;
+    _mouse.yLast = _mouse.y;
+    _mouse.x = eX;
+    _mouse.y = eY;
+        
     if(_mode === _modes.creative)
     {
-        _mouse.xLast = _mouse.x;
-        _mouse.yLast = _mouse.y;
-        _mouse.x = eX;
-        _mouse.y = eY;
         var x = Math.floor(_mouse.x / _brick.width);
-        var y = Math.floor((_mouse.y - _hud.height) / _brick.height);
+        var y = Math.floor(_mouse.y / _brick.height);
         var xLast = Math.floor(_mouse.xLast / _brick.width);
-        var yLast = Math.floor((_mouse.yLast - _hud.height) / _brick.height);
+        var yLast = Math.floor(_mouse.yLast / _brick.height);
         
         if(x === xLast && y === yLast)
             return;
@@ -249,21 +243,22 @@ function mouseMoveEvent(e)
 
 function mouseDownEvent(e)
 {
-    var eX = e.clientX;
-    var eY = e.clientY - _hud.height;
-    
-    if(!!e.touches)
-    {
-        eX = e.touches[0].clientX;
-        eY = e.touches[0].clientY;
-    }
+    var tmp = getMouseCoord(e, true);
+    var eX = tmp.x;
+    var eY = tmp.y;
+    _mouse.xLast = _mouse.x;
+    _mouse.yLast = _mouse.y;
+    _mouse.x = eX;
+    _mouse.y = eY;
+    _mouse.xDown = _mouse.x;
+    _mouse.yDown = _mouse.y;
     
     if(_mode === _modes.creative)
     {
         _mouse.x = eX;
         _mouse.y = eY;
         var x = Math.floor(_mouse.x / _brick.width);
-        var y = Math.floor((_mouse.y - _hud.height) / _brick.height);
+        var y = Math.floor(_mouse.y / _brick.height);
         
         if(e.which === _mouseCodes.leftClick)
         {
@@ -277,19 +272,46 @@ function mouseDownEvent(e)
             _mouse.rightDown = true;
         }
     }
-    
-    if(_mode === _modes.single && !_modes.paused)
-        if(!_balls[0].released)
-            releaseBall(_ballAim.ang = getBallAimAngle(eX, eY));
 }
 
 function mouseUpEvent(e)
 {    
+    var tmp = getMouseCoord(e, true);
+    var eX = tmp.x;
+    var eY = tmp.y;
+    _mouse.xLast = _mouse.x;
+    _mouse.yLast = _mouse.y;
+    _mouse.x = eX;
+    _mouse.y = eY;
+    
     if(e.which === _mouseCodes.leftClick)
         _mouse.leftDown = false;
     
     if(e.which === _mouseCodes.rightClick)
         _mouse.rightDown = false;
+    
+    if(_mode === _modes.single && !_modes.paused && !_balls[0].released)
+        if(!_mouse.moving || (_mouse.x === _mouse.xDown && _mouse.y === _mouse.yDown))
+            releaseBall(_ballAim.ang = getBallAimAngle(eX, eY));
+    
+    _mouse.moving = false;
+}
+
+function getMouseCoord(e, onCanvas)
+{
+    var eX = e.clientX;
+    var eY = e.clientY;
+    
+    if(!!e.touches)
+    {
+        eX = e.touches[0].clientX;
+        eY = e.touches[0].clientY;
+    }
+    
+    if(!!onCanvas)
+        eY -= _hud.height;
+    
+    return { x: eX, y: eY };
 }
 
 function pauseSingle()

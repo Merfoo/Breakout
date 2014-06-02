@@ -14,7 +14,7 @@ try
     }, false);
     document.addEventListener("touchmove", mouseMoveEvent);
     document.addEventListener("touchstart", mouseDownEvent);
-    //document.addEventListener("touchend", mouseUpEvent);
+    document.addEventListener("touchend", mouseUpEvent);
 }
 
 catch(e)
