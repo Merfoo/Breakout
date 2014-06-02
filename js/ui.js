@@ -263,8 +263,9 @@ function paintStar(cenX, cenY)
     var yOff = _star.long;
     var point = rotatePoint(cenX, cenY - yOff, sumAng, cenX, cenY);
     
-    _cvs.game.strokeStyle = _star.color;
-    _cvs.game.lineWidth = _star.lineWidth;
+    _cvs.game.fillStyle = getRandomColor(0, 255);
+    //_cvs.game.strokeStyle = _star.color;
+    //_cvs.game.lineWidth = _star.lineWidth;
     _cvs.game.beginPath();
     _cvs.game.moveTo(point.x, point.y);
     
@@ -280,8 +281,9 @@ function paintStar(cenX, cenY)
         _cvs.game.lineTo(point.x, point.y);
     }
     
-    _cvs.game.stroke();
+    //_cvs.game.stroke();
     _cvs.game.closePath();
+    _cvs.game.fill();
 }
 
 function paintTouchBox()
