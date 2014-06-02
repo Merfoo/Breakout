@@ -9,6 +9,7 @@ function updatePowerUps()
     
     for(var i = 0; i < _powerUps.length; i++)
     {
+        var removeItem = false;
         _powerUps[i].y += _star.vY;
         
         if(hitPowerUp(_powerUps[i]))
@@ -57,6 +58,11 @@ function updatePowerUps()
                     break;
             }
             
+            removeItem = true;
+        }
+        
+        if(_powerUps[i].y - (_star.width / 2) >= _map.gameHeight || removeItem)
+        {
             _powerUps.splice(i, 1);
             i--;
         }

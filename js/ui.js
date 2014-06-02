@@ -19,8 +19,10 @@ function setGameSize()
     _ballAimInit.width = _ballAimInit.initWidth * _map.widthMod;
     _paddleInit.width = _paddleInit.initWidth * _map.widthMod;
     _paddleInit.height = _paddleInit.initHeight * _map.heightMod;
+    _paddleInit.gameHeight = _map.height - _paddleInit.height - _paddleInit.initGameHeight;
     _ballInit.r = _ballInit.initR * _map.widthMod;
     _ballInit.vMax = _ballInit.initVMax * _map.widthMod;
+    _map.gameHeight = _map.height - _paddleInit.initGameHeight;
     _lazer.width = _lazer.initWidth * _map.widthMod;
     _lazer.height = _lazer.initHeight * _map.heightMod;
     _lazer.vY = _lazer.initVY * _map.heightMod;
@@ -31,7 +33,7 @@ function setGameSize()
     _paddle.width = _paddleInit.width;
     _paddle.height = _paddleInit.height;
     _paddle.vMax = _paddleInit.vMax;
-    _paddle.y = _map.height - _paddleInit.height;
+    _paddle.y = _paddleInit.gameHeight;
     
     oldMap.width = oldMap.width === 0 ? _map.width : oldMap.width;
     oldMap.height = oldMap.height === 0 ? _map.height : oldMap.height;
@@ -280,6 +282,12 @@ function paintStar(cenX, cenY)
     
     _cvs.game.stroke();
     _cvs.game.closePath();
+}
+
+function paintTouchBox()
+{
+    _cvs.game.fillStyle = _touchBox.color;
+    _cvs.game.fillRect(0, _map.gameHeight, _map.width, _map.height - _map.gameHeight);
 }
 
 function hideSingleHud()

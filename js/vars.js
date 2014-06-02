@@ -28,7 +28,7 @@ Paddle = function(initVal)
     this.width = initVal.width;
     this.height = initVal.height;
     this.x = 0;
-    this.y = 0;
+    this.y = initVal.gameHeight;
     this.vMax = initVal.vMax;
     this.v = 0;
 };
@@ -65,13 +65,14 @@ BallAim = function(initVal)
 };
 
 
-var _paddleInit = { initWidth: 173, initHeight: 13, width: 0, height: 0, vMax: 10 };
+var _paddleInit = { initWidth: 173, initHeight: 13, initGameHeight: 75, width: 0, height: 0, gameHeight: 0, vMax: 10 };
 var _ballInit = { initR: 10, r: 0, initVMax: 8, vMax: 10 };
 var _ballAimInit = { initVMax: 150, vMax: 0, initWidth: 4, width: 0 };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["black", "green", "yellow", "red"], bonusChance: [0.15, 0.25, 0.33, 0.5] };
 var _brickMap = [];
 var _hitSpots = { topLeft: 0, topRight: 1, botLeft: 2, botRight: 3 };
-var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 622 }; // = total height - hud height
+var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 622, gameHeight: 0 }; // = total height - hud height
+var _touchBox = { color: "gray" };
 var _hud = { height: 0, livesText: "Lives: " };
 var _cvs = { game: null };
 var _modes = { single: 0, auto: 1, creative: 2, paused: false };

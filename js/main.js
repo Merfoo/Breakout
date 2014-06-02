@@ -24,6 +24,9 @@ catch(e)
 
 function init()
 {
+    if (!("ontouchstart" in document.documentElement)) // Remove touch box if not touch device
+        _paddleInit.initGameHeight = 0;
+
     document.onmousewheel = function() { return false; }; // Prevent mouse scrolling
     _storeAvailable = typeof(Storage) !== "undefined";
     _dom.startMenu = document.getElementById("startMenu");
@@ -97,6 +100,7 @@ function loop()
     paintBricks();
     paintLazers();
     paintPowerUps();
+    paintTouchBox();
     window.requestAnimFrame(loop);
 }
 
@@ -104,7 +108,6 @@ function initGame()
 {    
     _paddle = new Paddle(_paddleInit);
     _paddle.x = (_map.width / 2) - (_paddle.width / 2);
-    _paddle.y = _map.height - _paddle.height;
     _balls = [new Ball(_ballInit)];
     _balls[0].x = _paddle.x + _paddle.width / 2;
     _balls[0].y = _paddle.y - _paddle.height - _balls[0].r;
@@ -239,7 +242,7 @@ function updateBalls()
         if(_balls[i].y - _balls[i].r < 0)
             _balls[i].vY = Math.abs(_balls[i].vY);
 
-        else if(_balls[i].y > _map.height)
+        else if(_balls[i].y > _map.gameHeight)
         {
             if(_balls.length === 1)
             { 
