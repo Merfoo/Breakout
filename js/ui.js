@@ -11,7 +11,8 @@ function setGameSize()
     _brick.height = _map.height / _brick.vert;
     _star.long = _star.initLong * _map.widthMod;
     _star.short = _star.initShort * _map.widthMod;
-    _star.width = rotatePoint(0, 0, 0, _star.long, 0).x * 2;
+    _star.width = rotatePoint(_star.long, 0, 0, 0, 0).x * 2;
+    _star.lineWidth = _star.initLineWidth * _map.widthMod;
     _star.vY = _star.initVY * _map.heightMod;
     _star.minDistY = _star.vY * 1.5;
     _ballAimInit.vMax = _ballAimInit.initVMax * _map.heightMod;
