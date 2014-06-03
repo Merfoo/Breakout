@@ -20,8 +20,8 @@ function setGameSize()
     _paddleInit.width = _paddleInit.initWidth * _map.widthMod;
     _paddleInit.height = _paddleInit.initHeight * _map.heightMod;
     _paddleInit.gameHeight = _map.height - _paddleInit.height - _paddleInit.initGameHeight;
-    _ballInit.r = _ballInit.initR * _map.widthMod;
-    _ballInit.vMax = _ballInit.initVMax * _map.widthMod;
+    _ballInit.r = _ballInit.initR * (_map.widthMod > _map.heightMod ? _map.widthMod : _map.heightMod);
+    _ballInit.vMax = _ballInit.initVMax * (_map.widthMod > _map.heightMod ? _map.widthMod : _map.heightMod);
     _map.gameHeight = _map.height - _paddleInit.initGameHeight;
     _lazer.width = _lazer.initWidth * _map.widthMod;
     _lazer.height = _lazer.initHeight * _map.heightMod;
