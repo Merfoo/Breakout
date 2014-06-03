@@ -321,6 +321,7 @@ function pauseSingle()
     _lazer.timer.pause();
     _longPaddle.timer.pause();
     _life.timer.pause();
+    _paddle.powerUpHitTimer.pause();
     showPause();
 }
 
@@ -331,6 +332,7 @@ function unPauseSingle()
     _lazer.timer.unPause();
     _longPaddle.timer.unPause();
     _life.timer.unPause();
+    _paddle.powerUpHitTimer.unPause();
     hidePause();
 }
 

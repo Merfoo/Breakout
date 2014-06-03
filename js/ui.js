@@ -200,7 +200,7 @@ function paintPaddle()
 {
     var x = _paddle.x;
     var y = _paddle.y;
-    var color = _paddle.color;
+    var color = _paddle.flashMode ? getRandomColor(0, 255) : _paddle.color;
     _cvs.game.lineCap = "round";
     _cvs.game.lineWidth = _paddle.height;
     _cvs.game.beginPath();

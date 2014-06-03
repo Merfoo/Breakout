@@ -194,6 +194,12 @@ function updatePaddle()
     
     if(_paddle.x  - _paddle.height < 0)
         _paddle.x = _paddle.height;
+    
+    if(_paddle.flashMode && _paddle.powerUpHitTimer.get() >= _paddle.powerUpHitDur)
+    {
+        _paddle.flashMode = false;
+        _paddle.powerUpHitTimer.reset(true);
+    }
 }
 
 function updateBallAim()
@@ -620,7 +626,7 @@ function initAutoMode()
         endCreativeMode();
     
     else if(_mode === _modes.single)
-        hideSingleHud();
+        endSingleMode();
     
     _mode = _modes.auto;
 }
@@ -637,10 +643,16 @@ function initSingleMode()
     _mode = _modes.single;
 }
 
+function endSingleMode()
+{
+    hideSingleHud();
+    unPauseSingle();
+}
+
 function initCreativeMode()
 {
     if(_mode === _modes.single)
-        hideSingleHud();
+        endSingleMode();
     
     hideStartMenu();
     initGame();

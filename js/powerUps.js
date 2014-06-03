@@ -59,6 +59,8 @@ function updatePowerUps()
             }
             
             removeItem = true;
+            _paddle.powerUpHitTimer.start();
+            _paddle.flashMode = true;
         }
         
         if(_powerUps[i].y - (_star.width / 2) >= _map.gameHeight || removeItem)

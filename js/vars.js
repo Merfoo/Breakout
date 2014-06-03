@@ -31,6 +31,9 @@ Paddle = function(initVal)
     this.y = initVal.gameHeight;
     this.vMax = initVal.vMax;
     this.v = 0;
+    this.powerUpHitDur = 2;
+    this.powerUpHitTimer = new Timer();
+    this.flashMode = false;
 };
 
 Ball = function(initVal)
