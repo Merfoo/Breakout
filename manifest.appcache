@@ -1,6 +1,6 @@
 CACHE MANIFEST
 
-# Version 26
+# Version 27
 
 # css
 css/style.css
@@ -12,12 +12,13 @@ css/animations.css
 fonts/open-sans.light.ttf
 
 # images
-images/pressEsc.png
 images/pressEnter.png
 images/paused.png
 images/logoThumbnail.png
 images/instructions.png
 images/creativeMode.png
+images/arrowLeft.png
+images/arrowRight.png
 
 # js
 js/util.js

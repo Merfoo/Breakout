@@ -51,6 +51,8 @@ function init()
     document.getElementById("instructions").onclick = showHowToPlayMenu;
     document.getElementById("backToStartMenu").onclick = initAutoMode;
     document.getElementById("pressEnter").onclick = initSingleMode;
+    document.getElementById("prevLevel").onclick = getPrevLevel;
+    document.getElementById("nextLevel").onclick = getNextLevel;
     _dom.brickModeAdd.onclick = brickAddClicked;
     _dom.brickModeDel.onclick = brickDelClicked;
     _dom.brickLifeOptions.onchange = brickLifeChanged;
