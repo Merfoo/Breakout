@@ -25,7 +25,11 @@ catch(e)
 function init()
 {
     if (!("ontouchstart" in document.documentElement)) // Remove touch box if not touch device
+    {
+        _modes.touch = false;
         _paddleInit.initGameHeight = 0;
+        document.getElementById("launch").style.display = "none";
+    }
 
     document.onmousewheel = function() { return false; }; // Prevent mouse scrolling
     _storeAvailable = typeof(Storage) !== "undefined";
@@ -53,6 +57,7 @@ function init()
     document.getElementById("pressEnter").onclick = initSingleMode;
     document.getElementById("prevLevel").onclick = getPrevLevel;
     document.getElementById("nextLevel").onclick = getNextLevel;
+    document.getElementById("launch").onclick = function() { releaseBall(_ballAim.ang); }
     _dom.brickModeAdd.onclick = brickAddClicked;
     _dom.brickModeDel.onclick = brickDelClicked;
     _dom.brickLifeOptions.onchange = brickLifeChanged;

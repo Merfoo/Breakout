@@ -1,6 +1,6 @@
 CACHE MANIFEST
 
-# Version 30
+# Version 31
 
 # css
 css/style.css
@@ -12,10 +12,15 @@ css/animations.css
 fonts/open-sans.light.ttf
 
 # images
-images/paused.png
 images/logoThumbnail.png
 images/arrowLeft.png
 images/arrowRight.png
+images/duoBall.png
+images/lazer.png
+images/life.png
+images/longPaddle.png
+images/triBall.png
+images/uberBall.png
 
 # js
 js/util.js

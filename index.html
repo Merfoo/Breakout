@@ -18,7 +18,7 @@
     <script type="text/javascript" src="js/main.js"></script>
 </head>
 <body id="gameBody" oncontextmenu="return false;">
-    <img id="paused" src="images/paused.png" draggable="false" class="animateFadeOut"/>
+    <p id="paused" class="animateFadeOut">PAUSED</p>
     <div id="startMenu" class="animateUp">
         <p id="pressEnter">PRESS TO PLAY</p>
         <p id="instructions">INSTRUCTIONS</p>
@@ -46,11 +46,11 @@
         </p>
         <div id="bonusBox">
             <p id="bonus" class="bonusItem">Bonus:</p>
-            <p id="bonusLazers" class="bonusItem">Lazers</p>
-            <p id="bonusSuperBall" class="bonusItem">SuperBall</p>
-            <p id="bonusMultiBall" class="bonusItem">MultiBall</p>
-            <p id="bonusLongPaddle" class="bonusItem">LongPaddle</p>
-            <p id="bonusLife" class="bonusItem">Life</p>
+            <img id="bonusLazers" src="images/lazer.png" class="bonusItem" draggable="false"/>
+            <img id="bonusSuperBall" src="images/uberBall.png" class="bonusItem" draggable="false"/>
+            <img id="bonusMultiBall" src="images/duoBall.png" class="bonusItem" draggable="false"/>
+            <img id="bonusLongPaddle" src="images/longPaddle.png" class="bonusItem" draggable="false"/>
+            <img id="bonusLife" src="images/life.png" class="bonusItem" draggable="false"/>
         </div>
         <div id="creativeOptions">
             <div id="brickModeBox">
@@ -72,6 +72,7 @@
     </div>
     <canvas id="myCanvas"></canvas>
     <p id="backToStartMenu">Back</p>
+    <p id="launch">LAUNCH</p>
     <img id="prevLevel" src="images/arrowLeft.png" draggable="false"/>
     <img id="nextLevel" src="images/arrowRight.png" draggable="false"/>
 </body>

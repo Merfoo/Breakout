@@ -38,6 +38,13 @@ function setGameSize()
     oldMap.width = oldMap.width === 0 ? _map.width : oldMap.width;
     oldMap.height = oldMap.height === 0 ? _map.height : oldMap.height;
     
+    // paddle
+    _paddle.x *= _map.width / oldMap.width;
+    
+    // ballAim
+    _ballAim.x *= _map.width / oldMap.width;
+    _ballAim.y *= _map.height / oldMap.height;
+    
     // balls
     for(var i = 0, len = _balls.length; i < len; i++)
     {

@@ -61,7 +61,7 @@ function keyUpEvent(e)
                 break;
                 
             case _keyCodes.p:
-                (_modes.paused = !_modes.paused) ? pauseSingle() : unPauseSingle();
+                _modes.paused ? unPauseSingle() : pauseSingle();
                 break;
         }
     }
@@ -290,7 +290,7 @@ function mouseUpEvent(e)
     if(e.which === _mouseCodes.rightClick)
         _mouse.rightDown = false;
     
-    if(_mode === _modes.single && !_modes.paused && !_balls[0].released)
+    if(_mode === _modes.single && !_modes.paused && !_balls[0].released && !_modes.touch)
         if(!_mouse.moving || (_mouse.x === _mouse.xDown && _mouse.y === _mouse.yDown))
             releaseBall(_ballAim.ang = getBallAimAngle(eX, eY));
     
@@ -322,17 +322,23 @@ function pauseSingle()
     _longPaddle.timer.pause();
     _life.timer.pause();
     _paddle.powerUpHitTimer.pause();
+    _modes.paused = true;
     showPause();
 }
 
 function unPauseSingle()
 {
-    _multiBall.timer.unPause();
-    _superBall.timer.unPause();
-    _lazer.timer.unPause();
-    _longPaddle.timer.unPause();
-    _life.timer.unPause();
-    _paddle.powerUpHitTimer.unPause();
+    if(_modes.paused)
+    {
+        _multiBall.timer.unPause();
+        _superBall.timer.unPause();
+        _lazer.timer.unPause();
+        _longPaddle.timer.unPause();
+        _life.timer.unPause();
+        _paddle.powerUpHitTimer.unPause();
+        _modes.paused = false;
+    }
+    
     hidePause();
 }
 

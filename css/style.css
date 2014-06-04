@@ -1,4 +1,4 @@
-@font-face
+ @font-face
 {
     font-family: openSansLight;
     src: url("../fonts/open-sans.light.ttf");
@@ -32,13 +32,13 @@
     position: absolute;
     top: 40%;
     left: 37%;
-    width: 26%;
-    height: 13%;
+    color: black;
+    font-size: 7vw;
 }
 
 #startMenu
 {
-    z-index: 2; 
+    z-index: 5; 
     position: absolute;
     top: 0px;
     left: 0px;
@@ -51,7 +51,8 @@
 {
     position: absolute;
     top: 33%;
-    left: 26%;
+    width: 100%;
+    text-align: center;
     font-size: 7vw;
 }
 
@@ -77,6 +78,16 @@
     position: absolute;
     top: 3px;
     right: 20px;
+}
+
+#launch
+{
+    z-index: 2;
+    position: absolute; 
+    bottom: 2px;
+    width: 100%;
+    text-align: center;
+    font-size: 42px;
 }
 
 #prevLevel

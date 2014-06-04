@@ -119,11 +119,12 @@ function rotatePoint(x, y, ang, cornerX, cornerY)
 
 Timer = function()
 {
-    this.beg = 0;
-    this.end = 0;
+    var time = new Date().getTime();
+    this.beg = time;
+    this.end = time;
     this.bRunning = false;
-    this.pauseBeg = 0;
-    this.pauseEnd = 0;
+    this.pauseBeg = time;
+    this.pauseEnd = time;
     this.bPaused = false;
     
     this.start = function()
@@ -162,10 +163,11 @@ Timer = function()
     
     this.reset = function(stop)
     {
-        this.beg = 0;
-        this.end = 0;
-        this.pauseBeg = 0;
-        this.pauseEnd = 0;
+        var time = new Date().getTime();
+        this.beg = time;
+        this.end = time;
+        this.pauseBeg = time;
+        this.pauseEnd = time;
         
         if(stop)
         {

@@ -12,22 +12,22 @@
 #lives
 {
     position: absolute;
-    top: 3px;
+    top: 2px;
     left: 20px;
 }
 
 #bonusBox
 {
     position: absolute;
-    top: 3px;
-    left: 200px;
+    top: 2px;
+    left: 100px;
 }
 
 .bonusItem
 {
     top: 0px;
     float: left;
-    margin: 0px 0px 0px 10px;
+    margin: 0px 0px 0px 20px;
 }
 
 #creativeOptions
