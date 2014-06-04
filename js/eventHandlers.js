@@ -201,7 +201,7 @@ function mouseMoveEvent(e)
         if(_balls[0].released)
             _paddle.x = eX - (_paddle.width / 2);
         
-        if(!_modes.touch || (_modes.touch && _mouse.y <= _map.height - _paddleInit.initGameHeight))
+        if(!_modes.touch || (_modes.touch && _mouse.y <= _map.gameHeight))
             _ballAim.ang = getBallAimAngle(eX, eY);
     }
 }
@@ -225,7 +225,9 @@ function mouseDownEvent(e)
         _mouse.y = eY;
         var x = Math.floor(_mouse.x / _brick.width);
         var y = Math.floor(_mouse.y / _brick.height);
-        modBrick(x, y);
+        
+        if(_mouse.y < _map.gameHeight)
+            modBrick(x, y);
     }
 }
 
