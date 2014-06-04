@@ -163,43 +163,19 @@ function modBrick(x, y)
 {    
     if(_creative.add)
     {    
-        if(!isBrickHere(x, y))
-        {
-            var life = _creative.life === -1 ? _creative.lastLife++ : _creative.life;
-    
-            if(_creative.lastLife > _brick.maxLives)
-                _creative.lastLife = 0;
-            
-            _brickMap[x][y] = new Brick(x, y, life);
-            
-            if(_brickMap[x][y].lives === 0)
-                _brickMap[x][y].invincible = true;
-        }
-        
+        var life = _creative.life === -1 ? _creative.lastLife++ : _creative.life;
+
+        if(_creative.lastLife > _brick.maxLives)
+            _creative.lastLife = 0;
+
+        _brickMap[x][y] = new Brick(x, y, life);
+
+        if(_brickMap[x][y].lives === 0)
+            _brickMap[x][y].invincible = true;
     }
 
     else
         _brickMap[x][y] = null;
-    
-    _levels[_level.index][x][y] = cloneObj(_brickMap[x][y]);
-}
-
-// Increase brick life
-function incBrick(x, y)
-{
-    if(isBrickHere(x, y))
-    {
-        if(_creative.life === -1)
-        {
-            if(++_brickMap[x][y].lives > _brick.maxLives)
-                _brickMap[x][y].lives = 0;
-        }
-        
-        else
-            _brickMap[x][y].lives = _creative.life;
-        
-        _brickMap[x][y].invincible = (_brickMap[x][y].lives === 0);
-    }
     
     _levels[_level.index][x][y] = cloneObj(_brickMap[x][y]);
 }
@@ -225,11 +201,8 @@ function mouseMoveEvent(e)
         if(x === xLast && y === yLast)
             return;
         
-        if(_mouse.leftDown)
+        if(_mouse.down)
             modBrick(x, y);
-        
-        if(_mouse.rightDown)
-            incBrick(x, y);
     }
     
     else if(_mode === _modes.single && !_modes.paused)
@@ -253,6 +226,7 @@ function mouseDownEvent(e)
     _mouse.y = eY;
     _mouse.xDown = _mouse.x;
     _mouse.yDown = _mouse.y;
+    _mouse.down = true;
     
     if(_mode === _modes.creative)
     {
@@ -260,18 +234,7 @@ function mouseDownEvent(e)
         _mouse.y = eY;
         var x = Math.floor(_mouse.x / _brick.width);
         var y = Math.floor(_mouse.y / _brick.height);
-        
-        if(e.which === _mouseCodes.leftClick)
-        {
-            modBrick(x, y);
-            _mouse.leftDown = true;
-        }
-        
-        if(e.which === _mouseCodes.rightClick)
-        {
-            incBrick(x, y);
-            _mouse.rightDown = true;
-        }
+        modBrick(x, y);
     }
 }
 
@@ -285,17 +248,12 @@ function mouseUpEvent(e)
     _mouse.x = eX;
     _mouse.y = eY;
     
-    if(e.which === _mouseCodes.leftClick)
-        _mouse.leftDown = false;
-    
-    if(e.which === _mouseCodes.rightClick)
-        _mouse.rightDown = false;
-    
     if(_mode === _modes.single && !_modes.paused && !_balls[0].released && !_modes.touch)
         if(!_mouse.moving || (_mouse.x === _mouse.xDown && _mouse.y === _mouse.yDown))
             releaseBall(_ballAim.ang = getBallAimAngle(eX, eY));
     
     _mouse.moving = false;
+    _mouse.down = false;
 }
 
 function getMouseCoord(e, onCanvas)

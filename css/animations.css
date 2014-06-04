@@ -88,14 +88,14 @@
 
 @-webkit-keyframes animateFadeIn
 {
-    0% {opacity: 0;}
-    100% {opacity: 1;}
+    0% {opacity: 0; visibility: hidden;}
+    100% {opacity: 1; visibility: visible;}
 }
 
 @keyframes animateFadeIn
 {
-    0% {opacity: 0;}
-    100% {opacity: 1}
+    0% {opacity: 0; visibility: hidden;}
+    100% {opacity: 1; visibility: visible;}
 }
 
 .animateFadeOut
@@ -108,14 +108,14 @@
 
 @-webkit-keyframes animateFadeOut
 {
-    0% {opacity: 1;}
-    100% {opacity: 0;}
+    0% {opacity: 1; visibility: visible;}
+    100% {opacity: 0; visibility: hidden;}
 }
 
 @keyframes animateFadeOut
 {
-    0% {opacity: 1;}
-    100% {opacity: 0}
+    0% {opacity: 1; visibility: visible}
+    100% {opacity: 0; visibility: hidden;}
 }
 
 .animateLighten

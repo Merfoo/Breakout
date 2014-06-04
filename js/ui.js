@@ -323,6 +323,7 @@ function showCreativeHud()
 {
     removeAllAnimations(_dom.creativeOptions);
     _dom.creativeOptions.classList.add(_anim.fadeIn);
+    _dom.creativeOptions.style.display = "inline";
 }
 
 function hideLaunch()

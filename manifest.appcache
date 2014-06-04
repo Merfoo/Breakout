@@ -1,6 +1,6 @@
 CACHE MANIFEST
 
-# Version 32
+# Version 33
 
 # css
 css/style.css
@@ -10,6 +10,7 @@ css/animations.css
 
 # fonts
 fonts/open-sans.light.ttf
+fonts/open-sans.light.woff
 
 # images
 images/logoThumbnail.png
