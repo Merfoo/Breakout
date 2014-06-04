@@ -86,10 +86,6 @@ function keyUpEvent(e)
                 brickDelClicked();
                 break;
                 
-            case _keyCodes.nine:
-                brickLifeChanged(-1);
-                break;
-                
             case _keyCodes.zero:
                 brickLifeChanged(0);
                 break;
@@ -162,13 +158,8 @@ function brickDelClicked()
 function modBrick(x, y)
 {    
     if(_creative.add)
-    {    
-        var life = _creative.life === -1 ? _creative.lastLife++ : _creative.life;
-
-        if(_creative.lastLife > _brick.maxLives)
-            _creative.lastLife = 0;
-
-        _brickMap[x][y] = new Brick(x, y, life);
+    {   
+        _brickMap[x][y] = new Brick(x, y, _creative.life);
 
         if(_brickMap[x][y].lives === 0)
             _brickMap[x][y].invincible = true;
@@ -201,7 +192,7 @@ function mouseMoveEvent(e)
         if(x === xLast && y === yLast)
             return;
         
-        if(_mouse.down)
+        if(_mouse.down && _mouse.y < _map.gameHeight)
             modBrick(x, y);
     }
     

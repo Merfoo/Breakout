@@ -85,16 +85,6 @@
     right: 20px;
 }
 
-#launch
-{
-    z-index: 2;
-    position: absolute; 
-    bottom: 2px;
-    width: 100%;
-    text-align: center;
-    font-size: 42px;
-}
-
 #prevLevel
 {
     z-index: 10;

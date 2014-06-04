@@ -1,12 +1,13 @@
 CACHE MANIFEST
 
-# Version 34
+# Version 35
 
 # css
 css/style.css
 css/hud.css
 css/howToPlay.css
 css/animations.css
+css/touchBox.css
 
 # fonts
 fonts/open-sans.light.ttf

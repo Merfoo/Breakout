@@ -317,6 +317,13 @@ function hideCreativeHud()
 {
     removeAllAnimations(_dom.creativeOptions);
     _dom.creativeOptions.classList.add(_anim.fadeOut);
+    
+    if(_modes.touch)
+    {
+        removeAllAnimations([_dom.delLevel, _dom.newLevel]);
+        _dom.delLevel.classList.add(_anim.fadeOut);
+        _dom.newLevel.classList.add(_anim.fadeOut);
+    }
 }
 
 function showCreativeHud()
@@ -324,6 +331,13 @@ function showCreativeHud()
     removeAllAnimations(_dom.creativeOptions);
     _dom.creativeOptions.classList.add(_anim.fadeIn);
     _dom.creativeOptions.style.display = "inline";
+    
+    if(_modes.touch)
+    {
+        removeAllAnimations([_dom.delLevel, _dom.newLevel]);
+        _dom.delLevel.classList.add(_anim.fadeIn);
+        _dom.newLevel.classList.add(_anim.fadeIn);
+    }
 }
 
 function hideLaunch()

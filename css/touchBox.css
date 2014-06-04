@@ -1,0 +1,33 @@
+#touchBox
+{
+    z-index: 2;
+    position: absolute;
+    width: 100%;
+    height: 60px;
+    bottom: 0px;
+}
+
+#launch
+{
+    position: absolute; 
+    bottom: 2px;
+    width: 100%;
+    text-align: center;
+    font-size: 42px;
+}
+
+#delLevel
+{
+    position: absolute; 
+    left: 2px;
+    bottom: 2px;
+    font-size: 42px;
+}
+
+#newLevel
+{
+    position: absolute; 
+    right: 2px;
+    bottom: 2px;
+    font-size: 42px;
+}

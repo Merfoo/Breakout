@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="css/howToPlay.css"/>
     <link rel="stylesheet" type="text/css" href="css/animations.css"/>
     <link rel="stylesheet" type="text/css" href="css/hud.css"/>
+    <link rel="stylesheet" type="text/css" href="css/touchBox.css"/>
     <script type="text/javascript" src="js/util.js"></script>
     <script type="text/javascript" src="js/levels.js"></script>
     <script type="text/javascript" src="js/vars.js"></script>
@@ -33,11 +34,10 @@
             Use the arrow keys to move the paddle, space to release the ball, 
             p to pause/unpause the game.
             <h1>Creative Mode</h1>
-            Left click on the screen to add/remove bricks, right click to change
-            the lives the brick has, press ctrl to add blank level, del to 
-            delete the level. Press q/w to change to add/del mode of bricks, and
-            press 0/1/2/3 to change the clicked brick to a invincible/1 hit/2 hit/3 hit
-            brick.
+            Click on the screen to add/remove bricks depending on the brick mode
+            press ctrl to add blank level, del to delete the level. Press q/w to
+            change to add/del mode of bricks, and press 0/1/2/3 to change the 
+            clicked brick to a invincible/1 hit/2 hit/3 hitbrick.
         </div>       
     </div>
     <div id="hud">
@@ -61,9 +61,8 @@
             <div id="brickLifeBox">
                 <p id="brickLife">Brick Life:</p>
                 <select id="brickLifeOptions" class="brickDropDown">
-                    <option value="-1" selected="selected">Alternate</option>
                     <option value="0">Invincible</option>
-                    <option value="1">1 Hit</option>
+                    <option value="1" selected="selected">1 Hit</option>
                     <option value="2">2 Hit</option>
                     <option value="3">3 Hit</option>
                 </select>
@@ -72,7 +71,11 @@
     </div>
     <canvas id="myCanvas"></canvas>
     <p id="backToStartMenu">Back</p>
-    <p id="launch">LAUNCH</p>
+    <div id="touchBox">
+        <p id="launch">LAUNCH</p>
+        <p id="delLevel">DEL</p>
+        <p id="newLevel">NEW</p>
+    </div>
     <img id="prevLevel" src="images/arrowLeft.png" draggable="false"/>
     <img id="nextLevel" src="images/arrowRight.png" draggable="false"/>
 </body>

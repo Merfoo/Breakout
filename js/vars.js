@@ -80,7 +80,7 @@ var _hud = { height: 0, livesText: "Lives: " };
 var _cvs = { game: null };
 var _modes = { single: 0, auto: 1, creative: 2, paused: false, touch: true };
 var _mode = _modes.auto;
-var _creative = { add: true, life: -1, lastLife: 0 };
+var _creative = { add: true, life: 1 };
 var _levels = [];
 var _level = { index: 0, orig: [] };
 var _star = { initLong: 0.5, initShort: 0.17, long: 0, short: 0, initLineWidth: 10, lineWidth: 10, width: 10, color: "gold", initVY: 5, vY: 0, minDistY: 0 };
@@ -117,7 +117,10 @@ var _dom = {
     bonusMultiBall: null, 
     bonusLongPaddle: null, 
     bonusLife: null,
-    launch: null
+    touchBox: null,
+    launch: null,
+    delLevel: null,
+    newLevel: null
 };
 var _anim = { 
     moveUp: "animateUp", 

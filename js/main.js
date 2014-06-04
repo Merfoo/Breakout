@@ -42,10 +42,15 @@ function init()
     _dom.bonusLongPaddle = document.getElementById("bonusLongPaddle");
     _dom.bonusMultiBall = document.getElementById("bonusMultiBall");
     _dom.bonusLife = document.getElementById("bonusLife");
+    _dom.touchBox = document.getElementById("touchBox");
     _dom.launch = document.getElementById("launch");
+    _dom.delLevel = document.getElementById("delLevel");
+    _dom.newLevel = document.getElementById("newLevel");
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
     _hud.height = _dom.hud.clientHeight;
     _dom.launch.onclick = function() { _balls[0].released ? null : releaseBall(_ballAim.ang); };
+    _dom.delLevel.onclick = removeLevel;
+    _dom.newLevel.onclick = addLevel;
     _dom.brickModeAdd.onclick = brickAddClicked;
     _dom.brickModeDel.onclick = brickDelClicked;
     _dom.brickLifeOptions.onchange = brickLifeChanged;
@@ -67,10 +72,11 @@ function init()
     {
         _modes.touch = false;
         _paddleInit.initGameHeight = 0;
-        _dom.launch.style.display = "none";
+        _dom.touchBox.style.display = "none";
     }
     
     hideSingleHud();
+    hideCreativeHud();
     updateBrickModeAnim();
     makeLevels();
     setGameSize();
