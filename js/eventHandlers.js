@@ -237,7 +237,8 @@ function mouseMoveEvent(e)
         if(_balls[0].released)
             _paddle.x = eX - (_paddle.width / 2);
         
-        _ballAim.ang = getBallAimAngle(eX, eY);
+        if(!_modes.touch || (_modes.touch && _mouse.y <= _map.height - _paddleInit.initGameHeight))
+            _ballAim.ang = getBallAimAngle(eX, eY);
     }
 }
 

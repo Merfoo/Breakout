@@ -24,13 +24,6 @@ catch(e)
 
 function init()
 {
-    if (!("ontouchstart" in document.documentElement)) // Remove touch box if not touch device
-    {
-        _modes.touch = false;
-        _paddleInit.initGameHeight = 0;
-        document.getElementById("launch").style.display = "none";
-    }
-
     document.onmousewheel = function() { return false; }; // Prevent mouse scrolling
     _storeAvailable = typeof(Storage) !== "undefined";
     _dom.startMenu = document.getElementById("startMenu");
@@ -49,18 +42,19 @@ function init()
     _dom.bonusLongPaddle = document.getElementById("bonusLongPaddle");
     _dom.bonusMultiBall = document.getElementById("bonusMultiBall");
     _dom.bonusLife = document.getElementById("bonusLife");
+    _dom.launch = document.getElementById("launch");
     _cvs.game = document.getElementById("myCanvas").getContext("2d");
     _hud.height = _dom.hud.clientHeight;
+    _dom.launch.onclick = function() { _balls[0].released ? null : releaseBall(_ballAim.ang); };
+    _dom.brickModeAdd.onclick = brickAddClicked;
+    _dom.brickModeDel.onclick = brickDelClicked;
+    _dom.brickLifeOptions.onchange = brickLifeChanged;
     document.getElementById("creativeMode").onclick = initCreativeMode;
     document.getElementById("instructions").onclick = showHowToPlayMenu;
     document.getElementById("backToStartMenu").onclick = initAutoMode;
     document.getElementById("pressEnter").onclick = initSingleMode;
     document.getElementById("prevLevel").onclick = getPrevLevel;
     document.getElementById("nextLevel").onclick = getNextLevel;
-    document.getElementById("launch").onclick = function() { releaseBall(_ballAim.ang); }
-    _dom.brickModeAdd.onclick = brickAddClicked;
-    _dom.brickModeDel.onclick = brickDelClicked;
-    _dom.brickLifeOptions.onchange = brickLifeChanged;
     window.addEventListener("resize", setGameSize);
     window.requestAnimFrame = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -68,6 +62,13 @@ function init()
         function( callback ){
             window.setTimeout(callback, 1000 / 60);
         };
+        
+    if (!("ontouchstart" in document.documentElement)) // Remove touch box if not touch device
+    {
+        _modes.touch = false;
+        _paddleInit.initGameHeight = 0;
+        _dom.launch.style.display = "none";
+    }
     
     hideSingleHud();
     updateBrickModeAnim();
@@ -176,6 +177,9 @@ function releaseBall(ang)
     _balls[0].x = _paddle.x + (_paddle.width / 2);
     _balls[0].y = _paddle.y - _paddle.height - _balls[0].r;
     _balls[0].released = true;
+    
+    if(_modes.touch)
+        hideLaunch();
 }
 
 function updatePaddle()
@@ -264,6 +268,7 @@ function updateBalls()
                         initAutoMode();
 
                 _balls[i].released = false;
+                showLaunch();
             }
 
             else
@@ -475,6 +480,9 @@ function updateBalls()
             if(_mode === _modes.single)
                 _lives.cur += _lives.inc;
 
+            if(_modes.touch)
+                showLaunch();
+            
             _balls[i].released = false;
             getNextLevel();
             console.log("bricks destroyed");
@@ -644,6 +652,7 @@ function initSingleMode()
     hideStartMenu();
     hideHowToPlayMenu();
     showSingleHud();
+    showLaunch();
     initGame();
     _mode = _modes.single;
 }
@@ -652,6 +661,7 @@ function endSingleMode()
 {
     hideSingleHud();
     unPauseSingle();
+    hideLaunch();
 }
 
 function initCreativeMode()

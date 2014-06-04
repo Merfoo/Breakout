@@ -324,3 +324,15 @@ function showCreativeHud()
     removeAllAnimations(_dom.creativeOptions);
     _dom.creativeOptions.classList.add(_anim.fadeIn);
 }
+
+function hideLaunch()
+{
+    removeAllAnimations(_dom.launch);
+    _dom.launch.classList.add(_anim.fadeOut);
+}
+
+function showLaunch()
+{
+    removeAllAnimations(_dom.launch);
+    _dom.launch.classList.add(_anim.fadeIn);
+}

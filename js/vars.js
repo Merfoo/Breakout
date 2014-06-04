@@ -116,7 +116,8 @@ var _dom = {
     bonusSuperBall: null, 
     bonusMultiBall: null, 
     bonusLongPaddle: null, 
-    bonusLife: null 
+    bonusLife: null,
+    launch: null
 };
 var _anim = { 
     moveUp: "animateUp", 
