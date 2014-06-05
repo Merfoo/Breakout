@@ -3,24 +3,9 @@ document.documentElement.style.overflowX = "hidden";	 // Horz scrollbar will be 
 document.documentElement.style.overflowY = "hidden";     // Vert scrollbar will be hidden
 document.addEventListener("keyup", keyUpEvent);
 document.addEventListener("keydown", keyDownEvent);
-document.addEventListener("mousemove", mouseMoveEvent);
-document.addEventListener("mousedown", mouseDownEvent);
-document.addEventListener("mouseup", mouseUpEvent);
-
-try
-{
-    document.addEventListener('touchmove', function(event) { // Prevent scrolling on touch devices
+document.addEventListener('touchmove', function(event) { // Prevent scrolling on touch devices
         event.preventDefault();
     }, false);
-    document.addEventListener("touchmove", mouseMoveEvent);
-    document.addEventListener("touchstart", mouseDownEvent);
-    document.addEventListener("touchend", mouseUpEvent);
-}
-
-catch(e)
-{
-    
-}
 
 function init()
 {
@@ -47,8 +32,6 @@ function init()
     _dom.launch = document.getElementById("launch");
     _dom.delLevel = document.getElementById("delLevel");
     _dom.newLevel = document.getElementById("newLevel");
-    _cvs.game = document.getElementById("myCanvas").getContext("2d");
-    _hud.height = _dom.hud.clientHeight;
     _dom.launch.onclick = function() { _balls[0].released ? null : releaseBall(_ballAim.ang); };
     _dom.delLevel.onclick = removeLevel;
     _dom.newLevel.onclick = addLevel;
@@ -61,6 +44,14 @@ function init()
     document.getElementById("pressEnter").onclick = initSingleMode;
     document.getElementById("prevLevel").onclick = getPrevLevel;
     document.getElementById("nextLevel").onclick = getNextLevel;
+    _hud.height = _dom.hud.clientHeight;
+    _cvs.game = document.getElementById("myCanvas").getContext("2d");
+    _cvs.game.canvas.addEventListener("mousemove", mouseMoveEvent);
+    _cvs.game.canvas.addEventListener("mousedown", mouseDownEvent);
+    _cvs.game.canvas.addEventListener("mouseup", mouseUpEvent);
+    _cvs.game.canvas.addEventListener("touchmove", mouseMoveEvent);
+    _cvs.game.canvas.addEventListener("touchstart", mouseDownEvent);
+    _cvs.game.canvas.addEventListener("touchend", mouseUpEvent);
     window.addEventListener("resize", setGameSize);
     window.requestAnimFrame = window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
