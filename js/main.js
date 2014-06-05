@@ -67,6 +67,16 @@ function init()
         _dom.touchBox.style.display = "none";
     }
     
+    else
+    {
+        _dom.touchBox.canvas.addEventListener("mousemove", mouseMoveEvent);
+        _dom.touchBox.canvas.addEventListener("mousedown", mouseDownEvent);
+        _dom.touchBox.canvas.addEventListener("mouseup", mouseUpEvent);
+        _dom.touchBox.canvas.addEventListener("touchmove", mouseMoveEvent);
+        _dom.touchBox.canvas.addEventListener("touchstart", mouseDownEvent);
+        _dom.touchBox.canvas.addEventListener("touchend", mouseUpEvent);
+    }
+    
     hideSingleHud();
     hideCreativeHud();
     updateBrickModeAnim();
