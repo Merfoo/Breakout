@@ -766,6 +766,6 @@ function resetLevel()
     _uberBall.timer.reset(true);
     _uberBall.active = false;
     
-    if(_modes.touch)
+    if(_modes.touch && _mode === _modes.single)
         showLaunch();
 }
