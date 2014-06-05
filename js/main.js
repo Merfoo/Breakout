@@ -69,12 +69,12 @@ function init()
     
     else
     {
-        _dom.touchBox.canvas.addEventListener("mousemove", mouseMoveEvent);
-        _dom.touchBox.canvas.addEventListener("mousedown", mouseDownEvent);
-        _dom.touchBox.canvas.addEventListener("mouseup", mouseUpEvent);
-        _dom.touchBox.canvas.addEventListener("touchmove", mouseMoveEvent);
-        _dom.touchBox.canvas.addEventListener("touchstart", mouseDownEvent);
-        _dom.touchBox.canvas.addEventListener("touchend", mouseUpEvent);
+        _dom.touchBox.addEventListener("mousemove", mouseMoveEvent);
+        _dom.touchBox.addEventListener("mousedown", mouseDownEvent);
+        _dom.touchBox.addEventListener("mouseup", mouseUpEvent);
+        _dom.touchBox.addEventListener("touchmove", mouseMoveEvent);
+        _dom.touchBox.addEventListener("touchstart", mouseDownEvent);
+        _dom.touchBox.addEventListener("touchend", mouseUpEvent);
     }
     
     hideSingleHud();
