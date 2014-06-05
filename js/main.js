@@ -121,24 +121,7 @@ function loop()
 
 function initGame()
 {    
-    _paddle = new Paddle(_paddleInit);
-    _paddle.x = (_map.width / 2) - (_paddle.width / 2);
-    _balls = [new Ball(_ballInit)];
-    _balls[0].x = _paddle.x + _paddle.width / 2;
-    _balls[0].y = _ballInit.releaseHeight;
-    _keys.left = false;
-    _keys.right = false;
-    _keys.enter = false;
-    _keys.space = false;
     _lives.cur = _lives.starting;
-    _powerUps = [];
-    _lazers = [];
-    _longPaddle.timer.reset(true);
-    _duoBall.timer.reset(true);
-    _triBall.timer.reset(true);
-    _lazer.timer.reset(true);
-    _uberBall.timer.reset(true);
-    _uberBall.active = false;
     getLevel(_level.index);
 }
 
@@ -609,6 +592,8 @@ function getLevel(index)
                 _brickMap[x][y] = null;
         }
     }
+    
+    resetLevel();
 }
 
 function getPrevLevel()
@@ -752,4 +737,32 @@ function saveLevels()
     
     localStorage.levels = JSON.stringify(newLevels);
     _levels = _level.orig.concat(newLevels);
+}
+
+function resetLevel()
+{
+    // reset everything
+    _keys.left = false;
+    _keys.right = false;
+    _keys.enter = false;
+    _keys.space = false;
+    _paddle = new Paddle(_paddleInit);
+    _paddle.x = (_map.width / 2) - (_paddle.width / 2);
+    _paddle.y = _paddleInit.gameHeight;
+    _paddle.v = 0;
+    _balls = [new Ball(_ballInit)];
+    _balls[0].released = false;
+    _balls[0].x = _paddle.x + (_paddle.width / 2);
+    _balls[0].y = _ballInit.releaseHeight;
+    _balls[0].vX = 0;
+    _balls[0].vY = 0;
+    _powerUps = []; 
+    _lazers = [];
+    _longPaddle.timer.reset(true);
+    _duoBall.timer.reset(true);
+    _triBall.timer.reset(true);
+    _lazer.timer.reset(true);
+    _life.timer.reset(true);
+    _uberBall.timer.reset(true);
+    _uberBall.active = false;
 }
