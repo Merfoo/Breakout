@@ -76,7 +76,7 @@ var _brickMap = [];
 var _hitSpots = { topLeft: 0, topRight: 1, botLeft: 2, botRight: 3 };
 var _map = { width: 0, height: 0, widthMod: 1, heightMod: 1, origWidth: 1346, origHeight: 622, gameHeight: 0 }; // = total height - hud height
 var _touchBox = { color: "gray" };
-var _hud = { height: 0, livesText: "Lives: " };
+var _hud = { height: 0, lifeBackgroundColor: "red" };
 var _cvs = { game: null };
 var _modes = { single: 0, auto: 1, creative: 2, paused: false, touch: true };
 var _mode = _modes.auto;
@@ -118,8 +118,8 @@ var _dom = {
     bonusDuoBall: null, 
     bonusTriBall: null,
     bonusLongPaddle: null, 
-    bonusLife: null,
     touchBox: null,
+    lifeBackground: null,
     launch: null,
     delLevel: null,
     newLevel: null

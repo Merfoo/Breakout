@@ -9,25 +9,52 @@
     background-color: black;
 }
 
+#lifeBox
+{
+    width: 23px;
+    height: 23px;
+}
+
+#life
+{
+    z-index: 3;
+    position: relative;
+    top: -23px;
+    left: 0px;
+}
+
+#lifeBackground
+{
+    z-index: 2;
+    background-color: red;
+    top: 2px;
+    left: 0px;
+    width: 23px;
+    height: 23px;
+}
+
 #lives
 {
-    position: absolute;
+    z-index: 4;
+    position: relative;
     top: 2px;
-    left: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 11px;
 }
 
 #bonusBox
 {
     position: absolute;
-    top: 2px;
-    left: 100px;
+    top: 1px;
+    left: 20px;
 }
 
 .bonusItem
 {
     top: 0px;
     float: left;
-    margin: 0px 0px 0px 20px;
+    margin: 0px 20px 0px 0px;
 }
 
 #creativeOptions
@@ -45,7 +72,7 @@
 #brickModeBox
 {
     position: absolute;
-    top: 2px;
+    top: 1px;
     left: 20px;
 }
 
@@ -71,7 +98,7 @@ select, option
 #brickLifeBox
 {
     position: absolute;
-    top: 2px;
+    top: 1px;
     right: 95px;
 }
 

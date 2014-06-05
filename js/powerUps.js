@@ -5,7 +5,6 @@ function updatePowerUps()
     _dom.bonusDuoBall.style.opacity = _powerUp.minOpac;
     _dom.bonusTriBall.style.opacity = _powerUp.minOpac;
     _dom.bonusUberBall.style.opacity = _powerUp.minOpac;
-    _dom.bonusLife.style.opacity = _powerUp.minOpac;
     var curTime = new Date().getTime();
     
     for(var i = 0; i < _powerUps.length; i++)
@@ -185,13 +184,14 @@ function updatePowerUps()
     // life
     if(_life.timer.isRunning())
     {
-        _dom.bonusLife.style.opacity = 1;
-        
         if(_life.timer.get() >= _life.dur)
         {
-            _dom.bonusLife.style.opacity = _powerUp.minOpac;
+            _dom.lifeBackground.style.backgroundColor = _hud.lifeBackgroundColor;
             _life.timer.reset(true);
         }
+        
+        else
+            _dom.lifeBackground.style.backgroundColor = getRandomColor(0, 255);
     }
 }
 

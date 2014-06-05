@@ -1,6 +1,6 @@
 CACHE MANIFEST
 
-# Version 40
+# Version 41
 
 # css
 css/style.css
@@ -14,12 +14,12 @@ fonts/open-sans.light.ttf
 fonts/open-sans.light.woff
 
 # images
+images/curLife.png
 images/logoThumbnail.png
 images/arrowLeft.png
 images/arrowRight.png
 images/duoBall.png
 images/lazer.png
-images/life.png
 images/longPaddle.png
 images/triBall.png
 images/uberBall.png

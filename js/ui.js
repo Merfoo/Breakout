@@ -244,7 +244,7 @@ function paintLazers()
 
 function updateHud()
 {
-    _dom.lives.innerHTML = _hud.livesText + _lives.cur;
+    _dom.lives.innerHTML = _lives.cur;
 }
 
 function updateBrickModeAnim()

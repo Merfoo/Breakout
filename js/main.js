@@ -42,7 +42,7 @@ function init()
     _dom.bonusLongPaddle = document.getElementById("bonusLongPaddle");
     _dom.bonusDuoBall = document.getElementById("bonusDuoBall");
     _dom.bonusTriBall = document.getElementById("bonusTriBall");
-    _dom.bonusLife = document.getElementById("bonusLife");
+    _dom.lifeBackground = document.getElementById("lifeBackground");
     _dom.touchBox = document.getElementById("touchBox");
     _dom.launch = document.getElementById("launch");
     _dom.delLevel = document.getElementById("delLevel");
@@ -742,6 +742,7 @@ function saveLevels()
 function resetLevel()
 {
     // reset everything
+    _dom.lifeBackground.style.backgroundColor = _hud.lifeBackgroundColor;
     _keys.left = false;
     _keys.right = false;
     _keys.enter = false;
