@@ -765,4 +765,7 @@ function resetLevel()
     _life.timer.reset(true);
     _uberBall.timer.reset(true);
     _uberBall.active = false;
+    
+    if(_modes.touch)
+        showLaunch();
 }
