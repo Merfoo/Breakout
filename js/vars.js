@@ -69,7 +69,7 @@ BallAim = function(initVal)
 
 
 var _paddleInit = { initWidth: 173, initHeight: 13, initGameHeight: 60, width: 0, height: 0, gameHeight: 0, vMax: 10 };
-var _ballInit = { initR: 10, r: 0, initVMax: 8, vMax: 10 };
+var _ballInit = { initR: 10, r: 0, initVMax: 8, vMax: 10, releaseHeight: 0 };
 var _ballAimInit = { initVMax: 150, vMax: 0, initWidth: 4, width: 0 };
 var _brick = { horz: 20, vert: 20, width: 90, height: 90, live: 0, maxLives: 3, colors: ["black", "#00B800 ", "#FFCC00", "#CC0000"], bonusChance: [0.15, 0.25, 0.33, 0.5] };
 var _brickMap = [];
@@ -84,10 +84,11 @@ var _creative = { add: true, life: 1 };
 var _levels = [];
 var _level = { index: 0, orig: [] };
 var _star = { initLong: 0.5, initShort: 0.17, long: 0, short: 0, initLineWidth: 10, lineWidth: 10, width: 10, color: "gold", initVY: 5, vY: 0, minDistY: 0 };
-var _powerUp = { minOpac: 0.25, multiBall: 0, superBall: 1, lazers: 2, longPaddle: 3, life: 4 };
+var _powerUp = { minOpac: 0.25, duoBall: 0, uberBall: 1, lazers: 2, longPaddle: 3, life: 4, triBall: 5 };
 var _powerUps = [];
-var _multiBall = { start: -1, dur: 3, count: 4, timer: new Timer() };
-var _superBall = { start: -1, dur: 3, timer: new Timer(), active: false };
+var _duoBall = { start: -1, dur: 3, timer: new Timer() };
+var _triBall = { start: -1, dur: 3, count: 3, timer: new Timer() };
+var _uberBall = { start: -1, dur: 3, timer: new Timer(), active: false };
 var _lazer = { start: -1, dur: 6, timer: new Timer(), initVY: 10, initWidth: 5, initHeight: 25, vY: 0, width: 0, height: 0, minShoot: 500, lastShoot: 0, color: "red" };
 var _lazers = [];
 var _longPaddle = { start: -1, dur: 10, timer: new Timer(), initWidthAdd: 200, initWidthInc: 6, widthAdd: 0, widthInc: 0 };
@@ -113,8 +114,9 @@ var _dom = {
     bonusBox: null, 
     bonus: null, 
     bonusLazers: null, 
-    bonusSuperBall: null, 
-    bonusMultiBall: null, 
+    bonusUberBall: null, 
+    bonusDuoBall: null, 
+    bonusTriBall: null,
     bonusLongPaddle: null, 
     bonusLife: null,
     touchBox: null,

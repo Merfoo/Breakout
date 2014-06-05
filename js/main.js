@@ -38,9 +38,10 @@ function init()
     _dom.bonus = document.getElementById("bonus");
     _dom.bonusBox = document.getElementById("bonusBox");
     _dom.bonusLazers = document.getElementById("bonusLazers");
-    _dom.bonusSuperBall = document.getElementById("bonusSuperBall");
+    _dom.bonusUberBall = document.getElementById("bonusUberBall");
     _dom.bonusLongPaddle = document.getElementById("bonusLongPaddle");
-    _dom.bonusMultiBall = document.getElementById("bonusMultiBall");
+    _dom.bonusDuoBall = document.getElementById("bonusDuoBall");
+    _dom.bonusTriBall = document.getElementById("bonusTriBall");
     _dom.bonusLife = document.getElementById("bonusLife");
     _dom.touchBox = document.getElementById("touchBox");
     _dom.launch = document.getElementById("launch");
@@ -124,7 +125,7 @@ function initGame()
     _paddle.x = (_map.width / 2) - (_paddle.width / 2);
     _balls = [new Ball(_ballInit)];
     _balls[0].x = _paddle.x + _paddle.width / 2;
-    _balls[0].y = _paddle.y - _paddle.height - _balls[0].r;
+    _balls[0].y = _ballInit.releaseHeight;
     _keys.left = false;
     _keys.right = false;
     _keys.enter = false;
@@ -133,10 +134,11 @@ function initGame()
     _powerUps = [];
     _lazers = [];
     _longPaddle.timer.reset(true);
-    _multiBall.timer.reset(true);
+    _duoBall.timer.reset(true);
+    _triBall.timer.reset(true);
     _lazer.timer.reset(true);
-    _superBall.timer.reset(true);
-    _superBall.active = false;
+    _uberBall.timer.reset(true);
+    _uberBall.active = false;
     getLevel(_level.index);
 }
 
@@ -181,7 +183,7 @@ function releaseBall(ang)
     _balls[0].vX = vel.x;
     _balls[0].vY = vel.y;
     _balls[0].x = _paddle.x + (_paddle.width / 2);
-    _balls[0].y = _paddle.y - _paddle.height - _balls[0].r;
+    _balls[0].y = _ballInit.releaseHeight;
     _balls[0].released = true;
     
     if(_modes.touch)
@@ -227,7 +229,7 @@ function updateBallAim()
     _balls[0].vX = 0;
     _balls[0].vY = 0;
     _balls[0].x = _paddle.x + (_paddle.width / 2);
-    _balls[0].y = _paddle.y - _paddle.height - _balls[0].r;
+    _balls[0].y = _ballInit.releaseHeight;
     _ballAim.x = _balls[0].x;
     _ballAim.y = _balls[0].y;
     
@@ -377,7 +379,7 @@ function updateBalls()
                 //console.log("corner top right");
             }
 
-            if(hitBrick && hitSpot !== -1 && !_superBall.active)
+            if(hitBrick && hitSpot !== -1 && !_uberBall.active)
             {
                 collided.x = true;
                 collided.y = true; 
@@ -445,7 +447,7 @@ function updateBalls()
 
             if(hitBrick)
             {
-                if(localBricks[brickIndex].lives > 0 || _superBall.active)
+                if(localBricks[brickIndex].lives > 0 || _uberBall.active)
                     removeLives.push(brickIndex);
             }    
         }
@@ -464,7 +466,7 @@ function updateBalls()
             }
         }
 
-        if(_superBall.active)
+        if(_uberBall.active)
         {
             collided.x = false;
             collided.y = false;

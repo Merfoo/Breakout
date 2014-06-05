@@ -1,7 +1,7 @@
 function brickLifeChanged(newVal)
 {
-    if(typeof(newVal) !== "undefined" && newVal >= -1 && newVal <= _brick.maxLives)
-        _dom.brickLifeOptions.selectedIndex = newVal + 1;
+    if(typeof(newVal) !== "undefined" && newVal >= 0 && newVal <= _brick.maxLives)
+        _dom.brickLifeOptions.selectedIndex = newVal;
         
     _creative.life = parseInt(_dom.brickLifeOptions.options[_dom.brickLifeOptions.selectedIndex].value);
 }
@@ -87,19 +87,19 @@ function keyUpEvent(e)
                 break;
                 
             case _keyCodes.zero:
-                brickLifeChanged(0);
+                brickLifeChanged(0);    // invincible
                 break;
                 
             case _keyCodes.one:
-                brickLifeChanged(1);
+                brickLifeChanged(1);    // 1 hit
                 break;
                 
             case _keyCodes.two:
-                brickLifeChanged(2);
+                brickLifeChanged(2);    // 2 hit
                 break;
                 
             case _keyCodes.three:
-                brickLifeChanged(3);
+                brickLifeChanged(3);    // 3 hit
                 break;
         }
     }
@@ -268,8 +268,9 @@ function getMouseCoord(e, onCanvas)
 
 function pauseSingle()
 {
-    _multiBall.timer.pause();
-    _superBall.timer.pause();
+    _duoBall.timer.pause();
+    _uberBall.timer.pause();
+    _triBall.timer.pause();
     _lazer.timer.pause();
     _longPaddle.timer.pause();
     _life.timer.pause();
@@ -282,8 +283,9 @@ function unPauseSingle()
 {
     if(_modes.paused)
     {
-        _multiBall.timer.unPause();
-        _superBall.timer.unPause();
+        _duoBall.timer.unPause();
+        _uberBall.timer.unPause();
+        _triBall.timer.unPause();
         _lazer.timer.unPause();
         _longPaddle.timer.unPause();
         _life.timer.unPause();

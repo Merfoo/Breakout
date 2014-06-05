@@ -46,6 +46,8 @@ function setGameSize()
     _ballAim.y *= _map.height / oldMap.height;
     
     // balls
+    _ballInit.releaseHeight = _paddle.y - _paddle.height - _ballInit.r;
+    
     for(var i = 0, len = _balls.length; i < len; i++)
     {
         _balls[i].x *= _map.width / oldMap.width;
@@ -161,7 +163,7 @@ function paintBalls()
     {
         var ball = _balls[i];
         _cvs.game.beginPath();
-        _cvs.game.fillStyle = _superBall.active ? getRandomColor(0, 255) : ball.color;
+        _cvs.game.fillStyle = _uberBall.active ? getRandomColor(0, 255) : ball.color;
         _cvs.game.arc(ball.x, ball.y, ball.r, 0, 2 * Math.PI);
         _cvs.game.fill();
     }

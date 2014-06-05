@@ -2,8 +2,9 @@ function updatePowerUps()
 {
     _dom.bonusLongPaddle.style.opacity = _powerUp.minOpac;
     _dom.bonusLazers.style.opacity = _powerUp.minOpac;
-    _dom.bonusMultiBall.style.opacity = _powerUp.minOpac;
-    _dom.bonusSuperBall.style.opacity = _powerUp.minOpac;
+    _dom.bonusDuoBall.style.opacity = _powerUp.minOpac;
+    _dom.bonusTriBall.style.opacity = _powerUp.minOpac;
+    _dom.bonusUberBall.style.opacity = _powerUp.minOpac;
     _dom.bonusLife.style.opacity = _powerUp.minOpac;
     var curTime = new Date().getTime();
     
@@ -20,16 +21,16 @@ function updatePowerUps()
                     _longPaddle.timer.start(); 
                     break;
                     
-                case _powerUp.superBall: 
-                    _superBall.timer.start(); 
+                case _powerUp.uberBall: 
+                    _uberBall.timer.start(); 
                     break;
                     
                 case _powerUp.lazers: 
                     _lazer.timer.start(); 
                     break;
                     
-                case _powerUp.multiBall: 
-                    for(var ballI = 0; ballI < _multiBall.count; ballI++)
+                case _powerUp.duoBall: 
+                    for(var ballI = 0, ballLen = _balls.length; ballI < ballLen; ballI++)
                     {
                         var newBall = new Ball(_ballInit);
                         var newVel = null;
@@ -42,14 +43,32 @@ function updatePowerUps()
                             case 3: newVel = getVel(getRandomNumber(271, 359), _ballInit.vMax); break;
                         }
 
-                        newBall.x = _balls[0].x;
-                        newBall.y = _balls[0].y;
+                        newBall.x = _balls[ballI].x;
+                        newBall.y = _balls[ballI].y;
                         newBall.vX = newVel.x;
                         newBall.vY = newVel.y;
                         newBall.released = true;
                         _balls.push(newBall);
                     }
-                    _multiBall.timer.start(); 
+                    _duoBall.timer.start(); 
+                    break;
+                
+                case _powerUp.triBall:
+                    var ang = -180 / (_triBall.count + 1);
+                    var angSum = 0;
+                    
+                    for(var ballI = 0; ballI < _triBall.count; ballI++)
+                    {
+                        var newBall = new Ball(_ballInit);
+                        var newVel = getVel(angSum += ang, _ballInit.vMax);
+                        newBall.x = _paddle.x + (_paddle.width / 2);
+                        newBall.y = _ballInit.releaseHeight;
+                        newBall.vX = newVel.x;
+                        newBall.vY = newVel.y;
+                        newBall.released = true;
+                        _balls.push(newBall);
+                    }
+                    _triBall.timer.start();
                     break;
                     
                 case _powerUp.life: 
@@ -102,14 +121,14 @@ function updatePowerUps()
     }
     
     // multiball
-    if(_multiBall.timer.isRunning())
+    if(_duoBall.timer.isRunning())
     {
-        _dom.bonusMultiBall.style.opacity = 1;
+        _dom.bonusDuoBall.style.opacity = 1;
         
-        if(_multiBall.timer.get() >= _multiBall.dur)
+        if(_duoBall.timer.get() >= _duoBall.dur)
         {
-            _dom.bonusMultiBall.style.opacity = _powerUp.minOpac;
-            _multiBall.timer.reset(true);
+            _dom.bonusDuoBall.style.opacity = _powerUp.minOpac;
+            _duoBall.timer.reset(true);
         }
     }
     
@@ -138,16 +157,28 @@ function updatePowerUps()
     updateLazers();
     
     // super ball
-    if(_superBall.timer.isRunning())
+    if(_uberBall.timer.isRunning())
     {
-        _dom.bonusSuperBall.style.opacity = 1;
-        _superBall.active = true;
+        _dom.bonusUberBall.style.opacity = 1;
+        _uberBall.active = true;
         
-        if(_superBall.timer.get() >= _superBall.dur)
+        if(_uberBall.timer.get() >= _uberBall.dur)
         {
-            _dom.bonusSuperBall.style.opacity = _powerUp.minOpac;
-            _superBall.active = false;
-            _superBall.timer.reset(true);
+            _dom.bonusUberBall.style.opacity = _powerUp.minOpac;
+            _uberBall.active = false;
+            _uberBall.timer.reset(true);
+        }
+    }
+    
+    // triBall
+    if(_triBall.timer.isRunning())
+    {
+        _dom.bonusTriBall.style.opacity = 1;
+        
+        if(_triBall.timer.get() >= _triBall.dur)
+        {
+            _dom.bonusTriBall.style.opacity = _powerUp.minOpac;
+            _triBall.timer.reset(true);
         }
     }
     
@@ -196,13 +227,14 @@ function getPowerUp(x, y)
 {
     var type = 0;
     
-    switch(Math.floor(Math.random() * 5))
+    switch(Math.floor(Math.random() * 6))
     {
-        case 0: type = _powerUp.multiBall; break;
-        case 1: type = _powerUp.superBall; break;
+        case 0: type = _powerUp.duoBall; break;
+        case 1: type = _powerUp.uberBall; break;
         case 2: type = _powerUp.lazers; break;
         case 3: type = _powerUp.longPaddle; break;
         case 4: type = _powerUp.life; break;
+        case 5: type = _powerUp.triBall; break;
     }
     
     return new PowerUp(type, x, y);
